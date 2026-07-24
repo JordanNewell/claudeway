@@ -1,0 +1,68 @@
+# Claudeway Development Environment
+#
+# DEPRECATED SERVICES:
+# All infrastructure services (PostgreSQL, Redis, NATS) are NOT required for
+# the current core runtime.
+#
+# The current architecture uses:
+# - asyncio queues for messaging (not NATS)
+# - In-memory state (not Redis)
+# - No persistence (not PostgreSQL)
+#
+# These services were part of the old Claude-Flow federation architecture.
+# They can be re-enabled later when platform features are restored.
+
+# services:
+#   # PostgreSQL Database - DEPRECATED
+#   # Needed for: Multi-tenancy, billing, templates (all deprecated)
+#   postgres:
+#     image: postgres:16-alpine
+#     container_name: claudeway-postgres
+#     environment:
+#       POSTGRES_USER: claudeway
+#       POSTGRES_PASSWORD: claudeway
+#       POSTGRES_DB: claudeway
+#     ports:
+#       - "5432:5432"
+#     volumes:
+#       - postgres_data:/var/lib/postgresql/data
+#     healthcheck:
+#       test: ["CMD-SHELL", "pg_isready -U claudeway"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+
+#   # Redis - DEPRECATED
+#   # Needed for: Rate limiting, sessions (middleware deprecated)
+#   redis:
+#     image: redis:7-alpine
+#     container_name: claudeway-redis
+#     ports:
+#       - "6379:6379"
+#     volumes:
+#       - redis_data:/data
+#     healthcheck:
+#       test: ["CMD", "redis-cli", "ping"]
+#       interval: 5s
+#       timeout: 5s
+#       retries: 5
+
+#   # NATS Message Bus - DEPRECATED
+#   # Needed for: Federated message passing (old architecture)
+#   # Current: Uses asyncio queues (in-process)
+#   nats:
+#     image: nats:2.10-alpine
+#     container_name: claudeway-nats
+#     ports:
+#       - "4222:4222"  # Client connections
+#       - "8222:8222"  # Monitoring
+#     command:
+#       - "-js"  # Enable JetStream
+#       - "-m"   # Enable monitoring
+#     volumes:
+#       - nats_data:/data
+
+# volumes:
+#   postgres_data:
+#   redis_data:
+#   nats_data:

@@ -1,0 +1,97 @@
+[project]
+name = "claudeway"
+version = "0.2.0"
+description = "Verifiable multi-agent consensus for Claude. The coordination layer frameworks punted on."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.11"
+authors = [{ name = "Jordan Newell" }]
+keywords = ["ai", "agents", "multi-agent", "consensus", "claude", "anthropic", "nostr", "orchestration"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Framework :: AsyncIO",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
+
+# Base install = the consensus SDK. Lean on purpose: pip install claudeway
+# and you can build signed multi-agent agreement with zero extras.
+dependencies = [
+    "anthropic>=0.40.0",
+    "cryptography>=42.0.0",
+    "httpx>=0.26.0",
+    "pydantic>=2.5.0",
+]
+
+[project.optional-dependencies]
+# Run Claudeway as a service: FastAPI control plane + dashboard backend.
+runner = [
+    "fastapi>=0.109.0",
+    "uvicorn[standard]>=0.27.0",
+    "pydantic-settings>=2.1.0",
+    "python-multipart>=0.0.6",
+]
+# Persist swarms/runs/receipts to SQLite (single-tenant runner).
+persist = [
+    "sqlalchemy>=2.0.25",
+    "aiosqlite>=0.20.0",
+]
+# Emit consensus receipts as signed Nostr events (Buzz interop).
+# Requires a BIP-340 Schnorr lib; coincurve is Windows-friendly.
+nostr = [
+    "pynostr>=0.4.0",
+]
+# MCP server mode: expose consensus as an MCP tool to Claude Code / Goose / Buzz.
+mcp = [
+    "mcp>=1.0.0",
+]
+dev = [
+    "pytest>=8.0.0",
+    "pytest-asyncio>=0.23.3",
+    "pytest-cov>=4.1.0",
+    "ruff>=0.6.0",
+    "mypy>=1.8.0",
+    "build>=1.2.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/JordanNewell/claudeway"
+Repository = "https://github.com/JordanNewell/claudeway"
+Documentation = "https://github.com/JordanNewell/claudeway#readme"
+Issues = "https://github.com/JordanNewell/claudeway/issues"
+
+[project.scripts]
+# Run after: pip install claudeway[mcp]
+claudeway-mcp = "claudeway.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+# The SDK ships as the `claudeway` package. `api/` (the runner) and `examples/`
+# stay in the repo but aren't installed by the SDK wheel.
+packages = ["claudeway"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "UP"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+filterwarnings = [
+    "ignore::DeprecationWarning",
+]
