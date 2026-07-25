@@ -162,49 +162,31 @@ def _load_nostr_crypto():
     """
     Resolve a BIP-340 Schnorr signer.
 
-    Tries coincurve (preferred, Windows-friendly via pynostr) then secp256k1.
-    Raises a clear ImportError with install instructions if neither is present.
+    coincurve ships prebuilt wheels for CPython 3.11-3.13 on Windows + Linux
+    + macOS, so it's the only backend we support. Install with
+    `pip install claudeway[nostr]`.
     """
     try:
         import coincurve  # type: ignore
-        return ("coincurve", coincurve)
-    except ImportError:
-        pass
-    try:
-        import secp256k1  # type: ignore
-        return ("secp256k1", secp256k1)
-    except ImportError:
+        return coincurve
+    except ImportError as exc:
         raise ImportError(
-            "Nostr transport requires a BIP-340 Schnorr library. "
-            "Install with: pip install claudeway[nostr] "
-            "(provides coincurve/secp256k1)"
-        )
+            "Nostr transport requires coincurve (BIP-340 Schnorr). "
+            "Install with: pip install claudeway[nostr]"
+        ) from exc
 
 
 def _nostr_pubkey(private_key_hex: str) -> str:
     """Derive the 32-byte hex Nostr pubkey (x-only) from a private key."""
-    backend, lib = _load_nostr_crypto()
-    if backend == "coincurve":
-        priv = lib.PrivateKey(bytes.fromhex(private_key_hex))
-        return priv.public_key.format(compressed=True)[1:33].hex()
-    # secp256k1 lib
-    pk = lib.PrivateKey(bytes.fromhex(private_key_hex))
-    return pk.pubkey.format(compressed=True)[1:33].hex()
+    coincurve = _load_nostr_crypto()
+    priv = coincurve.PrivateKey(bytes.fromhex(private_key_hex))
+    return priv.public_key.format(compressed=True)[1:33].hex()
 
 
 def _nostr_sign(event_id_hex: str, private_key_hex: str) -> str:
     """Produce a BIP-340 Schnorr signature over the 32-byte event id."""
-    backend, lib = _load_nostr_crypto()
+    coincurve = _load_nostr_crypto()
     msg = bytes.fromhex(event_id_hex)
-    if backend == "coincurve":
-        priv = lib.PrivateKey(bytes.fromhex(private_key_hex))
-        # coincurve exposes schnorr_sign at module level.
-        sig = lib.schnorr_sign(priv.private_key, msg) if hasattr(lib, "schnorr_sign") else None
-        if sig is None:
-            # Fallback: PrivateKey has no schnorr; use the utils helper.
-            import coincurve.utils as cu  # type: ignore
-            sig = cu.schnorr_sign(bytes.fromhex(private_key_hex), msg)
-        return sig.hex()
-    # secp256k1 lib: default aux randomness is fine for receipts.
-    pk = lib.PrivateKey(bytes.fromhex(private_key_hex))
-    return pk.schnorr_sign(msg, None, raw=True).hex()
+    priv = coincurve.PrivateKey(bytes.fromhex(private_key_hex))
+    # aux_random_bytes = zeros gives deterministic sigs (BIP-340 spec).
+    return priv.sign_schnorr(msg, bytes(32)).hex()

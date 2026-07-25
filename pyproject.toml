@@ -42,9 +42,9 @@ persist = [
     "aiosqlite>=0.20.0",
 ]
 # Emit consensus receipts as signed Nostr events (Buzz interop).
-# Requires a BIP-340 Schnorr lib; coincurve is Windows-friendly.
+# coincurve ships prebuilt wheels for CPython 3.11-3.13 on Win/Linux/macOS.
 nostr = [
-    "pynostr>=0.4.0",
+    "coincurve>=20.0.0",
 ]
 # MCP server mode: expose consensus as an MCP tool to Claude Code / Goose / Buzz.
 mcp = [

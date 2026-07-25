@@ -163,16 +163,11 @@ def test_nostr_event_kind_is_nip78_addressable():
 
 
 def test_nostr_transport_requires_optional_lib(signed_receipt):
-    """Without coincurve/secp256k1 installed, Nostr must give a clear error."""
+    """Without coincurve installed, Nostr must give a clear error."""
     receipt, _ = signed_receipt
     try:
         import coincurve  # noqa: F401
         pytest.skip("coincurve installed — native path not exercised here")
-    except ImportError:
-        pass
-    try:
-        import secp256k1  # noqa: F401
-        pytest.skip("secp256k1 installed — native path not exercised here")
     except ImportError:
         pass
 

@@ -68,3 +68,6 @@ htmlcov/
 
 # Docker
 .dockerignore
+
+# Session handoff (NOT for public repo - contains flip strategy)
+HANDOFF.md
