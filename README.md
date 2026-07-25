@@ -74,6 +74,21 @@ Ed25519Backend().verify_receipt(receipt)  # -> True
 
 This is the layer that makes consensus worth *acquiring* rather than reimplementing in a weekend.
 
+## Buzz adapter — consensus that lands in a Buzz room
+
+The Nostr transport is exercised end-to-end against a reference relay:
+
+```python
+from claudeway.transports import to_nostr_event
+
+event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
+# event.kind == 30078 (NIP-78 addressable)
+# event.sig is BIP-340 Schnorr over the sha256 of the NIP-01 serialization
+# event.content carries the signed JSON receipt — any Nostr client decodes it
+```
+
+The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 46-test suite, `nak verify`, end-to-end demo) and [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the showcase.
+
 ## Install
 
 ```bash
@@ -121,8 +136,9 @@ result = await coord.coordinate(task)
 ## Examples
 
 - [`examples/quickstart.py`](examples/quickstart.py) — 15 lines, 3 agents → signed receipt
-- [`examples/consensus_demo.py`](examples/consensus_demo.py) — **the killer demo**: disagreement surfaced, then resolved via Debate
+- [`examples/consensus_demo.py`](examples/consensus_demo.py) — disagreement surfaced, then resolved via Debate
 - [`examples/coordinator_demo.py`](examples/coordinator_demo.py) — real decomposition + parallel specialists
+- [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) — **Buzz adapter**: 3 agents → signed consensus → live Nostr relay → read back + verified
 
 ## Features
 
@@ -162,12 +178,19 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 
 ## Roadmap
 
-**Now (v0.2):** SDK, MCP server, signed consensus, transports. ✅
+**Shipped (v0.2.x):**
+- SDK (Swarm, Coordinator, Agent) with real concurrent execution
+- WeightedVote + Debate consensus strategies with cost-guarded early-exit
+- Ed25519 signed receipts (swappable signature backend)
+- Three transports: JSON receipt, W3C Verifiable Credential, Nostr NIP-78 event
+- MCP server (`claudeway-mcp`) exposing `reach_consensus` + `verify_consensus`
+- **Buzz adapter** — verifiable end-to-end against `nak serve`
 
 **Next:**
-- Buzz adapter — consensus → signed Nostr event → Buzz room (the Block/flip play)
-- Single-tenant runner — FastAPI + SQLite + dashboard, `docker compose up`
+- LangGraph integration — Claudeway as a checkpoint attestation layer for LangGraph state
+- A2A (Agent-to-Agent) protocol adapter — verifiable consensus for Google's agent protocol
 - Benchmarks vs CrewAI / LangGraph (token cost + answer quality)
+- Single-tenant runner — FastAPI + SQLite + dashboard, `docker compose up`
 
 **Deliberately deferred (the "Curtis lesson" — don't build before there's demand):**
 - Multi-tenancy, billing, Stripe, template marketplace. Re-activated only when paying demand appears. See [`docs/DEPRECATION.md`](docs/DEPRECATION.md).
@@ -175,8 +198,8 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 ## Development
 
 ```bash
-pip install -e ".[mcp,dev]"
-pytest tests/ -v          # 35 tests
+pip install -e ".[mcp,nostr,dev]"
+pytest tests/ -v          # 46 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
 ruff check claudeway/ tests/ examples/
 ```
 
