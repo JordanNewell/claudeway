@@ -75,6 +75,13 @@ jobs:
       - name: Install twine
         run: pip install --upgrade "twine>=6.0"
 
+      - name: Debug secret length
+        env:
+          PYPI_TOKEN: ${{ secrets.PYPI_API_TOKEN }}
+        run: |
+          echo "token length: ${#PYPI_TOKEN}"
+          echo "first 8 chars: ${PYPI_TOKEN:0:8}"
+
       - name: Publish
         env:
           TWINE_USERNAME: __token__
