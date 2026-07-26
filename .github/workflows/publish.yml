@@ -61,7 +61,6 @@ jobs:
     name: Publish to PyPI
     needs: build
     runs-on: ubuntu-latest
-    environment: pypi
     steps:
       - uses: actions/setup-python@v5
         with:
@@ -80,4 +79,4 @@ jobs:
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload --verbose dist/*
+        run: twine upload dist/*
