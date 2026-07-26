@@ -71,3 +71,9 @@ htmlcov/
 
 # Session handoff (NOT for public repo - contains flip strategy)
 HANDOFF.md
+
+# Benchmark competitive research (NOT for public repo)
+BENCHMARK-RESEARCH.md
+
+# Benchmark raw output (regenerable, large, noisy)
+benchmarks/raw/

@@ -46,6 +46,18 @@ persist = [
 nostr = [
     "coincurve>=20.0.0",
 ]
+# Drop Claudeway consensus into a LangGraph StateGraph as a single node.
+# LangGraph makes you wire coordination by hand; this adapter is the seam.
+langgraph = [
+    "langgraph>=0.2.0",
+    "langchain-core>=0.3.0",
+]
+# Run the killer benchmark (examples/killer_demo.py): Claudeway vs CrewAI
+# vs single Claude. Heavy dep — install only if you want to reproduce.
+benchmark = [
+    "crewai>=1.0.0",
+    "litellm>=1.18.0",
+]
 # MCP server mode: expose consensus as an MCP tool to Claude Code / Goose / Buzz.
 mcp = [
     "mcp>=1.0.0",
