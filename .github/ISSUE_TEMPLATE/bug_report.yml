@@ -35,7 +35,7 @@ body:
     id: version
     attributes:
       label: Claudeway version
-      placeholder: "0.3.1 (or commit SHA if installed editable)"
+      placeholder: "0.3.2 (or commit SHA if installed editable)"
     validations:
       required: true
 

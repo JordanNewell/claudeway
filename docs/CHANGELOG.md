@@ -13,6 +13,19 @@ Dates are ISO 8601 (UTC).
 
 _No changes yet._
 
+## [0.3.2] — 2026-07-26
+
+Maintenance release — CI/docs only, no package behavior change.
+
+### Changed
+- **Publish workflow uses OIDC trusted publishing (no API tokens).** PyPI
+  trusted-publisher configuration corrected; the GitHub Actions workflow
+  now mints a short-lived OIDC token at publish time. Removes the need
+  for any long-lived `PYPI_API_TOKEN` secret on the repo.
+- **README ships with a canonical Open Graph image and banner.** Social
+  previews (Twitter/X, LinkedIn, Slack, Discord) now render the Claudeway
+  card instead of a blank tile.
+
 ## [0.3.1] — 2026-07-26
 
 Hotfix release. Unblocks `pip install claudeway[benchmark]` on Windows.
@@ -134,7 +147,8 @@ questions.
   are deferred — see
   [`docs/DEPRECATION.md`](https://github.com/JordanNewell/claudeway/blob/main/docs/DEPRECATION.md).
 
-[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.3.1...HEAD
+[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.3.2...HEAD
+[0.3.2]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.2
 [0.3.1]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.1
 [0.3.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.0
 [0.2.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.2.0

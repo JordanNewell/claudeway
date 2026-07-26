@@ -1,6 +1,6 @@
 [project]
 name = "claudeway"
-version = "0.3.1"
+version = "0.3.2"
 description = "Verifiable multi-agent consensus for Claude. The coordination layer frameworks punted on."
 readme = "README.md"
 license = { text = "MIT" }
