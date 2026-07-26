@@ -546,7 +546,7 @@ def test_nostr_event_tamper_detected_without_nak(
     event.content = event.content.replace("use sqlite", "tampered")
     # Recompute what the id SHOULD be now:
     new_canonical = _nostr_serialization_for_id(
-        event.pubkey, event.created_at, event.tags, event.content
+        event.pubkey, event.created_at, event.kind, event.tags, event.content
     )
     new_id = hashlib.sha256(new_canonical.encode("utf-8")).hexdigest()
     # The stored id is the old one; the recomputed one is different. A

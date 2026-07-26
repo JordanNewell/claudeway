@@ -116,6 +116,7 @@ nav:
   - Transports: transports.md
   - Adapters: adapters.md
   - Benchmarks: benchmarks.md
+  - Threat model: THREAT-MODEL.md
   - Changelog: CHANGELOG.md
   - API Reference:
     - claudeway: api-reference.md
