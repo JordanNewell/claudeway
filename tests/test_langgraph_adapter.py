@@ -1,12 +1,22 @@
 """
-LangGraph adapter tests — offline, no Anthropic API key.
+LangGraph adapter tests.
 
-Stubs Swarm.process so the adapter is exercised end-to-end through real
-LangGraph machinery (StateGraph, compile, ainvoke) without touching Claude.
+Two layers:
+
+  - Unit tests (default): stub Swarm.process so the adapter is exercised
+    end-to-end through real LangGraph machinery (StateGraph, compile,
+    ainvoke) without touching Claude. Fast, hermetic.
+
+  - One integration test: real Swarm + real Claude, gated on
+    ANTHROPIC_API_KEY. Skips in CI (no key). Catches drift between the
+    adapter and Swarm.process's actual output shape — the one thing the
+    stubbed tests can't.
 
 langgraph is required; `pip install langgraph`. Skips cleanly when absent,
 matching tests/test_nostr.py's coincurve precedent.
 """
+
+import os
 
 import pytest
 
@@ -14,12 +24,13 @@ pytest.importorskip("langgraph", reason="pip install langgraph")
 
 from langchain_core.messages import HumanMessage  # noqa: E402
 
+from claudeway import AgentConfig, Swarm, SwarmConfig  # noqa: E402
 from claudeway.adapters.langgraph import (  # noqa: E402
     build_consensus_graph,
     make_consensus_node,
 )
 from claudeway.signing import ConsensusReceipt, Ed25519Backend  # noqa: E402
-from claudeway.swarm import SwarmConfig, Task  # noqa: E402
+from claudeway.swarm import Task  # noqa: E402
 
 # --- Fixtures ----------------------------------------------------------------
 
@@ -236,3 +247,58 @@ async def test_node_drops_into_user_graph():
     assert result["research"] == "looked into: tabs or spaces?"
     assert result["final_answer"] == "use sqlite"
     assert result["agreement"] == 0.9
+
+
+# --- Integration test (real Claude, opt-in) ----------------------------------
+#
+# Gated on CLAUDEWAY_RUN_LIVE=1 (NOT just ANTHROPIC_API_KEY) so a plain
+# `pytest` run never spends budget — you must explicitly opt in. When run,
+# it uses the cheapest possible config: one Haiku agent, 64 max_tokens.
+# That's ~one API call, a few hundred tokens total.
+#
+# Catches the one thing the stubbed tests can't: drift between the adapter
+# and Swarm.process's actual output shape against real Claude output.
+
+RUN_LIVE = os.environ.get("CLAUDEWAY_RUN_LIVE") == "1"
+
+
+@pytest.mark.asyncio
+@pytest.mark.skipif(
+    not RUN_LIVE,
+    reason="set CLAUDEWAY_RUN_LIVE=1 to run the real-Claude integration test",
+)
+async def test_live_swarm_round_trip_through_langgraph():
+    """Real Swarm + real Claude through the prebuilt subgraph."""
+    swarm = Swarm(
+        SwarmConfig(
+            name="LiveAdapterTest",
+            description="one-agent live adapter test",
+            agents=[
+                AgentConfig(
+                    "Pragmatist", "Staff Engineer",
+                    "Answer in one short sentence.",
+                    model="claude-3-5-haiku-20241022",
+                    max_tokens=64,
+                ),
+            ],
+        ),
+        api_key=os.getenv("ANTHROPIC_API_KEY"),
+    )
+
+    graph = build_consensus_graph(swarm, sign=True, task_id="live-1")
+    result = await graph.ainvoke({"question": "What's one good side-project database?"})
+
+    # We don't assert on the answer text — that's Claude's call. We assert the
+    # shape contract Swarm.process promises, end-to-end through LangGraph.
+    assert isinstance(result["final_answer"], str)
+    assert result["final_answer"].strip()
+    assert 0.0 <= result["agreement"] <= 1.0
+    assert isinstance(result["disagreed"], bool)
+    assert isinstance(result["responses"], list)
+    assert len(result["responses"]) == 1
+
+    # The signed receipt must verify — proves the live path produces a real
+    # attestation, not just text.
+    receipt = ConsensusReceipt(**result["receipt"])
+    assert receipt.is_signed
+    assert Ed25519Backend().verify_receipt(receipt) is True
