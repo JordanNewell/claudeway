@@ -1,0 +1,76 @@
+name: Publish
+
+# Fires on v* tags (the convention from harbormasterd). Also exposes a
+# manual workflow_dispatch trigger so we can re-publish an existing tag
+# if needed (e.g., first time after setting up the secret).
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to publish (e.g. v0.3.0)'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build wheel + sdist
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (tag from input, or the pushed tag)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install build tooling
+        run: pip install --upgrade pip build twine
+
+      - name: Build wheel + sdist
+        run: python -m build
+
+      - name: Verify wheel contents
+        run: |
+          python -c "
+          import zipfile, glob
+          w = sorted(glob.glob('dist/*.whl'))[-1]
+          names = zipfile.ZipFile(w).namelist()
+          assert 'claudeway/__init__.py' in names, 'missing claudeway package'
+          assert 'claudeway/server.py' in names, 'missing MCP server'
+          print('wheel OK:', w)
+          "
+
+      - name: Check metadata
+        run: twine check dist/*
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  publish:
+    name: Publish to PyPI
+    needs: build
+    runs-on: ubuntu-latest
+    environment: pypi
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+      - name: Publish
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+        run: twine upload dist/*
