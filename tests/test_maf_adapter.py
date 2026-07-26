@@ -63,9 +63,33 @@ class _StubSwarm:
     def __init__(self, name: str = "TestSwarm"):
         self.config = SwarmConfig(name=name, description="", agents=[])
         self.last_task: Task | None = None
+        # Mirror real Swarm: on_event is set by the adapter when streaming.
+        self.on_event = None
 
     async def process(self, task: Task) -> Task:
         self.last_task = task
+        # When an observer is wired (streaming mode), fire per-agent events
+        # then the consensus-resolved event — mirroring real Swarm.process.
+        if self.on_event is not None:
+            from claudeway.events import AgentCompleted, ConsensusResolved
+            for r in CANNED_RESULT["responses"]:
+                await self.on_event(AgentCompleted(
+                    swarm_id=getattr(self.config, "name", ""),
+                    task_id=task.id,
+                    agent=r["agent"],
+                    answer=r["answer"],
+                    confidence=r["confidence"],
+                    round=1,
+                ))
+            await self.on_event(ConsensusResolved(
+                swarm_id=getattr(self.config, "name", ""),
+                task_id=task.id,
+                final_answer=CANNED_RESULT["final_answer"],
+                method=CANNED_RESULT["method"],
+                agreement=CANNED_RESULT["agreement"],
+                rounds=CANNED_RESULT["rounds"],
+                disagreed=CANNED_RESULT["disagreed"],
+            ))
         task.result = CANNED_RESULT
         task.status = "completed"
         return task
@@ -373,3 +397,70 @@ def _first_output(run_result):
     outputs = run_result.get_outputs()
     assert outputs, "workflow produced no output"
     return outputs[0]
+
+
+# --- Streaming (intermediate_output_from) -----------------------------------
+#
+# When stream=True, the executor yields per-agent answers as intermediate
+# outputs (type="intermediate") as they land, then the final consensus as
+# the terminal output. Consumers read these via workflow.run(stream=True).
+
+
+@pytest.mark.asyncio
+async def test_streaming_emits_intermediate_events_per_agent():
+    """stream=True: N per-agent events land, then the consensus, all as intermediate.
+
+    MAF forbids an executor being both output and intermediate, so when
+    streaming the executor is intermediate-only: per-agent AgentCompleted
+    events fire as they land (forwarded from Swarm.on_event), the
+    ConsensusResolved event fires once, then the terminal payload (carrying
+    the receipt when sign=True) is the final intermediate. Consumers read
+    via the event stream; the final consensus is identifiable by 'final_answer'
+    in the payload, or by kind="consensus_resolved" on the event.
+    """
+    swarm = _StubSwarm()
+    workflow = build_consensus_workflow(swarm, stream=True)
+
+    intermediate = []
+    outputs = []
+    async for event in workflow.run("which db?", stream=True):
+        if event.type == "intermediate":
+            intermediate.append(event.data)
+        elif event.type == "output":
+            outputs.append(event.data)
+
+    # 3 per-agent AgentCompleted + 1 ConsensusResolved = 4 intermediates.
+    # (No terminal payload yield when streaming — ConsensusResolved carries
+    # all consensus fields. The receipt is a separate event when sign=True.)
+    agent_events = [e for e in intermediate if e.get("kind") == "agent_completed"]
+    resolved_events = [e for e in intermediate if e.get("kind") == "consensus_resolved"]
+
+    assert len(agent_events) == 3, f"expected 3 per-agent events, got {len(agent_events)}"
+    agents = sorted(e["agent"] for e in agent_events)
+    assert agents == ["Dba", "Indie", "Security"]
+    assert all("answer" in e and "confidence" in e for e in agent_events)
+
+    # ConsensusResolved fires once with all consensus fields.
+    assert len(resolved_events) == 1
+    assert resolved_events[0]["final_answer"] == "use sqlite"
+    # No terminal 'output' events — streaming is intermediate-only by design.
+    assert outputs == []
+
+
+@pytest.mark.asyncio
+async def test_streaming_off_by_default_emits_no_intermediates():
+    """stream=False (default): no intermediate events, only the terminal output."""
+    swarm = _StubSwarm()
+    workflow = build_consensus_workflow(swarm)  # stream defaults to False
+
+    intermediate_count = 0
+    output_count = 0
+    async for event in workflow.run("which db?", stream=True):
+        if event.type == "intermediate":
+            intermediate_count += 1
+        elif event.type == "output":
+            output_count += 1
+
+    # No executor is in intermediate_output_from, so no intermediate yields.
+    assert intermediate_count == 0
+    assert output_count == 1

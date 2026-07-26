@@ -84,6 +84,7 @@ def make_consensus_node(
     sign: bool = False,
     signing_key: str | None = None,
     task_id: str | None = None,
+    stream: bool = False,
 ) -> Callable[[dict[str, Any]], Awaitable[dict[str, Any]]]:
     """
     Return an async LangGraph node that runs the swarm and emits a partial
@@ -104,6 +105,11 @@ def make_consensus_node(
         from the same source. Per-invoke key generation would unlink them.
     task_id: stable id for the receipt. If None, a uuid4 is generated per
         invoke (each invoke is a distinct consensus event).
+    stream: if True, forward each per-agent AgentCompleted event (and the
+        final ConsensusResolved) to LangGraph's custom stream channel via
+        get_stream_writer(), so consumers of graph.astream(...,
+        stream_mode="custom") see agents answer in real time. Off = the
+        node is a black box until it returns its state update.
     """
     from ..signing import ConsensusReceipt, Ed25519Backend
     from ..swarm import Task  # lazy to keep top-level import cheap
@@ -116,13 +122,33 @@ def make_consensus_node(
     # Cache the backend instance too — key gen is cheap but no point
     # reconstructing per invoke.
     signing_backend = Ed25519Backend() if sign else None
+    # getattr, not attribute access: duck-typed swarm stubs (in tests) that
+    # bypass Swarm.__init__ don't set on_event. None is the correct fallback.
+    prior_on_event = getattr(swarm, "on_event", None)
 
     async def consensus_node(state: dict[str, Any]) -> dict[str, Any]:
         prompt = _resolve_prompt(state, input_key)
         # task_id: per-invoke uuid when None (each invoke is its own event).
         this_task_id = task_id or str(uuid.uuid4())
-        task = Task(id=this_task_id, description=prompt, input_data={})
-        completed = await swarm.process(task)
+
+        if stream:
+            # LangGraph's stream writer is sync — callable from async. Imported
+            # lazily so the adapter stays dependency-free when stream=False.
+            # Captured per-invoke so each node call writes to the right stream.
+            from langgraph.config import get_stream_writer
+            writer = get_stream_writer()
+
+            async def _forward_event(event):
+                # get_stream_writer() returns a sync callable; event.model_dump
+                # gives a JSON-safe dict the consumer can introspect by kind.
+                writer(event.model_dump())
+            swarm.on_event = _forward_event
+        try:
+            task = Task(id=this_task_id, description=prompt, input_data={})
+            completed = await swarm.process(task)
+        finally:
+            if stream:
+                swarm.on_event = prior_on_event
         result = completed.result
 
         update: dict[str, Any] = {
@@ -161,12 +187,16 @@ def build_consensus_graph(
     sign: bool = False,
     signing_key: str | None = None,
     task_id: str | None = None,
+    stream: bool = False,
 ):
     """
     Build and compile a standalone consensus subgraph (one node, one edge).
 
     Returns a CompiledStateGraph. Invoke with `await graph.ainvoke({"question": ...})`,
     or embed via `parent.add_node("consensus", build_consensus_graph(swarm))`.
+
+    stream: pass True to forward per-agent events to LangGraph's custom stream
+        channel (consumable via graph.astream(..., stream_mode="custom")).
 
     Compilation happens once here, not per invoke.
     """
@@ -179,6 +209,7 @@ def build_consensus_graph(
         sign=sign,
         signing_key=signing_key,
         task_id=task_id,
+        stream=stream,
     )
 
     builder = StateGraph(schema)

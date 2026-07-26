@@ -110,12 +110,41 @@ async def flow2_embedded() -> None:
     print(f"agreement: {payload['agreement']:.0%}   disagreed: {payload['disagreed']}")
 
 
+async def flow3_streaming() -> None:
+    """The awe demo: watch agents answer in parallel as they land.
+
+    stream=True turns the consensus executor into an event source. Each
+    agent's answer + confidence streams as an intermediate event the moment
+    that agent finishes — observable via workflow.run(prompt, stream=True).
+    Then the signed consensus arrives. This is what 'observable consensus'
+    looks like in practice.
+    """
+    print(f"\n{'=' * 70}\nFlow 3 - streaming consensus (watch agents answer live)\n{'=' * 70}")
+    workflow = build_consensus_workflow(build_swarm(), stream=True, sign=True, task_id="flow-3")
+
+    async for event in workflow.run(QUESTION, stream=True):
+        if event.type != "intermediate":
+            continue
+        data = event.data
+        kind = data.get("kind")
+        if kind == "agent_completed":
+            print(f"  [{data['agent']}] (conf {data['confidence']:.2f}, round {data['round']}): "
+                  f"{data['answer'][:70]}...")
+        elif kind == "consensus_resolved":
+            print(f"\n  CONSENSUS: {data['final_answer'][:80]}...")
+            print(f"  agreement: {data['agreement']:.0%}  disagreed: {data['disagreed']}  "
+                  f"rounds: {data['rounds']}")
+        elif kind == "consensus_receipt":
+            print(f"  SIGNED: algorithm={data['algorithm']} sig={data['signature'][:24]}...")
+
+
 async def main() -> None:
     if not os.getenv("ANTHROPIC_API_KEY"):
         print("Set ANTHROPIC_API_KEY to run this demo.")
         return
     await flow1_prebuilt()
     await flow2_embedded()
+    await flow3_streaming()
 
 
 if __name__ == "__main__":

@@ -48,6 +48,7 @@ def make_consensus_executor(
     sign: bool = False,
     signing_key: str | None = None,
     task_id: str | None = None,
+    stream: bool = False,
 ):
     """
     Return a MAF Executor subclass that runs the swarm and yields the
@@ -66,6 +67,11 @@ def make_consensus_executor(
         unlink them (an M&A reviewer would flag that).
     task_id: stable id for the receipt. If None, a uuid4 is generated per
         invoke (each invoke is a distinct consensus event).
+    stream: if True, each per-agent answer (AgentCompleted event) is yielded
+        as an intermediate workflow output as it lands, before the final
+        consensus. Pair with build_consensus_workflow(stream=True) so those
+        intermediate yields are labeled type="intermediate" (the canonical
+        MAF streaming pattern). Off = byte-identical to today.
     """
     from agent_framework import Executor, WorkflowContext, handler
 
@@ -78,6 +84,9 @@ def make_consensus_executor(
         signing_key = Ed25519Backend().generate_keypair()[0]
     signing_backend = Ed25519Backend() if sign else None
     captured_signing_key = signing_key
+    # getattr, not attribute access: duck-typed swarm stubs (in tests) that
+    # bypass Swarm.__init__ don't set on_event. None is the correct fallback.
+    prior_on_event = getattr(swarm, "on_event", None)
 
     class ConsensusExecutor(Executor):
         """One handler: str in -> consensus payload yielded out.
@@ -100,8 +109,20 @@ def make_consensus_executor(
             this_task_id = task_id or str(uuid.uuid4())
             from ..swarm import Task  # lazy to keep top-level import cheap
 
-            task = Task(id=this_task_id, description=prompt, input_data={})
-            completed = await swarm.process(task)
+            if stream:
+                # Forward per-agent events as intermediate workflow outputs.
+                # The callback captures THIS invoke's ctx, so each yield lands
+                # in the right run. Swarm.process already swallows observer
+                # errors, so a MAF yield failure can't change the consensus.
+                async def _forward_event(event):
+                    await ctx.yield_output(event.model_dump())
+                swarm.on_event = _forward_event
+            try:
+                task = Task(id=this_task_id, description=prompt, input_data={})
+                completed = await swarm.process(task)
+            finally:
+                if stream:
+                    swarm.on_event = prior_on_event
             result = completed.result
 
             payload: dict[str, Any] = {
@@ -125,7 +146,18 @@ def make_consensus_executor(
                 signing_backend.sign_receipt(receipt, captured_signing_key)
                 payload["receipt"] = receipt.to_dict()
 
-            await ctx.yield_output(payload)
+            if stream:
+                # ConsensusResolved (forwarded from on_event) is already the
+                # terminal intermediate carrying consensus fields. When signing,
+                # yield the receipt as one final intermediate so stream consumers
+                # get the signed attestation. (kind="consensus_receipt" lets
+                # consumers pick it out from the per-agent events.)
+                if sign and signing_backend is not None:
+                    await ctx.yield_output({"kind": "consensus_receipt", **payload["receipt"]})
+            else:
+                # Non-streaming: the payload is the sole terminal output
+                # (the only thing get_outputs() returns).
+                await ctx.yield_output(payload)
 
     return ConsensusExecutor
 
@@ -139,6 +171,7 @@ def build_consensus_workflow(
     sign: bool = False,
     signing_key: str | None = None,
     task_id: str | None = None,
+    stream: bool = False,
 ):
     """
     Build a standalone one-node MAF workflow: str in -> consensus payload out.
@@ -146,6 +179,12 @@ def build_consensus_workflow(
     Returns a built Workflow. Invoke with `await workflow.run(prompt)` and
     read `result.get_outputs()`, or embed via
     `builder.add_edge(upstream, consensus_executor)`.
+
+    stream: when True, per-agent answers land as `type="intermediate"` events
+        (consumable via `workflow.run(prompt, stream=True)`) before the final
+        `type="output"` consensus. Uses MAF's `intermediate_output_from` so
+        the same yield_output call gets the right label per build-time
+        classification — the canonical MAF streaming pattern.
 
     Construction happens once here, not per invoke.
     """
@@ -156,9 +195,23 @@ def build_consensus_workflow(
         sign=sign,
         signing_key=signing_key,
         task_id=task_id,
+        stream=stream,
     )
     executor = executor_cls(id="claudeway_consensus")
-    builder = WorkflowBuilder(start_executor=executor, output_from=[executor])
+    # MAF forbids an executor being in BOTH output_from and
+    # intermediate_output_from (validated at build). So streaming is a
+    # distinct consumption mode: the executor yields EVERYTHING as
+    # intermediate (per-agent AgentCompleted events + the final
+    # ConsensusResolved), and consumers read via the event stream — the
+    # final consensus is the event whose payload has kind="consensus_resolved".
+    # Non-streaming workflows keep get_outputs() working exactly as before.
+    if stream:
+        builder = WorkflowBuilder(
+            start_executor=executor,
+            intermediate_output_from=[executor],
+        )
+    else:
+        builder = WorkflowBuilder(start_executor=executor, output_from=[executor])
     return builder.build()
 
 
@@ -172,6 +225,7 @@ def consensus_as_agent(
     sign: bool = False,
     signing_key: str | None = None,
     task_id: str | None = None,
+    stream: bool = False,
 ):
     """
     Return a MAF Agent wrapping the consensus workflow.
@@ -197,6 +251,7 @@ def consensus_as_agent(
         sign=sign,
         signing_key=signing_key,
         task_id=task_id,
+        stream=stream,
     )(id="claudeway_consensus")
 
     class IngestExecutor(Executor):
@@ -213,7 +268,11 @@ def consensus_as_agent(
             await ctx.send_message(prompt)
 
     ingest = IngestExecutor(id="claudeway_ingest")
-    builder = WorkflowBuilder(start_executor=ingest, output_from=[consensus])
+    builder = WorkflowBuilder(
+        start_executor=ingest,
+        output_from=[consensus],
+        intermediate_output_from=[consensus] if stream else None,
+    )
     builder.add_edge(ingest, consensus)
     workflow = builder.build()
     return workflow.as_agent(name=name or getattr(swarm.config, "name", "Consensus"))

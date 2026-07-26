@@ -12,7 +12,7 @@ from claudeway.consensus import (
     WeightedVote,
     parse_structured_output,
 )
-from claudeway.swarm import AgentResponse, Swarm
+from claudeway.swarm import AgentResponse, Swarm, SwarmConfig, Task
 
 
 class StubSwarm(Swarm):
@@ -20,6 +20,7 @@ class StubSwarm(Swarm):
 
     def __init__(self, revision_responses=None):  # noqa: D401
         self._revision_responses = revision_responses or []
+        self.on_event = None  # set explicitly; __init__ is bypassed
 
     async def _collect_revision_round(self, prior):  # type: ignore[override]
         if not self._revision_responses:
@@ -190,3 +191,175 @@ def test_agreement_different_answers_low_score():
         AgentResponse(agent_name="B", answer="y", confidence=0.5),
     ]
     assert WeightedVote._agreement_score(rs) < 0.6
+
+
+# --- failed-agent path (gather with return_exceptions=True) ------------------
+#
+# The real `_collect_agent_responses` uses asyncio.gather(return_exceptions=True)
+# so a single agent raising doesn't abort the round. This is the load-bearing
+# failure path — no test in the suite exercised it before. Locked here as a
+# prerequisite before adding streaming hooks that touch the same code.
+
+
+class _GatherSwarm(Swarm):
+    """Swarm whose `_query_agent` is faked so we can inject failures.
+
+    Builds real Swarm machinery (so self.agents is populated) but skips the
+    Agent client init by overriding _initialize_agents to install sentinel
+    agents. _query_agent returns canned responses or raises per a map.
+    """
+
+    def __init__(self, agent_names, fail=None):
+        # Bypass Swarm.__init__ (which would try to build real Agent clients
+        # from AgentConfigs + api_key). We only need self.agents + self.config
+        # for the gather path.
+        self.config = SwarmConfig(name="T", description="", agents=[])
+        self.api_key = None
+        self.agents = {name: object() for name in agent_names}
+        self.consensus = WeightedVote()
+        self.task_history = []
+        self.on_event = None  # new in Swarm.__init__; set explicitly here
+        self._fail = set(fail or [])
+        self._round = 0
+
+    async def _query_agent(self, agent_name, task, round_num):
+        if agent_name in self._fail:
+            raise RuntimeError(f"{agent_name} exploded")
+        return AgentResponse(
+            agent_name=agent_name,
+            answer=f"{agent_name}-says",
+            confidence=0.8,
+            round=round_num,
+        )
+
+
+@pytest.mark.asyncio
+async def test_failed_agent_is_skipped_not_raised():
+    """One agent raising must not abort the round; others still appear."""
+    swarm = _GatherSwarm(["A", "B", "C"], fail={"B"})
+    responses = await swarm._collect_agent_responses(
+        Task(id="t", description="d", input_data={})
+    )
+    names = sorted(r.agent_name for r in responses)
+    assert names == ["A", "C"], f"failed agent B leaked into results: {names}"
+
+
+@pytest.mark.asyncio
+async def test_all_agents_failing_yields_empty_not_raise():
+    swarm = _GatherSwarm(["A", "B"], fail={"A", "B"})
+    responses = await swarm._collect_agent_responses(
+        Task(id="t", description="d", input_data={})
+    )
+    assert responses == []
+
+
+# --- on_event streaming hook -------------------------------------------------
+
+
+@pytest.mark.asyncio
+async def test_on_event_fires_per_agent_as_they_land():
+    """A successful agent must fire AgentCompleted, with the answer's data."""
+    from claudeway.events import AgentCompleted
+
+    events: list = []
+
+    async def collector(evt):
+        events.append(evt)
+
+    swarm = _GatherSwarm(["A", "B", "C"])
+    swarm.on_event = collector
+    await swarm._collect_agent_responses(
+        Task(id="t-1", description="d", input_data={})
+    )
+
+    # Each successful agent fired once, in agent-config order (gather preserves
+    # input order even though they run concurrently).
+    assert len(events) == 3
+    assert all(isinstance(e, AgentCompleted) for e in events)
+    assert [e.agent for e in events] == ["A", "B", "C"]
+    assert all(e.task_id == "t-1" and e.round == 1 for e in events)
+    # The answer the agent produced is in the event, not just the name.
+    assert events[0].answer == "A-says"
+    assert events[0].confidence == 0.8
+
+
+@pytest.mark.asyncio
+async def test_on_event_does_not_fire_for_failed_agent():
+    """A failed agent must NOT emit an event (its exception propagates to gather)."""
+    events: list = []
+
+    async def collector(evt):
+        events.append(evt)
+
+    swarm = _GatherSwarm(["A", "B"], fail={"B"})
+    swarm.on_event = collector
+    await swarm._collect_agent_responses(
+        Task(id="t", description="d", input_data={})
+    )
+    # Only A fired; B's RuntimeError propagated and was skipped post-gather.
+    assert [e.agent for e in events] == ["A"]
+
+
+@pytest.mark.asyncio
+async def test_on_event_observer_error_does_not_kill_agent():
+    """A buggy observer must never turn a successful agent into a failed one.
+
+    The observer runs in try/except inside the wrapper; if it raises, the
+    agent's response still returns to gather normally. This is the invariant
+    that keeps streaming from changing consensus outcomes.
+    """
+    call_count = 0
+
+    async def buggy(evt):
+        nonlocal call_count
+        call_count += 1
+        raise RuntimeError("observer broken")
+
+    swarm = _GatherSwarm(["A", "B"])
+    swarm.on_event = buggy
+    responses = await swarm._collect_agent_responses(
+        Task(id="t", description="d", input_data={})
+    )
+    # Both agents still produced responses despite the observer exploding.
+    assert sorted(r.agent_name for r in responses) == ["A", "B"]
+    assert call_count == 2  # observer was actually called (and swallowed)
+
+
+@pytest.mark.asyncio
+async def test_on_event_none_is_noop():
+    """Default on_event=None must behave exactly like pre-hook swarm.
+
+    The backward-compat invariant: a Swarm constructed without on_event
+    produces the same responses as before the hook existed.
+    """
+    swarm = _GatherSwarm(["A", "B", "C"])
+    # on_event=None by default
+    responses = await swarm._collect_agent_responses(
+        Task(id="t", description="d", input_data={})
+    )
+    assert sorted(r.agent_name for r in responses) == ["A", "B", "C"]
+    assert swarm.on_event is None
+
+
+@pytest.mark.asyncio
+async def test_on_event_emits_consensus_resolved_after_resolve():
+    """process() fires one ConsensusResolved at the end, after the per-agent events."""
+    from claudeway.events import ConsensusResolved
+
+    events: list = []
+
+    async def collector(evt):
+        events.append(evt)
+
+    # Use the real process() path: _GatherSwarm.process inherits from Swarm,
+    # which calls _collect_agent_responses (fires AgentCompleted) then
+    # consensus.resolve, then the ConsensusResolved event.
+    swarm = _GatherSwarm(["A", "B"])
+    swarm.on_event = collector
+    await swarm.process(Task(id="t-proc", description="d", input_data={}))
+
+    # 2 per-agent + 1 consensus-resolved, in that order.
+    assert len(events) == 3
+    assert events[-1].kind == "consensus_resolved"
+    assert isinstance(events[-1], ConsensusResolved)
+    assert events[-1].task_id == "t-proc"

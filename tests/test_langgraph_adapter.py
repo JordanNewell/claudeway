@@ -63,9 +63,33 @@ class _StubSwarm:
     def __init__(self, name: str = "TestSwarm"):
         self.config = SwarmConfig(name=name, description="", agents=[])
         self.last_task: Task | None = None
+        # Mirror real Swarm: on_event is set by the adapter when streaming.
+        self.on_event = None
 
     async def process(self, task: Task) -> Task:
         self.last_task = task
+        # When an observer is wired (streaming mode), fire per-agent events
+        # then the consensus-resolved event — mirroring real Swarm.process.
+        if self.on_event is not None:
+            from claudeway.events import AgentCompleted, ConsensusResolved
+            for r in CANNED_RESULT["responses"]:
+                await self.on_event(AgentCompleted(
+                    swarm_id=getattr(self.config, "name", ""),
+                    task_id=task.id,
+                    agent=r["agent"],
+                    answer=r["answer"],
+                    confidence=r["confidence"],
+                    round=1,
+                ))
+            await self.on_event(ConsensusResolved(
+                swarm_id=getattr(self.config, "name", ""),
+                task_id=task.id,
+                final_answer=CANNED_RESULT["final_answer"],
+                method=CANNED_RESULT["method"],
+                agreement=CANNED_RESULT["agreement"],
+                rounds=CANNED_RESULT["rounds"],
+                disagreed=CANNED_RESULT["disagreed"],
+            ))
         task.result = CANNED_RESULT
         task.status = "completed"
         return task
@@ -349,3 +373,45 @@ async def test_live_swarm_round_trip_through_langgraph():
     receipt = ConsensusReceipt(**result["receipt"])
     assert receipt.is_signed
     assert Ed25519Backend().verify_receipt(receipt) is True
+
+
+# --- Streaming (stream_mode="custom") ----------------------------------------
+#
+# When stream=True, the node forwards per-agent AgentCompleted events (and
+# the final ConsensusResolved) to LangGraph's custom stream channel via
+# get_stream_writer(). Consumers read via graph.astream(..., stream_mode="custom").
+
+
+@pytest.mark.asyncio
+async def test_stream_writer_receives_per_agent_events():
+    """stream=True: per-agent events land in the custom stream channel."""
+    swarm = _StubSwarm()
+    graph = build_consensus_graph(swarm, stream=True)
+
+    custom_chunks = []
+    async for chunk in graph.astream({"question": "which db?"}, stream_mode="custom"):
+        custom_chunks.append(chunk)
+
+    # 3 per-agent AgentCompleted + 1 ConsensusResolved.
+    agent_chunks = [c for c in custom_chunks if c.get("kind") == "agent_completed"]
+    resolved_chunks = [c for c in custom_chunks if c.get("kind") == "consensus_resolved"]
+
+    assert len(agent_chunks) == 3, f"expected 3 per-agent, got {len(agent_chunks)}"
+    agents = sorted(c["agent"] for c in agent_chunks)
+    assert agents == ["Dba", "Indie", "Security"]
+    assert all("answer" in c and "confidence" in c for c in agent_chunks)
+    assert len(resolved_chunks) == 1
+    assert resolved_chunks[0]["final_answer"] == "use sqlite"
+
+
+@pytest.mark.asyncio
+async def test_stream_off_by_default_emits_no_custom_chunks():
+    """stream=False (default): no custom stream chunks, just the state update."""
+    swarm = _StubSwarm()
+    graph = build_consensus_graph(swarm)  # stream defaults to False
+
+    custom_chunks = []
+    async for chunk in graph.astream({"question": "which db?"}, stream_mode="custom"):
+        custom_chunks.append(chunk)
+
+    assert custom_chunks == []
