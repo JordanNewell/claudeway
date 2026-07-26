@@ -35,7 +35,7 @@ body:
     id: version
     attributes:
       label: Claudeway version
-      placeholder: "0.2.0 (or commit SHA if installed editable)"
+      placeholder: "0.3.0 (or commit SHA if installed editable)"
     validations:
       required: true
 
@@ -64,9 +64,14 @@ body:
       options:
         - "[mcp]"
         - "[nostr]"
+        - "[pq]"
         - "[langgraph]"
+        - "[maf]"
+        - "[crewai]"
+        - "[benchmark]"
         - "[runner]"
         - "[persist]"
+        - "[docs]"
         - "[dev]"
         - "none / base only"
 

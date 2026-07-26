@@ -92,7 +92,7 @@ event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 # event.content carries the signed JSON receipt — any Nostr client decodes it
 ```
 
-The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 46-test suite, `nak verify`, end-to-end demo) and [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the showcase.
+The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 164-test suite, `nak verify`, end-to-end demo) and [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the showcase.
 
 ## Install
 
@@ -101,6 +101,10 @@ pip install claudeway              # the SDK (4 deps, lean)
 pip install claudeway[mcp]         # + expose consensus as an MCP server
 pip install claudeway[nostr]       # + sign Nostr events for Buzz interop
 pip install claudeway[pq]          # + ML-DSA-65 post-quantum signature backend
+pip install claudeway[langgraph]   # + LangGraph StateGraph adapter
+pip install claudeway[maf]         # + Microsoft Agent Framework adapter
+pip install claudeway[crewai]      # + CrewAI @tool + Flow adapter
+pip install claudeway[docs]        # + build the docs site locally
 ```
 
 ## Use it three ways
@@ -184,19 +188,24 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 
 ## Roadmap
 
-**Shipped (v0.2.x):**
+**Shipped (v0.2.0):**
 - SDK (Swarm, Coordinator, Agent) with real concurrent execution
 - WeightedVote + Debate consensus strategies with cost-guarded early-exit
-- Signed receipts with two interchangeable backends: **Ed25519** (default) and **ML-DSA-65** (post-quantum, FIPS 204)
+- Signed receipts with the swappable `SignatureBackend` ABC and an **Ed25519** default backend
 - Three transports: JSON receipt, W3C Verifiable Credential, Nostr NIP-78 event
 - MCP server (`claudeway-mcp`) exposing `reach_consensus` + `verify_consensus`
 - **Buzz adapter** — verifiable end-to-end against `nak serve`
 
-**Shipped (v0.3.x — current branch):**
+**Shipped (v0.3.0):**
+- **Post-quantum signature backend** — **ML-DSA-65** (FIPS 204), pure-Python via `dilithium-py`. Same receipt, same canonical hash; swap in at the `SignatureBackend` ABC.
 - **LangGraph adapter** — Claudeway consensus as a single `StateGraph` node
 - **Microsoft Agent Framework adapter** — Claudeway as a workflow + agent in MAF (AutoGen + Semantic Kernel successor)
 - **CrewAI adapter** — Claudeway as a `@tool` and Flow; inverts the killer demo so a CrewAI crew can *call* Claudeway for agreement
-- **Killer benchmark** — Claudeway beats single Claude (+7/20) and CrewAI on a hard question, blind-judge scored
+- **Consensus transparency log** — RFC 6962-style append-only log, anchored to Nostr on a cadence
+- **Streaming consensus events** — `OnEvent` callback surfaces `AgentCompleted` and `ConsensusResolved` events as they happen
+- **Killer benchmark** — Claudeway beats single Claude (+7/20) and CrewAI (+5/20) on a hard question, blind-judge scored, Mann-Whitney U
+- **Adversarial security suite** — 20 tests across 7 attack classes + published threat model
+- **Docs site** — jordannewell.github.io/claudeway (mkdocs-material + mkdocstrings)
 - Tolerant structured-output parser, substantive `<answer>` contract
 - Stable signing key across adapter runs, async→sync bridge deadlock fix
 
@@ -236,8 +245,8 @@ mkdocs serve          # http://127.0.0.1:8000
 ## Development
 
 ```bash
-pip install -e ".[mcp,nostr,dev]"
-pytest tests/ -v          # 46 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
+pip install -e ".[mcp,nostr,pq,dev]"
+pytest tests/ -v          # 164 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
 ruff check claudeway/ tests/ examples/
 ```
 

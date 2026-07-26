@@ -11,15 +11,54 @@ Dates are ISO 8601 (UTC).
 
 ## [Unreleased]
 
+_No changes yet._
+
+## [0.3.0] — 2026-07-25
+
+The "everyone has agents, nobody has agreement" release. Claudeway ships as
+the coordination layer that LangGraph, CrewAI, Microsoft Agent Framework,
+and Buzzrooms all lack, with post-quantum-ready signatures and a reproducible
+benchmark showing Claudeway beats both single Claude and CrewAI on hard
+questions.
+
 ### Added
 - **LangGraph adapter** (`claudeway.adapters.langgraph`): drop Claudeway
   consensus into a `StateGraph` as a single node. Two entry points —
   `make_consensus_node(swarm)` and `build_consensus_graph(swarm)`. Lazy
   import; install with `pip install claudeway[langgraph]`.
+- **Microsoft Agent Framework adapter** (`claudeway.adapters.maf`):
+  Claudeway as a MAF workflow + agent. MAF is Microsoft's unified successor
+  to AutoGen + Semantic Kernel. Install with `pip install claudeway[maf]`.
+- **CrewAI adapter** (`claudeway.adapters.crewai`): Claudeway consensus as
+  a `@tool` and as a Flow. Inverts the killer demo — a CrewAI crew can call
+  Claudeway for agreement. Install with `pip install claudeway[crewai]`.
+- **Post-quantum signature backend** (`claudeway.signing_pq.MLDSABackend`):
+  ML-DSA-65 / FIPS 204 signatures. Same receipt, same canonical payload
+  hash — swap in at the `SignatureBackend` ABC. Pure-Python (`dilithium-py`),
+  installs everywhere with no native build tools. Install with
+  `pip install claudeway[pq]`.
+- **Consensus transparency log** (`claudeway.transparency`): RFC 6962-style
+  append-only log of consensus results, anchored to Nostr on a cadence.
+  Tamper-evident beyond the per-receipt signature.
+- **Streaming consensus events**: `OnEvent` callback hook surfaces
+  `AgentCompleted` and `ConsensusResolved` events as they happen. Observable
+  from any adapter (MAF, LangGraph, custom host).
+- **Adversarial security test suite** (`tests/test_adversarial.py`): 20
+  tests across 7 attack classes — signature forgery, receipt tampering,
+  transport malleability, key reuse, replay, downgrade, and timestamp
+  manipulation. Documented in `docs/THREAT-MODEL.md`.
+- **Threat model** (`docs/THREAT-MODEL.md`): explicit attacker assumptions,
+  what the signatures defend against, what they don't.
+- **Docs site** (jordannewell.github.io/claudeway): mkdocs-material +
+  mkdocstrings API reference. Auto-builds on push to `main` via the
+  `docs.yml` workflow.
+- **Community policies**: `SECURITY.md` (private vuln disclosure + SLA),
+  `CONTRIBUTING.md` (branch model, commit rules, test commands),
+  `CODE_OF_CONDUCT.md` (Contributor Covenant 2.1), issue templates.
 - **Killer benchmark** (`examples/killer_demo.py`): same hard question →
-  single Claude vs CrewAI vs Claudeway, blind LLM-judge scoring. Results in
-  `examples/killer_demo_results.md`. Claudeway scores +7/20 vs single Claude
-  on average across 3 runs.
+  single Claude vs CrewAI vs Claudeway, blind LLM-judge scoring. Claudeway
+  scores 18/20 (range 17–19) vs CrewAI 13/20 vs single Claude 11/20.
+  Mann-Whitney U for non-parametric significance.
 
 ### Fixed
 - **Stable signing key** in adapters: the LangGraph/CrewAI/MAF adapters now
@@ -81,6 +120,7 @@ Dates are ISO 8601 (UTC).
   are deferred — see
   [`docs/DEPRECATION.md`](https://github.com/JordanNewell/claudeway/blob/main/docs/DEPRECATION.md).
 
-[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.2.0...HEAD
+[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.3.0...HEAD
+[0.3.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.0
 [0.2.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.2.0
 [0.1.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.1.0
