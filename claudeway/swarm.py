@@ -61,25 +61,28 @@ class AgentResponse:
 
 
 # Prompt suffix instructing the agent to emit the structured output contract.
-# The <answer> block carries the FULL substantive response — multi-paragraph
-# reasoning, justification, and final conclusion. The consensus strategy
-# reads <answer>; <reasoning> is just a one-line summary tag for surfacing.
-# Earlier phrasings ("your substantive answer here") led agents to put a
-# one-word verdict in <answer> and full reasoning in <reasoning>, which the
-# parser then stripped. Be explicit.
+#
+# Two constraints that prior phrasings got wrong:
+#   1. <answer> must carry the FULL response (multi-paragraph analysis), not
+#      a one-word verdict. The consensus strategy reads <answer>; reasoning
+#      is just a one-line summary label.
+#   2. The structured block IS the response — no prose preamble. Small
+#      models with tight max_tokens will write prose first, open <answer>,
+#      then truncate before </answer>. The parser is tolerant of that
+#      (parse_structured_output falls back to "everything after <answer>"),
+#      but it's still wasteful. Emit the tags FIRST.
 _OUTPUT_CONTRACT = """
 
-End your response with this structured block (required). The <answer>
-block must contain your FULL response — multiple paragraphs of reasoning
-plus your final conclusion. Do NOT put a one-word verdict in <answer>;
-that loses your analysis. The <reasoning> tag is a one-line summary label
+Respond ONLY with this structured block — no prose before or after it.
+The <answer> tag opens immediately, contains your full multi-paragraph
+analysis, then closes. Do NOT put a one-word verdict in <answer>; that
+loses your analysis. The <reasoning> tag is a one-line summary label
 for indexing, NOT a place to write your justification.
 
 <answer>
-[Your complete response goes here: multiple paragraphs of analysis,
-consideration of alternatives, and your final recommendation with
-justification. This is what the consensus strategy and downstream
-readers will see.]
+[Your complete response: multiple paragraphs of analysis, consideration
+of alternatives, and your final recommendation with justification. This
+is what the consensus strategy and downstream readers will see.]
 </answer>
 <confidence>a number between 0.0 and 1.0 reflecting how sure you are</confidence>
 <reasoning>one short sentence summarizing your core argument</reasoning>"""
@@ -212,8 +215,8 @@ Your role: {role}
 
 Provide a thorough analysis from your role's perspective — multiple
 paragraphs, weighing tradeoffs, ending with your final recommendation
-and the reasoning behind it. The <answer> block in the contract below
-must contain your full response, not just a verdict.{_OUTPUT_CONTRACT}"""
+and the reasoning behind it. Emit the structured block as your entire
+response (no preamble); the <answer> block contains that analysis.{_OUTPUT_CONTRACT}"""
 
     def get_state(self) -> dict[str, Any]:
         """Get swarm state for inspection."""

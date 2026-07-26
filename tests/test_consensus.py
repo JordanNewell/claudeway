@@ -56,6 +56,63 @@ def test_parse_clamps_confidence():
     ).confidence == 0.0
 
 
+def test_parse_tolerates_truncated_answer_tag():
+    """If the model truncates before </answer>, recover the open-tag content.
+
+    Caught by the LangGraph spike: Haiku at tight max_tokens writes prose,
+    opens <answer>, runs out of tokens. Earlier parser fell back to raw
+    text and the literal <answer> tag leaked into the answer.
+    """
+    raw = "First some prose.\n\n<answer>PASS"
+    p = parse_structured_output(raw)
+    assert p.answer == "PASS"
+    assert "<answer>" not in p.answer
+
+
+def test_parse_strips_orphan_open_tag_from_fallback():
+    """No closing tag and no useful content after <answer> → empty, not leaky."""
+    p = parse_structured_output("<answer>")
+    assert p.answer == ""
+    assert "<answer>" not in p.answer
+
+
+def test_consensus_result_to_dict_handles_dict_form_responses():
+    """Rebuilding a ConsensusResult from task.result (dict form) must not crash.
+
+    to_dict() used to access r.agent_name, which only exists on
+    AgentResponse objects. The wire form is dicts. Now both work.
+    """
+    from claudeway.consensus import ConsensusResult
+
+    result = ConsensusResult(
+        final_answer="ship",
+        method="weighted_vote",
+        agent_count=2,
+        responses=[
+            {"agent": "A", "answer": "ship", "confidence": 0.9},
+            {"agent": "B", "answer": "ship", "confidence": 0.85},
+        ],
+    )
+    out = result.to_dict()
+    assert out["responses"][0]["agent"] == "A"
+    assert out["responses"][1]["confidence"] == 0.85
+
+
+def test_consensus_result_to_dict_handles_agentresponse_objects():
+    """The original AgentResponse-object path still works after the fix."""
+    from claudeway.consensus import ConsensusResult
+
+    result = ConsensusResult(
+        final_answer="ship",
+        method="weighted_vote",
+        agent_count=1,
+        responses=[AgentResponse(agent_name="A", answer="ship", confidence=0.9)],
+    )
+    out = result.to_dict()
+    assert out["responses"][0]["agent"] == "A"
+    assert out["responses"][0]["confidence"] == 0.9
+
+
 # --- weighted vote ---
 
 

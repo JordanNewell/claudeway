@@ -20,7 +20,7 @@ from __future__ import annotations
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
     from .swarm import AgentResponse, Swarm
@@ -40,6 +40,13 @@ _REASONING_RE = re.compile(
 )
 _ANSWER_RE = re.compile(
     r"<answer>\s*(.*?)\s*</answer>", re.IGNORECASE | re.DOTALL
+)
+# Tolerant variant: matches an <answer> opened but never closed (model ran
+# out of tokens before the close tag). Falls back to "everything after the
+# opening tag." Caught by the LangGraph spike on small-model + tight
+# max_tokens paths.
+_ANSWER_OPEN_RE = re.compile(
+    r"<answer>\s*(.*)$", re.IGNORECASE | re.DOTALL
 )
 
 
@@ -61,16 +68,24 @@ def parse_structured_output(raw: str) -> ParsedResponse:
         <confidence>0.0-1.0</confidence>
         <reasoning>why</reasoning>
 
-    The <answer> block is optional — if missing, the whole raw text is treated
-    as the answer (minus any trailing meta blocks). Confidence/reasoning
-    default when absent so a vanilla Claude response still works.
+    Tolerant of three failure modes:
+      - No tags at all: whole raw text becomes the answer.
+      - Open-but-not-closed <answer> (small models truncating at
+        max_tokens): everything after the opening tag is the answer.
+      - Missing confidence/reasoning: defaults kick in (0.5 / "").
     """
     answer_match = _ANSWER_RE.search(raw)
     if answer_match:
         answer = answer_match.group(1).strip()
     else:
-        # Strip trailing meta blocks, keep the substantive text.
-        answer = _strip_meta_blocks(raw).strip()
+        open_match = _ANSWER_OPEN_RE.search(raw)
+        if open_match:
+            # Truncated response: take everything after <answer> as the
+            # answer, but strip any trailing meta blocks that did fit.
+            answer = _strip_meta_blocks(open_match.group(1)).strip()
+        else:
+            # No tags at all — keep raw minus any stray meta blocks.
+            answer = _strip_meta_blocks(raw).strip()
 
     conf_match = _CONFIDENCE_RE.search(raw)
     confidence = float(conf_match.group(1)) if conf_match else 0.5
@@ -87,7 +102,30 @@ def _strip_meta_blocks(text: str) -> str:
     cleaned = text
     for pattern in (_ANSWER_RE, _CONFIDENCE_RE, _REASONING_RE):
         cleaned = pattern.sub("", cleaned)
+    # Also strip orphan opening tags from truncated responses.
+    cleaned = _ANSWER_OPEN_RE.sub("", cleaned)
     return cleaned
+
+
+def _response_to_dict(r: Any) -> dict:
+    """Normalize an AgentResponse OR its dict form to the wire shape.
+
+    task.result is always the dict form (it round-tripped through
+    to_dict). Rebuilding a ConsensusResult from that dict used to crash
+    to_dict() on the second pass because r.agent_name doesn't exist on
+    dicts. Handle both.
+    """
+    if isinstance(r, dict):
+        return {
+            "agent": r.get("agent") or r.get("agent_name") or "",
+            "confidence": r.get("confidence", 0.5),
+            "answer": r.get("answer", ""),
+        }
+    return {
+        "agent": r.agent_name,
+        "confidence": r.confidence,
+        "answer": r.answer,
+    }
 
 
 # --- Consensus result --------------------------------------------------------
@@ -113,14 +151,7 @@ class ConsensusResult:
             "agreement": round(self.agreement, 3),
             "rounds": self.rounds,
             "disagreed": self.disagreed,
-            "responses": [
-                {
-                    "agent": r.agent_name,
-                    "confidence": r.confidence,
-                    "answer": r.answer,
-                }
-                for r in self.responses
-            ],
+            "responses": [_response_to_dict(r) for r in self.responses],
         }
 
 
@@ -146,6 +177,12 @@ class ConsensusStrategy(ABC):
         ...
 
     # Helper shared by strategies: a quick agreement score in [0, 1].
+    #
+    # TODO(semantic-agreement): this only catches surface-form matches via
+    # _normalize_answer. Three agents writing different prose that
+    # substantively agrees get scored ~33%. Real fix is a semantic-similarity
+    # scorer (embeddings, or an LLM judge) — bigger change, tracked in
+    # BENCHMARK-RESEARCH.md §6 as part of the benchmark harness work.
     @staticmethod
     def _agreement_score(responses: list[AgentResponse]) -> float:
         """
