@@ -80,3 +80,6 @@ BENCHMARK-RESEARCH.md
 
 # Benchmark raw output (regenerable, large, noisy)
 benchmarks/raw/
+
+# Benchmark appliance report output (regenerable; lands in the compose volume)
+benchmarks/out/
