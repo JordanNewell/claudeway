@@ -110,7 +110,7 @@ def test_nostr_event_id_is_sha256_of_nip01_serialization(signed_receipt, nostr_k
     """Per NIP-01: id == sha256(JSON.stringify([0, pubkey, created_at, kind, tags, content]))."""
     event = to_nostr_event(signed_receipt, nostr_key, created_at=1700000000)
     canonical = _nostr_serialization_for_id(
-        event.pubkey, event.created_at, event.tags, event.content
+        event.pubkey, event.created_at, event.kind, event.tags, event.content
     )
     expected_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     assert event.id == expected_id

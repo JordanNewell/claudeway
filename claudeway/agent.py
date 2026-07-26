@@ -92,18 +92,21 @@ class Agent:
         # Get system prompt
         system_prompt = self._build_system_prompt()
 
-        # Prepare tools for Claude API
-        tools = [tool.get_schema() for tool in self.config.tools] if self.config.tools else None
+        # Prepare tools for Claude API. Real Anthropic API rejects tools=None
+        # (the GLM proxy was lenient about it) — only include the kwarg when
+        # there are tools.
+        kwargs: dict[str, Any] = {
+            "model": self.config.model,
+            "max_tokens": self.config.max_tokens,
+            "temperature": self.config.temperature,
+            "system": system_prompt,
+            "messages": api_messages,
+        }
+        if self.config.tools:
+            kwargs["tools"] = [tool.get_schema() for tool in self.config.tools]
 
         # Call Claude
-        response = await self.client.messages.create(
-            model=self.config.model,
-            max_tokens=self.config.max_tokens,
-            temperature=self.config.temperature,
-            system=system_prompt,
-            messages=api_messages,
-            tools=tools,
-        )
+        response = await self.client.messages.create(**kwargs)
 
         # Process response (may contain tool use)
         return await self._process_response(response)
@@ -176,16 +179,17 @@ class Agent:
         # Get final response from Claude
         api_messages = self._build_api_messages()
         system_prompt = self._build_system_prompt()
-        tools = [tool.get_schema() for tool in self.config.tools] if self.config.tools else None
+        kwargs: dict[str, Any] = {
+            "model": self.config.model,
+            "max_tokens": self.config.max_tokens,
+            "temperature": self.config.temperature,
+            "system": system_prompt,
+            "messages": api_messages,
+        }
+        if self.config.tools:
+            kwargs["tools"] = [tool.get_schema() for tool in self.config.tools]
 
-        response = await self.client.messages.create(
-            model=self.config.model,
-            max_tokens=self.config.max_tokens,
-            temperature=self.config.temperature,
-            system=system_prompt,
-            messages=api_messages,
-            tools=tools,
-        )
+        response = await self.client.messages.create(**kwargs)
 
         # Process final response (may have more tool calls)
         return await self._process_response(response)

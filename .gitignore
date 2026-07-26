@@ -66,8 +66,20 @@ out/
 htmlcov/
 .tox/
 
+# Docs build output (deployed via GitHub Pages, not committed)
+site/
+
 # Docker
 .dockerignore
 
 # Session handoff (NOT for public repo - contains flip strategy)
 HANDOFF.md
+
+# Benchmark competitive research (NOT for public repo)
+BENCHMARK-RESEARCH.md
+
+# Benchmark raw output (regenerable, large, noisy)
+benchmarks/raw/
+
+# Benchmark appliance report output (regenerable; lands in the compose volume)
+benchmarks/out/

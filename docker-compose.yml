@@ -1,0 +1,60 @@
+# Claudeway killer benchmark appliance.
+#
+# `docker compose up killer-bench` reproduces the killer demo (Claudeway vs
+# CrewAI vs single Claude, blind Sonnet judge, N runs) from cold. The
+# reviewer brings only an Anthropic API key; this compose file handles the
+# relay, the Python image, the deps, and stages the report to a mounted
+# volume.
+#
+# The `relay` service runs fiatjaf/nak (the reference Nostr relay) so the
+# optional Nostr test path has somewhere to publish. killer_demo.py does
+# not depend on it, but the test suite and buzz_consensus_demo.py do.
+#
+# See benchmarks/README.md for the 30-second quickstart.
+
+services:
+  relay:
+    # nak is Go; install from source on a stock golang:alpine so the image
+    # is reproducible without chasing a prebuilt binary. nak v0.20.x requires
+    # Go >= 1.25 (pin the 1.26 line) and pulls lmdb-go, which needs gcc +
+    # lmdb headers at build time. GOPATH=/go, so the binary lands at /go/bin.
+    image: golang:1.26-alpine
+    container_name: claudeway-relay
+    working_dir: /go
+    command: >
+      sh -c "apk add --no-cache gcc musl-dev lmdb-dev &&
+             go install github.com/fiatjaf/nak@latest &&
+             /go/bin/nak serve --hostname 0.0.0.0 --port 10547"
+    ports:
+      - "10547:10547"
+    restart: unless-stopped
+    healthcheck:
+      # nak serve is a WebSocket relay: a plain HTTP GET returns 404, which
+      # BusyBox wget treats as failure. nc -z just checks the TCP port is
+      # accepting connections — the right signal that nak is up.
+      test: ["CMD-SHELL", "nc -z localhost 10547 || exit 1"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+      start_period: 90s
+
+  killer-bench:
+    build:
+      context: .
+      dockerfile: benchmarks/Dockerfile
+    image: claudeway/killer-bench:latest
+    container_name: claudeway-killer-bench
+    depends_on:
+      relay:
+        condition: service_healthy
+    environment:
+      # The reviewer's key. Compose reads it from the host shell.
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:?ANTHROPIC_API_KEY must be set}
+      KILLER_DEMO_RUNS: ${KILLER_DEMO_RUNS:-10}
+      CLAUDEWAY_TEST_RELAY: ws://relay:10547
+    volumes:
+      # Bind-mount the report out to the host so a reviewer can open it
+      # directly at benchmarks/out/killer_demo_results.md without docker cp.
+      - ./benchmarks/out:/app/benchmarks/out
+    # The image ENTRYPOINT runs benchmarks/run.sh, which validates the key,
+    # runs the demo, and copies the report into the volume.

@@ -1,12 +1,12 @@
 [project]
 name = "claudeway"
-version = "0.2.0"
+version = "0.3.0"
 description = "Verifiable multi-agent consensus for Claude. The coordination layer frameworks punted on."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 authors = [{ name = "Jordan Newell" }]
-keywords = ["ai", "agents", "multi-agent", "consensus", "claude", "anthropic", "nostr", "orchestration"]
+keywords = ["ai", "agents", "multi-agent", "consensus", "claude", "anthropic", "nostr", "post-quantum", "mldsa", "orchestration"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: AsyncIO",
@@ -46,6 +46,37 @@ persist = [
 nostr = [
     "coincurve>=20.0.0",
 ]
+# Post-quantum signature backend (ML-DSA-65 / FIPS 204). Pure-Python impl —
+# pip-installs everywhere, no native build tools required. Swap in at the
+# SignatureBackend ABC; receipts self-tag algorithm="mldsa65".
+pq = [
+    "dilithium-py>=1.4.0",
+]
+# Drop Claudeway consensus into a LangGraph StateGraph as a single node.
+# LangGraph makes you wire coordination by hand; this adapter is the seam.
+langgraph = [
+    "langgraph>=0.2.0",
+    "langchain-core>=0.3.0",
+]
+# Drop Claudeway consensus into a Microsoft Agent Framework workflow.
+# MAF unifies AutoGen + Semantic Kernel; this adapter is the seam.
+# Depends on agent-framework-core (the lean core — same `agent_framework`
+# import as the `agent-framework` meta-package, but without dragging in
+# the Azure SDK + Copilot Studio stack that meta pulls via [all]).
+maf = [
+    "agent-framework-core>=1.0.0",
+]
+# Drop Claudeway consensus into CrewAI as a @tool or Flow. Inverts the
+# killer demo: a CrewAI crew can *call* Claudeway for agreement.
+crewai = [
+    "crewai>=1.0.0",
+]
+# Run the killer benchmark (examples/killer_demo.py): Claudeway vs CrewAI
+# vs single Claude. Heavy dep — install only if you want to reproduce.
+benchmark = [
+    "crewai>=1.0.0",
+    "litellm>=1.18.0",
+]
 # MCP server mode: expose consensus as an MCP tool to Claude Code / Goose / Buzz.
 mcp = [
     "mcp>=1.0.0",
@@ -58,11 +89,20 @@ dev = [
     "mypy>=1.8.0",
     "build>=1.2.0",
 ]
+# Build the docs site (https://jordannewell.github.io/claudeway/).
+# mkdocstrings[python] generates the API reference from claudeway/*.py
+# docstrings; mkdocs-material is the theme.
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocstrings[python]>=0.26.0",
+]
 
 [project.urls]
 Homepage = "https://github.com/JordanNewell/claudeway"
 Repository = "https://github.com/JordanNewell/claudeway"
-Documentation = "https://github.com/JordanNewell/claudeway#readme"
+Documentation = "https://jordannewell.github.io/claudeway/"
+Changelog = "https://jordannewell.github.io/claudeway/CHANGELOG/"
 Issues = "https://github.com/JordanNewell/claudeway/issues"
 
 [project.scripts]

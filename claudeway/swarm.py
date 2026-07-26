@@ -13,6 +13,7 @@ via asyncio.gather, not serially.
 from __future__ import annotations
 
 import asyncio
+from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Any
@@ -23,6 +24,13 @@ from .consensus import (
     WeightedVote,
     parse_structured_output,
 )
+from .events import AgentCompleted, ConsensusEvent, ConsensusResolved
+
+# An async observer of swarm execution. Receives AgentCompleted as each
+# agent's answer lands (inside the gather) and ConsensusResolved once at the
+# end. None by default — backward-compat. Observer errors are swallowed so
+# a buggy observer can never surface as an agent failure.
+OnEvent = Callable[[ConsensusEvent], Awaitable[None]]
 
 
 @dataclass
@@ -61,12 +69,31 @@ class AgentResponse:
 
 
 # Prompt suffix instructing the agent to emit the structured output contract.
+#
+# Two constraints that prior phrasings got wrong:
+#   1. <answer> must carry the FULL response (multi-paragraph analysis), not
+#      a one-word verdict. The consensus strategy reads <answer>; reasoning
+#      is just a one-line summary label.
+#   2. The structured block IS the response — no prose preamble. Small
+#      models with tight max_tokens will write prose first, open <answer>,
+#      then truncate before </answer>. The parser is tolerant of that
+#      (parse_structured_output falls back to "everything after <answer>"),
+#      but it's still wasteful. Emit the tags FIRST.
 _OUTPUT_CONTRACT = """
 
-End your response with this structured block (required):
-<answer>your substantive answer here</answer>
+Respond ONLY with this structured block — no prose before or after it.
+The <answer> tag opens immediately, contains your full multi-paragraph
+analysis, then closes. Do NOT put a one-word verdict in <answer>; that
+loses your analysis. The <reasoning> tag is a one-line summary label
+for indexing, NOT a place to write your justification.
+
+<answer>
+[Your complete response: multiple paragraphs of analysis, consideration
+of alternatives, and your final recommendation with justification. This
+is what the consensus strategy and downstream readers will see.]
+</answer>
 <confidence>a number between 0.0 and 1.0 reflecting how sure you are</confidence>
-<reasoning>one sentence on why</reasoning>"""
+<reasoning>one short sentence summarizing your core argument</reasoning>"""
 
 
 class Swarm:
@@ -84,11 +111,13 @@ class Swarm:
         config: SwarmConfig,
         api_key: str | None = None,
         consensus: ConsensusStrategy | None = None,
+        on_event: OnEvent | None = None,
     ) -> None:
         self.config = config
         self.api_key = api_key
         self.agents: dict[str, Agent] = {}
         self.task_history: list[Task] = []
+        self.on_event = on_event
         # If a strategy isn't injected, honor the config hint for back-compat.
         self.consensus = consensus or _strategy_from_name(config.consensus_method)
         self._initialize_agents()
@@ -111,14 +140,63 @@ class Swarm:
         responses = await self._collect_agent_responses(task)
         result = await self.consensus.resolve(responses, self)
 
+        if self.on_event is not None:
+            # Observer errors are non-fatal — never let them kill the run.
+            try:
+                await self.on_event(ConsensusResolved(
+                    swarm_id=self.config.name,
+                    task_id=task.id,
+                    final_answer=result.final_answer,
+                    method=result.method,
+                    agreement=result.agreement,
+                    rounds=result.rounds,
+                    disagreed=result.disagreed,
+                ))
+            except Exception as e:
+                print(f"on_event observer raised on ConsensusResolved: {e}")
+
         task.result = result.to_dict()
         task.status = "completed"
         return task
 
+    def _wrap_with_event(
+        self,
+        coro: Any,
+        agent_name: str,
+        task_id: str,
+        round_num: int,
+    ) -> Any:
+        """Wrap a per-agent coroutine so it fires AgentCompleted on success.
+
+        On failure, the original exception propagates (so asyncio.gather's
+        return_exceptions=True still captures it). The observer is invoked in
+        a try/except so a buggy observer can never turn a successful agent
+        call into a failed one — that would silently change consensus.
+        """
+        async def wrapped():
+            response = await coro
+            if self.on_event is not None:
+                try:
+                    await self.on_event(AgentCompleted(
+                        swarm_id=self.config.name,
+                        task_id=task_id,
+                        agent=agent_name,
+                        answer=response.answer,
+                        confidence=response.confidence,
+                        round=round_num,
+                    ))
+                except Exception as e:
+                    print(f"on_event observer raised on {agent_name}: {e}")
+            return response
+        return wrapped()
+
     async def _collect_agent_responses(self, task: Task) -> list[AgentResponse]:
         """Collect responses from all agents in parallel."""
         coros = [
-            self._query_agent(name, task, round_num=1)
+            self._wrap_with_event(
+                self._query_agent(name, task, round_num=1),
+                name, task.id, 1,
+            )
             for name in self.agents
         ]
         results = await asyncio.gather(*coros, return_exceptions=True)
@@ -164,7 +242,10 @@ class Swarm:
                         return r
                 raise
 
-        coros = [revise(name, agent) for name, agent in self.agents.items()]
+        coros = [
+            self._wrap_with_event(revise(name, agent), name, "", 2)
+            for name, agent in self.agents.items()
+        ]
         results = await asyncio.gather(*coros, return_exceptions=True)
         return [r for r in results if isinstance(r, AgentResponse)]
 
@@ -194,7 +275,10 @@ Input data: {task.input_data}
 
 Your role: {role}
 
-Provide your analysis and recommendation.{_OUTPUT_CONTRACT}"""
+Provide a thorough analysis from your role's perspective — multiple
+paragraphs, weighing tradeoffs, ending with your final recommendation
+and the reasoning behind it. Emit the structured block as your entire
+response (no preamble); the <answer> block contains that analysis.{_OUTPUT_CONTRACT}"""
 
     def get_state(self) -> dict[str, Any]:
         """Get swarm state for inspection."""
