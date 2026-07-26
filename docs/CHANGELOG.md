@@ -13,6 +13,20 @@ Dates are ISO 8601 (UTC).
 
 _No changes yet._
 
+## [0.3.1] — 2026-07-26
+
+Hotfix release. Unblocks `pip install claudeway[benchmark]` on Windows.
+
+### Fixed
+- **`[benchmark]` extra no longer pulls `litellm`**. The `litellm>=1.18` dep
+  transitively requires a Rust build toolchain that fails on Windows. The
+  killer demo (`examples/killer_demo.py`) now imports litellm lazily with a
+  try/except — token-cost tracking is degraded on Windows when litellm is
+  absent (it was already unreliable on Windows + litellm 1.18+ per the
+  inline comment), but the demo itself runs. Full token tracking on
+  Linux/macOS is restored by `pip install litellm` separately. The Docker
+  compose appliance (which is Linux) installs litellm in its Dockerfile.
+
 ## [0.3.0] — 2026-07-25
 
 The "everyone has agents, nobody has agreement" release. Claudeway ships as
@@ -120,7 +134,8 @@ questions.
   are deferred — see
   [`docs/DEPRECATION.md`](https://github.com/JordanNewell/claudeway/blob/main/docs/DEPRECATION.md).
 
-[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.3.0...HEAD
+[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.1
 [0.3.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.0
 [0.2.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.2.0
 [0.1.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.1.0

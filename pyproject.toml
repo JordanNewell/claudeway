@@ -1,6 +1,6 @@
 [project]
 name = "claudeway"
-version = "0.3.0"
+version = "0.3.1"
 description = "Verifiable multi-agent consensus for Claude. The coordination layer frameworks punted on."
 readme = "README.md"
 license = { text = "MIT" }
@@ -73,9 +73,13 @@ crewai = [
 ]
 # Run the killer benchmark (examples/killer_demo.py): Claudeway vs CrewAI
 # vs single Claude. Heavy dep — install only if you want to reproduce.
+# Note: token-cost tracking in the demo also wants `litellm` installed
+# separately, but we don't pin it here because litellm 1.18+ pulls a
+# Rust-build dep that fails on Windows. The demo degrades gracefully
+# without it; the docker compose appliance (which is Linux) installs
+# litellm in its own Dockerfile.
 benchmark = [
     "crewai>=1.0.0",
-    "litellm>=1.18.0",
 ]
 # MCP server mode: expose consensus as an MCP tool to Claude Code / Goose / Buzz.
 mcp = [

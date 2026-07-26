@@ -14,7 +14,10 @@ Output: examples/killer_demo_results.md (regenerated each run).
 
     python examples/killer_demo.py
 
-Requires: pip install -e ".[nostr,dev]" crewai 'litellm[proxy]'
+Requires: pip install -e ".[nostr,dev,benchmark]"
+         # litellm optional — `pip install litellm` enables full token
+         # tracking on Linux/macOS; breaks Windows installs (Rust dep),
+         # so not pinned in [benchmark].
 """
 
 import asyncio
@@ -134,13 +137,21 @@ async def approach_single(usage: TokenUsage) -> str:
 async def approach_crewai(usage: TokenUsage) -> str:
     """Three CrewAI agents, sequential tasks (CrewAI's default flow).
 
-    Token tracking: litellm success_callback fires for every internal call.
+    Token tracking: litellm success_callback fires for every internal call,
+    *if* litellm is installed. The [benchmark] extra no longer pins litellm
+    (its 1.18+ Rust-build dep breaks Windows installs); on Windows the
+    token count silently under-reports CrewAI's internal calls. Install
+    litellm separately (`pip install litellm`) for full tracking on Linux.
     """
-    import litellm
-    from crewai import LLM, Agent, Crew, Task  # LLM is top-level export
+    try:
+        import litellm
+        captured: list[Any] = []
+        litellm.success_callback = [captured.append]  # type: ignore
+    except ImportError:
+        litellm = None  # type: ignore[assignment]
+        captured = []
 
-    captured: list[Any] = []
-    litellm.success_callback = [captured.append]  # type: ignore
+    from crewai import LLM, Agent, Crew, Task  # LLM is top-level export
 
     llm = LLM(
         model=f"anthropic/{MODEL}",
@@ -225,7 +236,13 @@ async def approach_crewai(usage: TokenUsage) -> str:
 
 async def approach_crewai_with_claudeway(usage: TokenUsage) -> str:
     """A CrewAI agent with the Claudeway consensus tool in its belt."""
-    import litellm
+    try:
+        import litellm
+        captured: list[Any] = []
+        litellm.success_callback = [captured.append]  # type: ignore
+    except ImportError:
+        litellm = None  # type: ignore[assignment]
+        captured = []
 
     # Track tokens via the same litellm callback CrewAI uses internally,
     # PLUS patch AsyncMessages to capture the Claudeway swarm's direct
@@ -237,8 +254,6 @@ async def approach_crewai_with_claudeway(usage: TokenUsage) -> str:
     from claudeway import AgentConfig, Debate, Swarm, SwarmConfig
     from claudeway.adapters.crewai import reach_consensus
 
-    captured: list[Any] = []
-    litellm.success_callback = [captured.append]  # type: ignore
     original_create = AsyncMessages.create
 
     async def tracking_create(self, *args, **kwargs):
