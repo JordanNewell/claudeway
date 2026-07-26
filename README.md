@@ -54,6 +54,16 @@ The agent-framework field is crowded but lopsided:
 
 The whitespace, plain: *everyone built where agents act or where agents talk. Nobody built how agents agree.* Claudeway fills exactly that.
 
+### Live proof — a signed consensus, published to a Buzz room
+
+Block shipped Buzz on 2026-07-21. Claudeway shipped the coordination layer Buzz punted on 2026-07-26. **The proof is already on the wire**: three Claudeway agents ran a real Debate consensus on *"what's the missing primitive for agent agreement, given Buzz punted on coordination?"* — signed the result with Ed25519, wrapped as a NIP-78 Nostr event, published to five public relays.
+
+Open this in any browser — Buzz, Damus, Snort, Primal, or your phone's Nostr client:
+
+> **[nostr.guru/e/3974ebfe...](https://nostr.guru/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** — signed consensus event, kind 30078, verified by `nak` + every relay that accepted it
+
+That's a Claudeway receipt, verifiable forever. Not a screenshot. Not a demo video. The actual cryptographically-signed artifact, on the actual wire Buzz speaks.
+
 ## What makes it defensible
 
 Consensus results aren't text — they're **signed, tamper-evident attestations** anyone can verify:
@@ -92,7 +102,7 @@ event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 # event.content carries the signed JSON receipt — any Nostr client decodes it
 ```
 
-The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 164-test suite, `nak verify`, end-to-end demo) and [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the showcase.
+The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 164-test suite, `nak verify`, end-to-end demo), [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the offline showcase, and [`examples/buzz_wire_publish.py`](examples/buzz_wire_publish.py) for the script that produced the **[live published v0.3.0 event](https://nostr.guru/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** on five public relays.
 
 ## Install
 
@@ -249,6 +259,15 @@ pip install -e ".[mcp,nostr,pq,dev]"
 pytest tests/ -v          # 164 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
 ruff check claudeway/ tests/ examples/
 ```
+
+## Author
+
+**Jordan Newell**
+- GitHub: [@JordanNewell](https://github.com/JordanNewell)
+- Site: [jordannewell.com](https://jordannewell.com)
+- Project: [jordannewell.github.io/claudeway](https://jordannewell.github.io/claudeway/)
+
+For acquisition, partnership, or "we're Block and we want to talk" — open a [private security advisory](https://github.com/JordanNewell/claudeway/security/advisories/new) (it routes to my email) or DM me on X.
 
 ## License
 
