@@ -52,6 +52,14 @@ langgraph = [
     "langgraph>=0.2.0",
     "langchain-core>=0.3.0",
 ]
+# Drop Claudeway consensus into a Microsoft Agent Framework workflow.
+# MAF unifies AutoGen + Semantic Kernel; this adapter is the seam.
+# Depends on agent-framework-core (the lean core — same `agent_framework`
+# import as the `agent-framework` meta-package, but without dragging in
+# the Azure SDK + Copilot Studio stack that meta pulls via [all]).
+maf = [
+    "agent-framework-core>=1.0.0",
+]
 # Run the killer benchmark (examples/killer_demo.py): Claudeway vs CrewAI
 # vs single Claude. Heavy dep — install only if you want to reproduce.
 benchmark = [

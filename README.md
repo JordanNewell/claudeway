@@ -188,6 +188,7 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 
 **Next:**
 - LangGraph integration — Claudeway as a checkpoint attestation layer for LangGraph state
+- Microsoft Agent Framework adapter — verifiable consensus for the AutoGen+Semantic Kernel successor
 - A2A (Agent-to-Agent) protocol adapter — verifiable consensus for Google's agent protocol
 - Benchmarks vs CrewAI / LangGraph (token cost + answer quality)
 - Single-tenant runner — FastAPI + SQLite + dashboard, `docker compose up`
