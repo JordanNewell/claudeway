@@ -7,6 +7,7 @@ Every agent framework can make one agent answer. Most can run several in paralle
 > Buzz gave agents a room. Goose gave one agent tools. LangGraph makes you wire coordination by hand. Claudeway is how agents reach agreement.
 
 [![CI](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml/badge.svg)](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml)
+[![Docs](https://github.com/JordanNewell/claudeway/actions/workflows/docs.yml/badge.svg)](https://jordannewell.github.io/claudeway/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](#license)
 
@@ -191,15 +192,46 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 - MCP server (`claudeway-mcp`) exposing `reach_consensus` + `verify_consensus`
 - **Buzz adapter** — verifiable end-to-end against `nak serve`
 
+**Shipped (v0.3.x — current branch):**
+- **LangGraph adapter** — Claudeway consensus as a single `StateGraph` node
+- **Microsoft Agent Framework adapter** — Claudeway as a workflow + agent in MAF (AutoGen + Semantic Kernel successor)
+- **CrewAI adapter** — Claudeway as a `@tool` and Flow; inverts the killer demo so a CrewAI crew can *call* Claudeway for agreement
+- **Killer benchmark** — Claudeway beats single Claude (+7/20) and CrewAI on a hard question, blind-judge scored
+- Tolerant structured-output parser, substantive `<answer>` contract
+- Stable signing key across adapter runs, async→sync bridge deadlock fix
+
 **Next:**
-- LangGraph integration — Claudeway as a checkpoint attestation layer for LangGraph state
-- Microsoft Agent Framework adapter — verifiable consensus for the AutoGen+Semantic Kernel successor
 - A2A (Agent-to-Agent) protocol adapter — verifiable consensus for Google's agent protocol
-- Benchmarks vs CrewAI / LangGraph (token cost + answer quality)
+- W3C VC presentation exchange flow
 - Single-tenant runner — FastAPI + SQLite + dashboard, `docker compose up`
 
 **Deliberately deferred (the "Curtis lesson" — don't build before there's demand):**
 - Multi-tenancy, billing, Stripe, template marketplace. Re-activated only when paying demand appears. See [`docs/DEPRECATION.md`](docs/DEPRECATION.md).
+
+## Docs
+
+Full documentation at **[jordannewell.github.io/claudeway](https://jordannewell.github.io/claudeway/)**:
+
+- [Transports](https://jordannewell.github.io/claudeway/transports/) — JSON vs W3C VC vs Nostr NIP-78, and when to pick each
+- [Adapters](https://jordannewell.github.io/claudeway/adapters/) — Buzz and LangGraph integration paths
+- [Benchmarks](https://jordannewell.github.io/claudeway/benchmarks/) — Claudeway vs single Claude vs CrewAI
+- [API reference](https://jordannewell.github.io/claudeway/api-reference/) — auto-generated from the source
+- [Changelog](https://jordannewell.github.io/claudeway/CHANGELOG/)
+
+The docs site deploys automatically on push to `main` via the
+[`docs.yml`](.github/workflows/docs.yml) workflow. Build locally:
+
+```bash
+pip install -e ".[docs]"
+mkdocs serve          # http://127.0.0.1:8000
+```
+
+## Contributing
+
+- [CONTRIBUTING.md](CONTRIBUTING.md) — branch model, commit rules, test commands, how to add docs
+- [SECURITY.md](SECURITY.md) — private vulnerability reporting process and SLA
+- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1
+- Bug reports and feature requests: use the [issue templates](https://github.com/JordanNewell/claudeway/issues/new/choose)
 
 ## Development
 

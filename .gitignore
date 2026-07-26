@@ -66,6 +66,9 @@ out/
 htmlcov/
 .tox/
 
+# Docs build output (deployed via GitHub Pages, not committed)
+site/
+
 # Docker
 .dockerignore
 

@@ -1,0 +1,84 @@
+name: Bug report
+description: Report something that's broken in Claudeway.
+labels: ["bug", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to file a bug.
+
+        **Security vulnerability?** Do not use this template. Follow the
+        private reporting process in
+        [SECURITY.md](https://github.com/JordanNewell/claudeway/blob/main/SECURITY.md)
+        instead — public issues risk exposing unpatched flaws.
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One paragraph. What did you expect, and what happened instead?
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproducer
+    attributes:
+      label: Minimal reproducer
+      description: The smallest self-contained code that triggers the bug. Paste a single Python file or a transcript.
+      placeholder: |
+        from claudeway import Swarm, SwarmConfig, AgentConfig, Task
+        ...
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Claudeway version
+      placeholder: "0.2.0 (or commit SHA if installed editable)"
+    validations:
+      required: true
+
+  - type: input
+    id: python
+    attributes:
+      label: Python version
+      placeholder: "3.12.5"
+    validations:
+      required: true
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "Ubuntu 24.04 / macOS 14 / Windows 11"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: extras
+    attributes:
+      label: Extras installed
+      description: Which `claudeway[...]` extras did you install? Select all that apply.
+      multiple: true
+      options:
+        - "[mcp]"
+        - "[nostr]"
+        - "[langgraph]"
+        - "[runner]"
+        - "[persist]"
+        - "[dev]"
+        - "none / base only"
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / traceback
+      description: Paste the full traceback or relevant log lines. Wrap in triple backticks. No API keys.
+      render: shell
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Anything else?
+      description: Workarounds you tried, related issues, context.

@@ -1,0 +1,64 @@
+name: Feature request
+description: Suggest an idea for Claudeway.
+labels: ["enhancement", "needs-triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for the idea. Claudeway is intentionally lean — every new
+        runtime dependency needs to justify its weight. The strongest
+        feature requests tie back to the core wedge (verifiable
+        multi-agent consensus) and work without bloating the base install.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What are you trying to do that Claudeway doesn't let you do today? What's the current workaround, and why is it painful?
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: The proposal
+      description: What would the API look like? Sketch the smallest version that solves your problem.
+      placeholder: |
+        from claudeway import ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: What else did you try? Why didn't it work?
+
+  - type: dropdown
+    id: scope
+    attributes:
+      label: Area
+      multiple: true
+      options:
+        - Core SDK (claudeway.swarm, .consensus, .coordinator)
+        - Signing / receipts (claudeway.signing)
+        - Transports (JSON / W3C VC / Nostr)
+        - Adapters (LangGraph, future: CrewAI, A2A, AutoGen)
+        - MCP server (claudeway.server)
+        - Tool layer (claudeway.tools)
+        - Docs / examples
+        - Other
+
+  - type: checkboxes
+    id: lean
+    attributes:
+      label: Lean-install check
+      description: A reminder that the base `pip install claudeway` stays at 4 deps.
+      options:
+        - label: This feature can ship without adding a base-install dependency (or it belongs in an optional extra).
+          required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional context
