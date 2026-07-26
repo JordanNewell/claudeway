@@ -130,7 +130,9 @@ def to_nostr_event(
     tags = [["d", d_tag], ["client", "claudeway"]]
     pubkey = _nostr_pubkey(private_key_hex)
 
-    canonical = _nostr_serialization_for_id(pubkey, created_at, tags, content)
+    canonical = _nostr_serialization_for_id(
+        pubkey, created_at, NOSTR_CONSENSUS_KIND, tags, content
+    )
     event_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
     sig = _nostr_sign(event_id, private_key_hex)
 
@@ -149,11 +151,11 @@ def to_nostr_event(
 
 
 def _nostr_serialization_for_id(
-    pubkey: str, created_at: int, tags: list[list[str]], content: str
+    pubkey: str, created_at: int, kind: int, tags: list[list[str]], content: str
 ) -> str:
     """The exact JSON array NIP-01 hashes to produce an event id."""
     return json.dumps(
-        [0, pubkey, created_at, NOSTR_CONSENSUS_KIND, tags, content],
+        [0, pubkey, created_at, kind, tags, content],
         separators=(",", ":"),
     )
 
@@ -190,3 +192,66 @@ def _nostr_sign(event_id_hex: str, private_key_hex: str) -> str:
     priv = coincurve.PrivateKey(bytes.fromhex(private_key_hex))
     # aux_random_bytes = zeros gives deterministic sigs (BIP-340 spec).
     return priv.sign_schnorr(msg, bytes(32)).hex()
+
+
+# --- Transparency log anchor (NIP-78) ---------------------------------------
+
+
+# Anchors are NIP-78 (kind 30078) events, same kind as receipts, scoped by a
+# distinct d-tag so a relay can serve "all anchors" independently of receipts.
+NOSTR_TRANSPARENCY_KIND = 30078
+NOSTR_TRANSPARENCY_D_TAG = "claudeway-transparency"
+
+
+def to_log_anchor_event(
+    anchor: Any,
+    private_key_hex: str,
+    log_name: str = "",
+    created_at: int | None = None,
+) -> NostrEvent:
+    """
+    Render a transparency-log anchor as a Nostr kind-30078 event.
+
+    The anchor commits to (tree_size, root) at a moment in time. Publishing
+    it as a Nostr event makes the log's history globally visible: anyone
+    watching the relay sees every root Claudeway has published, and a
+    missing or replaced anchor is detectable (day-2 consistency proofs
+    make this rigorous; day 1 relies on Nostr's append-only-on-relay
+    semantics + the operator's reputation).
+
+    `log_name` is the logical log this anchor belongs to (e.g.
+    "claudeway-canonical"). It goes in the event content, not the d-tag —
+    the d-tag scopes by event *type*, the log_name scopes *within* that.
+
+    Reuses the existing _nostr_pubkey / _nostr_sign helpers — no new crypto.
+    The anchor's Nostr signature is a transport-level Schnorr signature
+    distinct from any Ed25519 receipt signature, by design.
+    """
+    import time
+    created_at = int(time.time()) if created_at is None else int(created_at)
+
+    payload = dict(anchor.to_dict())
+    payload["log_name"] = log_name or payload.get("log_name", "")
+    content = json.dumps(payload, sort_keys=True, separators=(",", ":"))
+    tags = [["d", NOSTR_TRANSPARENCY_D_TAG], ["client", "claudeway"]]
+    if log_name:
+        # A second d-tag would conflict; use a `name` tag so consumers can
+        # filter by log identity without colliding with the type-scoped d-tag.
+        tags.append(["name", log_name])
+    pubkey = _nostr_pubkey(private_key_hex)
+
+    canonical = _nostr_serialization_for_id(
+        pubkey, created_at, NOSTR_TRANSPARENCY_KIND, tags, content
+    )
+    event_id = hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+    sig = _nostr_sign(event_id, private_key_hex)
+
+    return NostrEvent(
+        id=event_id,
+        pubkey=pubkey,
+        created_at=created_at,
+        kind=NOSTR_TRANSPARENCY_KIND,
+        tags=tags,
+        content=content,
+        sig=sig,
+    )
