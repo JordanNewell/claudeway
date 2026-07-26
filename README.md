@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/og/claudeway-og.png" alt="Claudeway — the coordination layer Buzz punted on" width="100%" />
+</p>
+
 # Claudeway
 
 **Verifiable multi-agent consensus for Claude.** The coordination layer that frameworks punted on.
