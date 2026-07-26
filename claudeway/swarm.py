@@ -61,12 +61,28 @@ class AgentResponse:
 
 
 # Prompt suffix instructing the agent to emit the structured output contract.
+# The <answer> block carries the FULL substantive response — multi-paragraph
+# reasoning, justification, and final conclusion. The consensus strategy
+# reads <answer>; <reasoning> is just a one-line summary tag for surfacing.
+# Earlier phrasings ("your substantive answer here") led agents to put a
+# one-word verdict in <answer> and full reasoning in <reasoning>, which the
+# parser then stripped. Be explicit.
 _OUTPUT_CONTRACT = """
 
-End your response with this structured block (required):
-<answer>your substantive answer here</answer>
+End your response with this structured block (required). The <answer>
+block must contain your FULL response — multiple paragraphs of reasoning
+plus your final conclusion. Do NOT put a one-word verdict in <answer>;
+that loses your analysis. The <reasoning> tag is a one-line summary label
+for indexing, NOT a place to write your justification.
+
+<answer>
+[Your complete response goes here: multiple paragraphs of analysis,
+consideration of alternatives, and your final recommendation with
+justification. This is what the consensus strategy and downstream
+readers will see.]
+</answer>
 <confidence>a number between 0.0 and 1.0 reflecting how sure you are</confidence>
-<reasoning>one sentence on why</reasoning>"""
+<reasoning>one short sentence summarizing your core argument</reasoning>"""
 
 
 class Swarm:
@@ -194,7 +210,10 @@ Input data: {task.input_data}
 
 Your role: {role}
 
-Provide your analysis and recommendation.{_OUTPUT_CONTRACT}"""
+Provide a thorough analysis from your role's perspective — multiple
+paragraphs, weighing tradeoffs, ending with your final recommendation
+and the reasoning behind it. The <answer> block in the contract below
+must contain your full response, not just a verdict.{_OUTPUT_CONTRACT}"""
 
     def get_state(self) -> dict[str, Any]:
         """Get swarm state for inspection."""
