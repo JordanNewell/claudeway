@@ -263,11 +263,11 @@ ruff check claudeway/ tests/ examples/
 ## Author
 
 **Jordan Newell**
-- GitHub: [@JordanNewell](https://github.com/JordanNewell)
 - Site: [jordannewell.com](https://jordannewell.com)
-- Project: [jordannewell.github.io/claudeway](https://jordannewell.github.io/claudeway/)
+- GitHub: [@JordanNewell](https://github.com/JordanNewell)
+- Project docs: [jordannewell.github.io/claudeway](https://jordannewell.github.io/claudeway/)
 
-For acquisition, partnership, or "we're Block and we want to talk" — open a [private security advisory](https://github.com/JordanNewell/claudeway/security/advisories/new) (it routes to my email) or DM me on X.
+For acquisition, partnership, integration, or "we're Block and we want to talk" — open a [private security advisory](https://github.com/JordanNewell/claudeway/security/advisories/new) (it routes to my email) or email `jordan` @ `jordannewell.com`.
 
 ## License
 
