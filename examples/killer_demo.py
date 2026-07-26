@@ -211,6 +211,111 @@ async def approach_crewai(usage: TokenUsage) -> str:
     return str(result)
 
 
+# --- Approach (d): CrewAI crew + Claudeway consensus tool -------------------
+#
+# The wedge case. Approaches (b) and (c) treat CrewAI and Claudeway as
+# alternatives. This one inverts the killer demo: a CrewAI crew *calls*
+# Claudeway for consensus. Same dep (crewai), opposite direction —
+# CrewAI does the orchestration, Claudeway does the agreement.
+#
+# Not a fair fight with baseline CrewAI (this *uses* Claudeway). It's here
+# to show the adapter's value prop: any CrewAI agent gains consensus as a
+# tool, no rewiring.
+
+
+async def approach_crewai_with_claudeway(usage: TokenUsage) -> str:
+    """A CrewAI agent with the Claudeway consensus tool in its belt."""
+    import litellm
+
+    # Track tokens via the same litellm callback CrewAI uses internally,
+    # PLUS patch AsyncMessages to capture the Claudeway swarm's direct
+    # Anthropic calls (the swarm doesn't go through litellm).
+    from anthropic.resources.messages import AsyncMessages
+    from crewai import LLM, Agent, Crew
+    from crewai import Task as CrewTask
+
+    from claudeway import AgentConfig, Debate, Swarm, SwarmConfig
+    from claudeway.adapters.crewai import reach_consensus
+
+    captured: list[Any] = []
+    litellm.success_callback = [captured.append]  # type: ignore
+    original_create = AsyncMessages.create
+
+    async def tracking_create(self, *args, **kwargs):
+        resp = await original_create(self, *args, **kwargs)
+        usage.add(resp.usage)
+        return resp
+
+    AsyncMessages.create = tracking_create  # type: ignore
+
+    llm = LLM(
+        model=f"anthropic/{MODEL}",
+        api_key=os.environ["ANTHROPIC_API_KEY"],
+        max_tokens=MAX_TOKENS,
+    )
+
+    # The Claudeway swarm the tool will invoke. Same personas as the other
+    # approaches, Debate strategy — apples-to-apples with approach (c).
+    swarm = Swarm(
+        SwarmConfig(
+            name="KillerDemoCrew",
+            description=QUESTION,
+            agents=[
+                AgentConfig(
+                    name=p["name"],
+                    role=p["role"],
+                    instructions=p["instructions"],
+                    model=MODEL,
+                    max_tokens=MAX_TOKENS,
+                )
+                for p in PERSONAS
+            ],
+        ),
+        api_key=os.environ["ANTHROPIC_API_KEY"],
+        consensus=Debate(),
+    )
+    tool = reach_consensus(swarm)
+
+    decider = Agent(
+        role="Decider",
+        goal=(
+            "Use the reach_consensus tool to get a multi-agent consensus on "
+            "the question, then report the consensus answer verbatim."
+        ),
+        backstory="You delegate hard questions to a specialist panel.",
+        llm=llm,
+        tools=[tool],
+        allow_delegation=False,
+        verbose=False,
+    )
+    task = CrewTask(
+        description=(
+            f"Use reach_consensus to answer this question:\n\n{QUESTION}\n\n"
+            "Return the consensus answer the tool gives you."
+        ),
+        expected_output="The consensus answer.",
+        agent=decider,
+    )
+    crew = Crew(agents=[decider], tasks=[task], verbose=False)
+
+    try:
+        result = await asyncio.to_thread(crew.kickoff)
+    finally:
+        AsyncMessages.create = original_create  # type: ignore
+
+    # Sum captured litellm usage (the decider's own calls).
+    for item in captured:
+        if isinstance(item, dict) and "streamed_response" in item:
+            u = item.get("streamed_response", {}).usage
+            usage.add(u)
+        elif hasattr(item, "usage"):
+            usage.add(item.usage)
+        elif isinstance(item, dict) and "usage" in item:
+            usage.add(item["usage"])
+
+    return str(result)
+
+
 # --- Approach (c): Claudeway Swarm -----------------------------------------
 
 
@@ -560,6 +665,11 @@ def render(results: list[ApproachResult], judge_usage: TokenUsage, n_runs: int) 
                  "report, then a synthesizer agent produces the final answer.")
     lines.append("- Claudeway uses `Debate` — each persona answers, sees peer "
                  "responses, and revises. The signed receipt is a separate, free artifact.")
+    lines.append("- 'CrewAI + Claudeway' is NOT a fair fight with baseline CrewAI — "
+                 "that crew *uses* Claudeway consensus (via the crewai adapter's "
+                 "reach_consensus tool). It's here to show the adapter's value prop: "
+                 "any CrewAI agent gains signed consensus as a tool, no rewiring. "
+                 "It should score close to Claudeway, not close to CrewAI.")
     lines.append("- Single-Claude baseline is one direct call with the same prompt.")
     lines.append("- The judge scores blindly — it does not know which approach "
                  "produced which answer.")
@@ -599,6 +709,11 @@ async def main() -> None:
     approaches = [
         ("Claudeway Swarm", approach_claudeway, "Claudeway Swarm (Debate)"),
         ("CrewAI crew", approach_crewai, "CrewAI crew (sequential)"),
+        (
+            "CrewAI + Claudeway",
+            approach_crewai_with_claudeway,
+            "CrewAI crew calling Claudeway consensus tool",
+        ),
         ("Single Claude", approach_single, "Single-Claude baseline"),
     ]
 
