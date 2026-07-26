@@ -235,7 +235,6 @@ async def approach_claudeway(usage: TokenUsage) -> tuple[str, dict[str, Any]]:
         SwarmConfig,
         Task,
     )
-    from claudeway.swarm import AgentResponse
     original_create = AsyncMessages.create
 
     async def tracking_create(self, *args, **kwargs):
@@ -269,17 +268,14 @@ async def approach_claudeway(usage: TokenUsage) -> tuple[str, dict[str, Any]]:
         result_dict = completed.result
 
         # Build the signed receipt (Claudeway's other unique artifact).
+        # task.result is already in dict form — ConsensusResult accepts
+        # dict-form responses directly (no need to rebuild AgentResponse
+        # objects, that's a Claudeway core guarantee as of d2c1235).
         result_obj = ConsensusResult(
             final_answer=result_dict["final_answer"],
             method=result_dict["method"],
             agent_count=result_dict["agent_count"],
-            responses=[
-                AgentResponse(
-                    agent_name=resp["agent"], answer=resp["answer"],
-                    confidence=resp["confidence"],
-                )
-                for resp in result_dict["responses"]
-            ],
+            responses=result_dict["responses"],
             agreement=result_dict["agreement"],
             rounds=result_dict["rounds"],
         )

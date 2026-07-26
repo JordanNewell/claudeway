@@ -96,18 +96,32 @@ def make_consensus_node(
     input_key: which state key holds the prompt. Falls back to the last
         human message in state["messages"] if that key is absent — so the
         node drops into chat-style graphs without configuration.
-    sign: if True, sign the result and put the ConsensusReceipt (as a dict)
+    sign: if True, sign each result and put the ConsensusReceipt (as a dict)
         into state["receipt"]. The moat, one kwarg away.
     signing_key: hex Ed25519 private key. If None and sign=True, a fresh
-        keypair is generated each call (matches examples/quickstart.py).
-    task_id: stable id for the receipt. If None, uuid4 per call.
+        keypair is generated ONCE at node construction and reused across
+        invokes — so all receipts from this node are verifiable as coming
+        from the same source. Per-invoke key generation would unlink them.
+    task_id: stable id for the receipt. If None, a uuid4 is generated per
+        invoke (each invoke is a distinct consensus event).
     """
     from ..signing import ConsensusReceipt, Ed25519Backend
     from ..swarm import Task  # lazy to keep top-level import cheap
 
+    # Hoist expensive/stateful setup out of the per-invoke closure. If we
+    # generated a fresh signing key per invoke, receipts from this node
+    # wouldn't be linkable to a stable identity.
+    if sign and signing_key is None:
+        signing_key = Ed25519Backend().generate_keypair()[0]
+    # Cache the backend instance too — key gen is cheap but no point
+    # reconstructing per invoke.
+    signing_backend = Ed25519Backend() if sign else None
+
     async def consensus_node(state: dict[str, Any]) -> dict[str, Any]:
         prompt = _resolve_prompt(state, input_key)
-        task = Task(id=task_id or str(uuid.uuid4()), description=prompt, input_data={})
+        # task_id: per-invoke uuid when None (each invoke is its own event).
+        this_task_id = task_id or str(uuid.uuid4())
+        task = Task(id=this_task_id, description=prompt, input_data={})
         completed = await swarm.process(task)
         result = completed.result
 
@@ -120,14 +134,16 @@ def make_consensus_node(
             "method": result["method"],
         }
 
-        if sign:
+        if sign and signing_backend is not None:
+            # ConsensusReceipt.from_result reads result.to_dict(), which
+            # handles both AgentResponse objects and dict-form responses
+            # (the latter is what task.result always is). No rebuild needed.
             receipt = ConsensusReceipt.from_result(
-                _rebuild_result(result),
+                _result_from_dict(result),
                 swarm_name=getattr(swarm.config, "name", ""),
-                task_id=task.id,
+                task_id=this_task_id,
             )
-            key = signing_key or Ed25519Backend().generate_keypair()[0]
-            Ed25519Backend().sign_receipt(receipt, key)
+            signing_backend.sign_receipt(receipt, signing_key)
             update["receipt"] = receipt.to_dict()
 
         return update
@@ -203,33 +219,23 @@ def _resolve_prompt(state: dict[str, Any], input_key: str) -> str:
     )
 
 
-def _rebuild_result(d: dict[str, Any]):
+def _result_from_dict(d: dict[str, Any]):
     """
     Reconstruct a ConsensusResult from its dict form for signing.
 
-    task.result is always a dict (Swarm.process stores result.to_dict()),
-    so by the time we see it the responses are dicts too. ConsensusResult
-    .to_dict() — called inside ConsensusReceipt.from_result — reads
-    r.agent_name/confidence/answer off each response, so we rebuild
-    AgentResponse objects here. (This is a latent claudeway core wrinkle:
-    the dict round-trip loses the AgentResponse type. Tracked as a
-    follow-up; out of scope for this adapter.)
+    task.result is always a dict (Swarm.process stores result.to_dict()).
+    ConsensusResult.to_dict() — called inside ConsensusReceipt.from_result
+    — handles both AgentResponse objects and dict-form responses natively
+    (fixed in claudeway core), so we don't need to rebuild AgentResponse
+    objects here. Just pass the responses through.
     """
     from ..consensus import ConsensusResult
-    from ..swarm import AgentResponse
 
     return ConsensusResult(
         final_answer=d["final_answer"],
         method=d["method"],
         agent_count=d["agent_count"],
-        responses=[
-            AgentResponse(
-                agent_name=r["agent"],
-                answer=r["answer"],
-                confidence=r["confidence"],
-            )
-            for r in d.get("responses", [])
-        ],
+        responses=d.get("responses", []),
         agreement=d["agreement"],
         rounds=d["rounds"],
         disagreed=d["disagreed"],

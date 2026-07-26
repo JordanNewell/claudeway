@@ -155,6 +155,30 @@ async def test_node_sign_emits_verifiable_receipt():
 
 
 @pytest.mark.asyncio
+async def test_node_sign_emits_verifiable_receipt_with_dict_form_responses():
+    """The adapter must work even when task.result has dict-form responses.
+
+    Swarm.process always returns task.result as a dict (it round-tripped
+    through ConsensusResult.to_dict()). The adapter used to rebuild
+    AgentResponse objects defensively — that's no longer needed since
+    the core fix, but if anyone reverts that fix this test will catch it.
+    """
+    swarm = _StubSwarm()
+    # Force a result with responses already in dict form (which is the
+    # natural shape — _StubSwarm already returns CANNED_RESULT, which
+    # has dicts). Just make it explicit.
+    assert all(isinstance(r, dict) for r in CANNED_RESULT["responses"])
+
+    priv, _ = Ed25519Backend().generate_keypair()
+    node = make_consensus_node(swarm, sign=True, signing_key=priv)
+
+    update = await node({"question": "dict-form responses"})
+    receipt = ConsensusReceipt(**update["receipt"])
+    assert receipt.is_signed
+    assert Ed25519Backend().verify_receipt(receipt) is True
+
+
+@pytest.mark.asyncio
 async def test_node_sign_without_key_generates_one():
     swarm = _StubSwarm()
     node = make_consensus_node(swarm, sign=True)
@@ -164,6 +188,29 @@ async def test_node_sign_without_key_generates_one():
     # Generated keys still produce a verifiable receipt.
     receipt = ConsensusReceipt(**update["receipt"])
     assert Ed25519Backend().verify_receipt(receipt) is True
+
+
+@pytest.mark.asyncio
+async def test_node_auto_generated_signing_key_is_stable_across_invokes():
+    """Without an explicit signing_key, the same node must reuse one key.
+
+    Earlier per-invoke key generation meant two receipts from the same node
+    came from different keys — unlinkable. An M&A reviewer would flag this.
+    The key is now hoisted to node-construction time.
+    """
+    swarm = _StubSwarm()
+    node = make_consensus_node(swarm, sign=True)
+
+    update1 = await node({"question": "first"})
+    update2 = await node({"question": "second"})
+
+    # Same node, same signing key — the public key (verificationMethod) is
+    # the same across both receipts.
+    key1 = ConsensusReceipt(**update1["receipt"]).public_key
+    key2 = ConsensusReceipt(**update2["receipt"]).public_key
+    assert key1 == key2, (
+        "signing key changed between invokes — receipts are unlinkable"
+    )
 
 
 @pytest.mark.asyncio
@@ -277,7 +324,7 @@ async def test_live_swarm_round_trip_through_langgraph():
                 AgentConfig(
                     "Pragmatist", "Staff Engineer",
                     "Answer in one short sentence.",
-                    model="claude-3-5-haiku-20241022",
+                    model="claude-haiku-4-5-20251001",
                     max_tokens=64,
                 ),
             ],
