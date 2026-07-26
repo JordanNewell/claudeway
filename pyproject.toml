@@ -6,7 +6,7 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 authors = [{ name = "Jordan Newell" }]
-keywords = ["ai", "agents", "multi-agent", "consensus", "claude", "anthropic", "nostr", "orchestration"]
+keywords = ["ai", "agents", "multi-agent", "consensus", "claude", "anthropic", "nostr", "post-quantum", "mldsa", "orchestration"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Framework :: AsyncIO",
@@ -46,6 +46,7 @@ persist = [
 nostr = [
     "coincurve>=20.0.0",
 ]
+<<<<<<< HEAD
 # Drop Claudeway consensus into a LangGraph StateGraph as a single node.
 # LangGraph makes you wire coordination by hand; this adapter is the seam.
 langgraph = [
@@ -70,6 +71,13 @@ crewai = [
 benchmark = [
     "crewai>=1.0.0",
     "litellm>=1.18.0",
+=======
+# Post-quantum signature backend (ML-DSA-65 / FIPS 204). Pure-Python impl —
+# pip-installs everywhere, no native build tools required. Swap in at the
+# SignatureBackend ABC; receipts self-tag algorithm="mldsa65".
+pq = [
+    "dilithium-py>=1.4.0",
+>>>>>>> fcf6333 (feat(signing): ML-DSA-65 post-quantum signature backend)
 ]
 # MCP server mode: expose consensus as an MCP tool to Claude Code / Goose / Buzz.
 mcp = [

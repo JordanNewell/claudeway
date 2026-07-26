@@ -15,6 +15,7 @@ from .consensus import (
 from .coordinator import Coordinator, CoordinatorConfig, SubTask
 from .runtime import Runtime
 from .signing import ConsensusReceipt, Ed25519Backend, SignatureBackend
+from .signing_pq import MLDSABackend
 from .swarm import AgentResponse, Swarm, SwarmConfig, Task
 
 __version__ = "0.2.0"
@@ -30,6 +31,7 @@ __all__ = [
     "CoordinatorConfig",
     "Debate",
     "Ed25519Backend",
+    "MLDSABackend",
     "Message",
     "Runtime",
     "SignatureBackend",

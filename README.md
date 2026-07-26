@@ -58,18 +58,22 @@ The whitespace, plain: *everyone built where agents act or where agents talk. No
 Consensus results aren't text — they're **signed, tamper-evident attestations** anyone can verify:
 
 ```python
-from claudeway import ConsensusReceipt, Ed25519Backend
+from claudeway import ConsensusReceipt, Ed25519Backend, MLDSABackend
 
 receipt = ConsensusReceipt.from_result(result, swarm_name="ArchReview", task_id="q1")
-Ed25519Backend().sign_receipt(receipt, private_key)
 
-# Anyone, anywhere, can verify this later:
-Ed25519Backend().verify_receipt(receipt)  # -> True
-# ...and tampering with the answer invalidates the signature.
+# Sign with Ed25519 (default — compact, fast, everywhere):
+Ed25519Backend().sign_receipt(receipt, ed_private_key)
+
+# Or sign the same payload with ML-DSA-65 (post-quantum, FIPS 204):
+MLDSABackend().sign_receipt(receipt, mldsa_private_key)  # receipt.algorithm == "mldsa65"
+
+# Anyone, anywhere, can verify later — tampering with the answer
+# invalidates the signature under either scheme.
 ```
 
-- **Ed25519 by default** — no new native deps, works everywhere
-- **Swappable signature backend** — a post-quantum (ML-DSA) backend drops in later without touching consensus code
+- **Ships with both Ed25519 and ML-DSA-65 backends** — switch with one kwarg. Ed25519 for speed and footprint; ML-DSA-65 (NIST level 3, FIPS 204) for attestations that must stay verifiable across the transition to cryptographically relevant quantum hardware
+- **Same receipt, same canonical payload hash** — the SignatureBackend ABC isolates the crypto; consensus code is untouched either way
 - **Three transports** — the same signed receipt renders as plain JSON, a W3C Verifiable Credential, or a **Nostr NIP-78 event** that drops into a Buzz room
 
 This is the layer that makes consensus worth *acquiring* rather than reimplementing in a weekend.
@@ -95,6 +99,7 @@ The event Claudeway produces verifies clean under [`nak`](https://github.com/fia
 pip install claudeway              # the SDK (4 deps, lean)
 pip install claudeway[mcp]         # + expose consensus as an MCP server
 pip install claudeway[nostr]       # + sign Nostr events for Buzz interop
+pip install claudeway[pq]          # + ML-DSA-65 post-quantum signature backend
 ```
 
 ## Use it three ways
@@ -181,7 +186,7 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 **Shipped (v0.2.x):**
 - SDK (Swarm, Coordinator, Agent) with real concurrent execution
 - WeightedVote + Debate consensus strategies with cost-guarded early-exit
-- Ed25519 signed receipts (swappable signature backend)
+- Signed receipts with two interchangeable backends: **Ed25519** (default) and **ML-DSA-65** (post-quantum, FIPS 204)
 - Three transports: JSON receipt, W3C Verifiable Credential, Nostr NIP-78 event
 - MCP server (`claudeway-mcp`) exposing `reach_consensus` + `verify_consensus`
 - **Buzz adapter** — verifiable end-to-end against `nak serve`
