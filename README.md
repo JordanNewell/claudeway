@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="assets/og/claudeway-og.png" alt="Claudeway — the coordination layer Buzz punted on" width="100%" />
+  <img src="assets/og/claudeway-og.png" alt="Claudeway — verifiable multi-agent consensus for Claude" width="100%" />
 </p>
 
 # Claudeway
 
-**Verifiable multi-agent consensus for Claude.** The coordination layer that frameworks punted on.
+**Verifiable multi-agent consensus for Claude.** A coordination layer built around signed, verifiable agreement.
 
-Every agent framework can make one agent answer. Most can run several in parallel. **None of them make agents genuinely *agree* — with the disagreement surfaced and the result cryptographically signed.** That's Claudeway.
+Every agent framework can make one agent answer. Most can run several in parallel. **None of them ship a signed consensus receipt — agreement with the disagreement surfaced and the result cryptographically verifiable.** That's Claudeway.
 
-> Buzz gave agents a room. Goose gave one agent tools. LangGraph makes you wire coordination by hand. Claudeway is how agents reach agreement.
+> Buzz coordinates agents via workflows. Goose gave one agent tools. LangGraph makes you wire coordination by hand. Claudeway adds what none of them ship: signed multi-agent consensus with the disagreement surfaced.
 
 [![CI](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml/badge.svg)](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml)
 [![Docs](https://github.com/JordanNewell/claudeway/actions/workflows/docs.yml/badge.svg)](https://jordannewell.github.io/claudeway/)
@@ -52,21 +52,25 @@ The agent-framework field is crowded but lopsided:
 | **LangGraph** ($1.25B) | Production orchestration, manual graphs | Coordination is DIY wiring |
 | **CrewAI** | DX, fast prototyping | Coordination is shallow; +48% token cost |
 | **Goose** (Block) | Single-agent harness + MCP | No multi-agent at all |
-| **Buzz** (Block) | The *room* agents talk in | **Explicitly punted on coordination** |
+| **Buzz** (Block) | The *room* agents talk in | Coordination via workflows, no consensus primitive |
 | **Anthropic SDK** | Base Claude calls | No coordination layer |
 | **MCP marketplaces** | Tool distribution | No agreement primitive |
 
-The whitespace, plain: *everyone built where agents act or where agents talk. Nobody built how agents agree.* Claudeway fills exactly that.
+The whitespace, plain: *everyone built where agents act or where agents talk. Nobody shipped verifiable consensus — agreement with a tamper-evident receipt.* Claudeway fills exactly that.
 
-### Live proof — a signed consensus, published to a Buzz room
+### Live proof — a signed consensus, published to Nostr
 
-Block shipped Buzz on 2026-07-21. Claudeway shipped the coordination layer Buzz punted on 2026-07-26. **The proof is already on the wire**: three Claudeway agents ran a real Debate consensus on *"what's the missing primitive for agent agreement, given Buzz punted on coordination?"* — signed the result with Ed25519, wrapped as a NIP-78 Nostr event, published to five public relays.
+Block shipped Buzz on 2026-07-21. Claudeway ships a complementary primitive: cryptographic consensus with signed, tamper-evident receipts. **The proof is already on the wire**: three Claudeway agents ran a real Debate consensus on *"what's the missing primitive for agent agreement?"* — signed the result with Ed25519, wrapped as a NIP-78 Nostr event, published to five public relays.
 
-Open this in any browser — Buzz, Damus, Snort, Primal, or your phone's Nostr client:
+Open this in any Nostr-capable client — Damus, Snort, Primal, or your phone's Nostr app:
 
-> **[nostr.guru/e/3974ebfe...](https://nostr.guru/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** — signed consensus event, kind 30078, verified by `nak` + every relay that accepted it
+> **[nostr.mom/e/3974ebfe...](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** — signed consensus event, kind 30078 (NIP-78). Verify the signature yourself:
+>
+> ```bash
+> nak verify --relay wss://relay.primal.net "$(cat claudeway-event.json)"
+> ```
 
-That's a Claudeway receipt, verifiable forever. Not a screenshot. Not a demo video. The actual cryptographically-signed artifact, on the actual wire Buzz speaks.
+That's a Claudeway receipt, verifiable forever. Not a screenshot. Not a demo video. The actual cryptographically-signed artifact, on the same Nostr wire Buzz speaks.
 
 ## What makes it defensible
 
@@ -89,11 +93,11 @@ MLDSABackend().sign_receipt(receipt, mldsa_private_key)  # receipt.algorithm == 
 
 - **Ships with both Ed25519 and ML-DSA-65 backends** — switch with one kwarg. Ed25519 for speed and footprint; ML-DSA-65 (NIST level 3, FIPS 204) for attestations that must stay verifiable across the transition to cryptographically relevant quantum hardware
 - **Same receipt, same canonical payload hash** — the SignatureBackend ABC isolates the crypto; consensus code is untouched either way
-- **Three transports** — the same signed receipt renders as plain JSON, a W3C Verifiable Credential, or a **Nostr NIP-78 event** that drops into a Buzz room
+- **Three transports** — the same signed receipt renders as plain JSON, a W3C Verifiable Credential, or a **Nostr NIP-78 event** any Nostr client can read
 
 This is the layer that makes consensus worth *acquiring* rather than reimplementing in a weekend.
 
-## Buzz adapter — consensus that lands in a Buzz room
+## Nostr transport — verifiable end-to-end
 
 The Nostr transport is exercised end-to-end against a reference relay:
 
@@ -106,7 +110,7 @@ event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 # event.content carries the signed JSON receipt — any Nostr client decodes it
 ```
 
-The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 164-test suite, `nak verify`, end-to-end demo), [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the offline showcase, and [`examples/buzz_wire_publish.py`](examples/buzz_wire_publish.py) for the script that produced the **[live published v0.3.0 event](https://nostr.guru/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** on five public relays.
+The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 164-test suite, `nak verify`, end-to-end demo), [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the offline showcase, and [`examples/buzz_wire_publish.py`](examples/buzz_wire_publish.py) for the script that produced the **[live published v0.3.0 event](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** on five public relays.
 
 ## Install
 
@@ -142,7 +146,7 @@ claudeway-mcp            # stdio — for Claude Code, Cursor
 claudeway-mcp --http     # HTTP/SSE — for remote agents
 ```
 
-Now any MCP-capable agent (Claude Code, Goose, Buzz rooms) gains two tools: `reach_consensus` and `verify_consensus`. One tool call gets a signed agreement — no framework to learn, no graphs to wire.
+Now any MCP-capable agent (Claude Code, Cursor, Goose) gains two tools: `reach_consensus` and `verify_consensus`. One tool call gets a signed agreement — no framework to learn, no graphs to wire.
 
 ### 3. As a coordinator (hierarchical decomposition)
 
