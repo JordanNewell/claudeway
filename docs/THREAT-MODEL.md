@@ -61,8 +61,14 @@ The seams an acquirer closes:
 - **The signing key is a long-lived secret.** If it leaks, every receipt
   signed by it becomes forgeable. No rotation, revocation, or forward
   secrecy.
-- **Neither Ed25519 nor BIP-340 is post-quantum.** The backend is
-  swappable so ML-DSA can drop in later; it doesn't ship today.
+- **Ed25519 and BIP-340 are not post-quantum.** The default Ed25519
+  backend and the BIP-340 Schnorr signatures used for Nostr transport
+  are classical. An **ML-DSA-65 (FIPS 204)** backend ships as of v0.3.0
+  (`claudeway.signing_pq.MLDSABackend`, pure-Python via `dilithium-py`,
+  install with `pip install claudeway[pq]`) for attestations that must
+  stay verifiable across the transition to cryptographically relevant
+  quantum hardware. The same receipt, same canonical payload hash —
+  swap in at the `SignatureBackend` ABC.
 - **Relays can drop or reorder events.** Claudeway signs; delivery is
   not its problem.
 
@@ -71,7 +77,7 @@ The seams an acquirer closes:
 - Bind agent identities to verifiable credentials (DID/W3C VC); include
   their pubkeys in the signed payload.
 - Add a key-rotation and revocation registry; version receipts by epoch.
-- Track an ML-DSA backend so high-stakes receipts can demand
-  post-quantum signatures when the standard matures.
+- Use the ML-DSA-65 backend (ships in v0.3.0) for high-stakes receipts
+  that must remain verifiable under post-quantum threat models.
 - Require m-of-n signer receipts for high-stakes swarms, so no single
   key compromise undoes the attestation.
