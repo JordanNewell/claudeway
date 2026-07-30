@@ -3,13 +3,13 @@ Buzz adapter demo - the flip-play showcase.
 
 Three Claudeway agents reach signed consensus on a hard question. The signed
 receipt is wrapped as a Nostr NIP-78 event and published to a relay. A
-simulated "Buzz room" (any subscriber) reads the event back and verifies
-the consensus signature in one line.
+simulated subscriber reads the event back and verifies the consensus
+signature in one line.
 
-This is what shows Block that Claudeway is the coordination layer Buzz
-explicitly punted on (Block shipped Buzz 2026-07-21 with "orchestration
-resides in the agents themselves" - Claudeway is that orchestration, and
-the consensus is cryptographically verifiable).
+This is what shows Block that Claudeway is the consensus layer Buzz doesn't
+ship (Block shipped Buzz 2026-07-21 with workflow coordination - Claudeway
+adds the cryptographic consensus primitive, and the receipts are verifiable
+forever).
 
     # terminal 1 - stand up a local relay
     nak serve --port 10547
@@ -183,8 +183,8 @@ async def main() -> None:
     print(f"sig:      {event.sig}")
     print(f"tags:     {event.tags}")
 
-    # 4. Publish to the relay ("the Buzz room subscribes here").
-    header("Step 4 - publish to relay (simulating a Buzz room)")
+    # 4. Publish to the relay (any Nostr subscriber can read it back).
+    header("Step 4 - publish to relay (simulating a Nostr subscriber)")
     try:
         seen = await publish_and_subscribe(event.to_dict())
     except (OSError, ConnectionRefusedError) as e:
@@ -199,7 +199,7 @@ async def main() -> None:
     print("(relay acceptance == Schnorr signature verified per NIP-01)")
 
     # 5. Verify the consensus receipt on the read-back content.
-    header("Step 5 - Buzz room verifies the receipt")
+    header("Step 5 - subscriber verifies the receipt")
     payload = json.loads(seen["content"])
     rebuilt = ConsensusReceipt(
         payload=payload["payload"],
@@ -214,7 +214,7 @@ async def main() -> None:
     print(f"final answer (relayed): {payload['payload']['result']['final_answer']}")
 
     header("Done")
-    print("The same event lands in any Buzz room subscribed to this relay.")
+    print("The same event lands in any Nostr client subscribed to this relay.")
     print("Tamper with one byte and the receipt signature fails - that's the moat.")
     print("\nFull event JSON (paste into any Nostr client):")
     print(json.dumps(seen, indent=2))

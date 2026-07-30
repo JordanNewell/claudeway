@@ -1,0 +1,536 @@
+/* =========================================================================
+   Claudeway docs — NEWELL Brand System overrides
+   Single source of truth: e:/vaults/anything.xyz/50_Projects/brand-system/
+   Tokens: bg #0A0A0A · surface #0F0F0F · border #1F1F1F · text #FFFFFF
+           muted #A0A0A0 · primary #00FF41 · accent #1AFF72
+   Type:   Space Grotesk (display + body) · JetBrains Mono (code)
+   Rules:  no shadows · no gradients · no glassmorphism · 8px grid
+   ========================================================================= */
+
+:root {
+  --newell-bg:       #0A0A0A;
+  --newell-surface:  #0F0F0F;
+  --newell-border:   #1F1F1F;
+  --newell-text:     #FFFFFF;
+  --newell-muted:    #A0A0A0;
+  --newell-primary:  #00FF41;
+  --newell-accent:   #1AFF72;
+}
+
+/* ---- Force the dark scheme to NEWELL OLED black ----------------------- */
+[data-md-color-scheme="default"],
+[data-md-color-scheme="slate"],
+[data-md-color-scheme="claudeway"] {
+  --md-default-bg-color:             var(--newell-bg);
+  --md-default-fg-color:             --newell-text;
+  --md-default-fg-color--light:      var(--newell-muted);
+  --md-default-fg-color--lighter:    var(--newell-muted);
+  --md-default-fg-color--lightest:   var(--newell-border);
+
+  --md-primary-fg-color:             var(--newell-surface);
+  --md-primary-fg-color--light:      var(--newell-surface);
+  --md-primary-fg-color--dark:       var(--newell-bg);
+  --md-primary-bg-color:             var(--newell-surface);
+  --md-primary-bg-color--light:      var(--newell-border);
+
+  --md-accent-fg-color:              var(--newell-primary);
+  --md-accent-fg-color--transparent: rgba(0, 255, 65, 0.08);
+  --md-accent-bg-color:              var(--newell-primary);
+  --md-accent-bg-color--light:       var(--newell-accent);
+
+  --md-typeset-color:                var(--newell-text);
+  --md-typeset-a-color:              var(--newell-primary);
+  --md-typeset-mark-color:           var(--newell-primary);
+  --md-typeset-del-color:            var(--newell-muted);
+  --md-typeset-ins-color:            var(--newell-accent);
+  --md-typeset-kbd-color:            var(--newell-surface);
+  --md-typeset-kbd-accent-color:     var(--newell-border);
+  --md-typeset-kbd-border-color:     var(--newell-border);
+
+  --md-code-bg-color:                var(--newell-surface);
+  --md-code-fg-color:                var(--newell-text);
+  --md-code-hl-color:                rgba(0, 255, 65, 0.10);
+  --md-code-hl-name-color:           var(--newell-text);
+  --md-code-hl-operator-color:       var(--newell-muted);
+  --md-code-hl-punctuation-color:    var(--newell-muted);
+  --md-code-hl-comment-color:        var(--newell-muted);
+  --md-code-hl-generic-color:        var(--newell-muted);
+  --md-code-hl-variable-color:       var(--newell-text);
+  --md-code-hl-string-color:         var(--newell-accent);
+  --md-code-hl-number-color:         var(--newell-accent);
+  --md-code-hl-keyword-color:        var(--newell-primary);
+  --md-code-hl-function-color:       var(--newell-text);
+  --md-code-hl-constant-color:       var(--newell-accent);
+  --md-code-hl-name-color:           var(--newell-text);
+
+  --md-header-fg-color:              var(--newell-text);
+  --md-header-bg-color:             var(--newell-surface);
+  --md-header-shadow:                0 -1px 0 var(--newell-border) inset;
+
+  --md-nav-fg-color:                 var(--newell-muted);
+  --md-nav-bg-color:                 var(--newell-bg);
+  --md-nav-active-fg-color:          var(--newell-primary);
+  --md-nav-icon-color:               var(--newell-muted);
+
+  --md-search-bg-color:              var(--newell-bg);
+  --md-search-fg-color:              var(--newell-text);
+  --md-search-suggestion-color:      var(--newell-muted);
+  --md-search-suggestion-result-color: var(--newell-text);
+  --md-search-suggestion-icon-color:   var(--newell-muted);
+  --md-search-suggestion-meta-color:   var(--newell-muted);
+  --md-search-result-color:          var(--newell-text);
+
+  --md-footer-fg-color:              var(--newell-muted);
+  --md-footer-bg-color:              var(--newell-surface);
+  --md-footer-fg-color--lighter:     var(--newell-text);
+
+  --md-shadow-z1:                    none;
+  --md-shadow-z2:                    none;
+  --md-shadow-z3:                    none;
+}
+
+/* ---- Body typography --------------------------------------------------- */
+body,
+.md-typeset {
+  font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  font-feature-settings: "ss01", "cv11";
+  background-color: var(--newell-bg);
+  color: var(--newell-text);
+}
+
+.md-typeset {
+  font-size: 0.85rem;
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Headings — Space Grotesk SemiBold, tight tracking */
+.md-typeset h1,
+.md-typeset h2,
+.md-typeset h3,
+.md-typeset h4,
+.md-typeset h5,
+.md-typeset h6 {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: var(--newell-text);
+}
+
+.md-typeset h1 {
+  font-size: 2.25rem;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin-bottom: 1.25rem;
+}
+
+.md-typeset h2 {
+  font-size: 1.5rem;
+  margin-top: 3rem;
+  padding-bottom: 0.4rem;
+  border-bottom: 1px solid var(--newell-border);
+}
+
+.md-typeset h3 {
+  font-size: 1.1rem;
+  margin-top: 1.75rem;
+}
+
+/* Lead paragraph class (use {: .lead } in markdown) */
+.md-typeset .lead {
+  font-size: 1.15rem;
+  color: var(--newell-text);
+  font-weight: 400;
+}
+.md-typeset .lead strong {
+  color: var(--newell-primary);
+  font-weight: 600;
+}
+
+/* Inline links — primary green, accent on hover */
+.md-typeset a {
+  color: var(--newell-primary);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+.md-typeset a:hover,
+.md-typeset a:focus {
+  color: var(--newell-accent);
+  border-bottom-color: var(--newell-accent);
+}
+.md-typeset a:focus {
+  outline: 2px solid var(--newell-primary);
+  outline-offset: 2px;
+}
+
+/* ---- Inline code ------------------------------------------------------ */
+.md-typeset code,
+.md-typeset kbd,
+.md-typeset samp {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.82em;
+  background: var(--newell-surface);
+  border: 1px solid var(--newell-border);
+  border-radius: 4px;
+  padding: 1px 6px;
+  color: var(--newell-accent);
+}
+
+/* ---- Code blocks ------------------------------------------------------ */
+.md-typeset pre > code,
+.md-typeset .highlight {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  font-size: 0.82rem;
+  line-height: 1.6;
+  background: var(--newell-surface);
+  border: 1px solid var(--newell-border);
+  border-radius: 8px;
+}
+
+.md-typeset pre {
+  margin: 1.25rem 0;
+  padding: 0;
+  background: transparent;
+}
+
+.md-typeset pre > code {
+  display: block;
+  padding: 1rem 1.25rem;
+  color: var(--newell-text);
+}
+
+/* Copy button */
+.md-typeset .highlight .md-clipboard {
+  color: var(--newell-muted);
+  border: 1px solid var(--newell-border);
+  border-radius: 4px;
+  padding: 4px;
+  top: 0.65rem;
+  right: 0.65rem;
+  transition: color 120ms ease, border-color 120ms ease;
+}
+.md-typeset .highlight .md-clipboard:hover,
+.md-typeset .highlight .md-clipboard:focus {
+  color: var(--newell-primary);
+  border-color: var(--newell-primary);
+}
+
+/* ---- Header (top bar) ------------------------------------------------- */
+.md-header {
+  background: var(--newell-surface);
+  border-bottom: 1px solid var(--newell-border);
+  box-shadow: none;
+  color: var(--newell-text);
+}
+.md-header__title {
+  font-family: 'Space Grotesk', sans-serif;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 0.95rem;
+}
+.md-header__topic:first-child {
+  font-weight: 600;
+}
+.md-header__button {
+  color: var(--newell-muted);
+}
+.md-header__button:hover,
+.md-header__button:focus {
+  color: var(--newell-primary);
+}
+.md-header__source {
+  color: var(--newell-muted);
+}
+
+/* Wordmark — keep title plain, no indigo */
+.md-header__title--active .md-header__topic {
+  color: var(--newell-text);
+}
+
+/* ---- Sidebar nav ------------------------------------------------------ */
+.md-sidebar {
+  background: transparent;
+}
+.md-sidebar__scrollwrap {
+  margin-top: 1.5rem;
+}
+.md-nav {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.85rem;
+}
+.md-nav__title {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--newell-muted);
+  font-weight: 500;
+}
+.md-nav__item {
+  margin: 0;
+}
+.md-nav__link {
+  color: var(--newell-muted);
+  padding: 0.35rem 0.75rem;
+  border-radius: 4px;
+  margin: 1px 0;
+  transition: color 100ms ease, background 100ms ease;
+}
+.md-nav__link:hover,
+.md-nav__link:focus {
+  color: var(--newell-text);
+  background: var(--newell-surface);
+}
+.md-nav__link.md-nav__link--active,
+.md-nav__link--passed {
+  color: var(--newell-primary);
+}
+.md-nav__link.md-nav__link--active {
+  background: var(--newell-surface);
+  border-left: 2px solid var(--newell-primary);
+  padding-left: calc(0.75rem - 2px);
+}
+
+/* ---- Tables ----------------------------------------------------------- */
+.md-typeset table:not([class]) {
+  border: 1px solid var(--newell-border);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: none;
+  display: table;
+  width: 100%;
+  font-size: 0.85rem;
+}
+.md-typeset table:not([class]) th {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--newell-muted);
+  background: var(--newell-surface);
+  border-bottom: 1px solid var(--newell-border);
+  padding: 0.65rem 1rem;
+}
+.md-typeset table:not([class]) td {
+  border-bottom: 1px solid var(--newell-border);
+  padding: 0.65rem 1rem;
+  color: var(--newell-text);
+}
+.md-typeset table:not([class]) tbody tr:last-child td {
+  border-bottom: 0;
+}
+.md-typeset table:not([class]) td strong {
+  color: var(--newell-primary);
+  font-weight: 600;
+}
+
+/* ---- Blockquotes ------------------------------------------------------ */
+.md-typeset blockquote {
+  border-left: 3px solid var(--newell-primary);
+  background: var(--newell-surface);
+  color: var(--newell-muted);
+  padding: 0.65rem 1rem;
+  border-radius: 0 4px 4px 0;
+  margin: 1.25rem 0;
+}
+.md-typeset blockquote strong {
+  color: var(--newell-text);
+}
+
+/* ---- Admonitions ------------------------------------------------------ */
+.md-typeset .admonition,
+.md-typeset details {
+  background: var(--newell-surface);
+  border: 1px solid var(--newell-border);
+  border-left: 3px solid var(--newell-primary);
+  border-radius: 0 8px 8px 0;
+  box-shadow: none;
+  padding: 0.65rem 1rem;
+  margin: 1.25rem 0;
+}
+.md-typeset .admonition-title,
+.md-typeset summary {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--newell-primary);
+  background: transparent;
+  font-weight: 500;
+}
+.md-typeset .admonition-tip,
+.md-typeset .admonition-note {
+  border-left-color: var(--newell-accent);
+}
+.md-typeset .admonition-tip .admonition-title,
+.md-typeset .admonition-note .admonition-title {
+  color: var(--newell-accent);
+}
+.md-typeset .admonition-warning {
+  border-left-color: #FFB74D;
+}
+.md-typeset .admonition-warning .admonition-title {
+  color: #FFB74D;
+}
+.md-typeset .admonition-danger {
+  border-left-color: #FF5252;
+}
+.md-typeset .admonition-danger .admonition-title {
+  color: #FF5252;
+}
+
+/* ---- Search overlay --------------------------------------------------- */
+.md-search-overlay {
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: none;
+}
+.md-search__inner {
+  background: var(--newell-surface);
+  border-bottom: 1px solid var(--newell-border);
+  box-shadow: none;
+}
+.md-search__input {
+  background: var(--newell-bg);
+  border: 1px solid var(--newell-border);
+  border-radius: 8px;
+  font-family: 'Space Grotesk', sans-serif;
+  color: var(--newell-text);
+}
+.md-search__input::placeholder {
+  color: var(--newell-muted);
+}
+
+/* ---- Footer ----------------------------------------------------------- */
+.md-footer {
+  background: var(--newell-surface);
+  border-top: 1px solid var(--newell-border);
+  color: var(--newell-muted);
+}
+.md-footer-meta {
+  background: var(--newell-surface);
+}
+.md-footer__link {
+  color: var(--newell-muted);
+  transition: color 100ms ease;
+}
+.md-footer__link:hover .md-footer__title,
+.md-footer__link:focus .md-footer__title {
+  color: var(--newell-primary);
+}
+.md-copyright {
+  color: var(--newell-muted);
+}
+
+/* ---- Edit-this-page / last-updated links ------------------------------ */
+.md-content__button {
+  color: var(--newell-muted);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+}
+.md-content__button:hover,
+.md-content__button:focus {
+  color: var(--newell-primary);
+}
+
+/* ---- Tabs (pymdownx.tabbed) ------------------------------------------- */
+.md-typeset .tabbed-set {
+  border-bottom: 1px solid var(--newell-border);
+}
+.md-typeset .tabbed-labels {
+  box-shadow: none;
+}
+.md-typeset .tabbed-labels > label {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.10em;
+  color: var(--newell-muted);
+  border-bottom: 2px solid transparent;
+}
+.md-typeset .tabbed-labels > label:hover {
+  color: var(--newell-text);
+}
+.md-typeset .tabbed-labels > label:checked {
+  color: var(--newell-primary);
+  border-bottom-color: var(--newell-primary);
+}
+
+/* ---- Top-of-page "back to top" button --------------------------------- */
+.md-top {
+  background: var(--newell-surface);
+  border: 1px solid var(--newell-border);
+  color: var(--newell-text);
+  box-shadow: none;
+}
+.md-top:hover,
+.md-top:focus {
+  background: var(--newell-bg);
+  border-color: var(--newell-primary);
+  color: var(--newell-primary);
+}
+
+/* ---- Pagination footer (prev/next at page bottom) --------------------- */
+.md-footer__inner {
+  border-top: 1px solid var(--newell-border);
+}
+
+/* ---- Tag/list pills --------------------------------------------------- */
+.md-typeset .twemoji {
+  color: var(--newell-muted);
+}
+
+/* ---- Misc: kill remaining shadows ------------------------------------- */
+.md-typeset .md-tooltip,
+.md-typeset .md-tooltip--header {
+  background: var(--newell-surface);
+  border: 1px solid var(--newell-border);
+  box-shadow: none;
+  color: var(--newell-text);
+}
+
+/* ---- Custom utility classes (used in markdown via {: .class }) -------- */
+.md-typeset .pill {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.7rem;
+  border: 1px solid var(--newell-border);
+  border-radius: 9999px;
+  padding: 3px 10px;
+  color: var(--newell-muted);
+  margin-right: 0.5rem;
+}
+.md-typeset .pill.green {
+  color: var(--newell-primary);
+  border-color: rgba(0, 255, 65, 0.30);
+}
+
+/* Receipt chip — live consensus chip used on the home page */
+.md-typeset .receipt-chip {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  border: 1px solid var(--newell-border);
+  background: var(--newell-surface);
+  border-radius: 8px;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.78rem;
+  color: var(--newell-muted);
+}
+.md-typeset .receipt-chip .pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--newell-primary);
+  box-shadow: 0 0 0 4px rgba(0, 255, 65, 0.12);
+  flex-shrink: 0;
+}
+.md-typeset .receipt-chip .hash {
+  color: var(--newell-accent);
+}

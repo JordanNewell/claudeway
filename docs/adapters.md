@@ -1,6 +1,6 @@
 ---
-title: Adapters — Buzz and LangGraph
-description: Where Claudeway plugs into frameworks that punted on coordination.
+title: Adapters — Buzz, LangGraph, CrewAI, Microsoft Agent Framework
+description: Where Claudeway plugs into frameworks that coordinate without consensus.
 ---
 
 # Adapters
@@ -9,26 +9,33 @@ Claudeway is the coordination layer other frameworks don't have. The
 adapters below make that layer drop into the frameworks you may already be
 using — without forcing you to rewrite your app around a new SDK.
 
-Two adapters ship today. Both keep the core `claudeway` package
+Four adapters ship today. All of them keep the core `claudeway` package
 dependency-free: the host framework is imported lazily, so `pip install
-claudeway` never pulls LangGraph or Nostr in.
+claudeway` never pulls LangGraph, CrewAI, MAF, or Nostr in.
+
+| Adapter | Install | Use when |
+|---|---|---|
+| **Buzz** (Nostr transport) | `claudeway[nostr]` | You want consensus events on the open Nostr wire. |
+| **LangGraph** | `claudeway[langgraph]` | You own a `StateGraph` and want consensus as one node. |
+| **CrewAI** | `claudeway[crewai]` | Your crew calls Claudeway as a `@tool` or `Flow`. |
+| **Microsoft Agent Framework** | `claudeway[maf]` | You want consensus as a typed MAF executor / workflow. |
 
 ---
 
 ## Buzz adapter (Nostr transport)
 
-**Buzz is the room agents talk in. Claudeway is how they agree.**
+**Buzz coordinates agents via workflows. Claudeway is how they reach signed agreement.**
 
-Buzz shipped July 2026 with an explicit gap: *"orchestration resides in the
-agents themselves."* It offloads coordination to "external harnesses" via
-`buzz-acp`. That's the seam the Buzz adapter fills.
+Buzz shipped July 2026 with coordination primitives built around workflows
+and agent memberships — not cryptographic consensus. Claudeway ships the
+complementary primitive: signed, tamper-evident receipts that any framework
+can verify, on the same Nostr wire Buzz speaks.
 
 The adapter isn't a separate package — it's the [Nostr NIP-78
 transport](transports.md#nostr-nip-78-event). A signed Claudeway consensus
-receipt renders as a `kind: 30078` event that lands in any Nostr relay,
-including Buzz rooms. Agents already monitoring a room see the consensus
-event; the BIP-340 signature means anyone in the room can verify it wasn't
-tampered with.
+receipt renders as a `kind: 30078` event that lands in any Nostr relay.
+Agents already monitoring a relay see the consensus event; the BIP-340
+signature means anyone can verify it wasn't tampered with.
 
 ```python
 from claudeway.transports import to_nostr_event
@@ -39,7 +46,7 @@ event = to_nostr_event(
     d_tag="room-42",   # addressable: replaces prior events with the same d-tag
 )
 # publish `event` to your relay of choice — relay.damus.io, your own relay,
-# or a private Buzz community relay.
+# or any public Nostr relay.
 ```
 
 ### End-to-end demo
@@ -122,6 +129,141 @@ without the extra, `import claudeway` never touches LangGraph.
 [`examples/langgraph_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/langgraph_adapter_demo.py)
 runs the adapter end-to-end with real Claude agents. The LangGraph
 integration test is opt-in (set `CLAUDEWAY_TEST_LANGGRAPH=1`).
+
+---
+
+## CrewAI adapter
+
+**CrewAI gives you the crew. Claudeway gives the crew a way to agree.**
+
+CrewAI shines at multi-role orchestration with great DX. Its coordination
+story is shallow, though — tasks run in sequence, a synthesizer agent
+writes the final answer, and there's no signed agreement. The Claudeway
+adapter inverts the killer demo: instead of Claudeway calling CrewAI, a
+CrewAI crew *calls* Claudeway for agreement.
+
+Two entry points, both with lazy imports:
+
+- **`reach_consensus(swarm, sign=True)`** — returns a CrewAI `@tool`. Drop
+  it into any agent's tool belt. The agent decides when to escalate a
+  question to consensus.
+- **`ConsensusFlow(swarm, sign=True, task_id=...)`** — a prebuilt CrewAI
+  Flow. `question` in → signed agreement out. Use standalone or compose
+  into a larger flow.
+
+```python
+from claudeway import AgentConfig, Swarm, SwarmConfig
+from claudeway.adapters.crewai import ConsensusFlow, reach_consensus
+
+swarm = Swarm(SwarmConfig(
+    name="CrewChoice",
+    agents=[
+        AgentConfig("Dba", "Senior DBA", "You weigh reliability and ops cost."),
+        AgentConfig("Indie", "Indie Hacker", "You optimize for setup time."),
+        AgentConfig("Security", "Security Engineer", "You care about data safety."),
+    ],
+), api_key=...)
+
+# Flow 1 — tool: a CrewAI agent decides when to call consensus
+tool = reach_consensus(swarm, sign=True)
+
+# Flow 2 — prebuilt: question in, signed agreement out
+flow = ConsensusFlow(swarm, sign=True, task_id="demo-flow-1")
+await flow.kickoff_async(inputs={"question": "Postgres, SQLite, or Supabase?"})
+```
+
+### Install
+
+```bash
+pip install claudeway[crewai]
+```
+
+### Live demo
+
+[`examples/crewai_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/crewai_adapter_demo.py)
+runs both flows end-to-end with real Claude agents.
+
+---
+
+## Microsoft Agent Framework (MAF) adapter
+
+**MAF gives you typed executors and a graph. Claudeway is the executor that does the agreement for you.**
+
+MAF is Microsoft's unified successor to AutoGen + Semantic Kernel — typed
+executors, a workflow builder, and structured intermediate events. The
+Claudeway adapter exposes consensus as both:
+
+- **`build_consensus_workflow(swarm, sign=True, stream=False)`** — returns
+  a prebuilt workflow. `await workflow.run(question)` → final payload
+  with signed receipt. The zero-config path.
+- **`make_consensus_executor(swarm)`** — returns a factory that builds a
+  consensus `Executor` you drop into your own `WorkflowBuilder`. This is
+  the wedge case: upstream research executor, downstream consensus, both
+  in one graph.
+
+```python
+from claudeway import AgentConfig, Swarm, SwarmConfig
+from claudeway.adapters.maf import build_consensus_workflow, make_consensus_executor
+
+swarm = Swarm(SwarmConfig(
+    name="DbChoice",
+    agents=[
+        AgentConfig("Dba", "Senior DBA", "You weigh reliability and ops cost."),
+        AgentConfig("Indie", "Indie Hacker", "You optimize for setup time."),
+        AgentConfig("Security", "Security Engineer", "You care about data safety."),
+    ],
+), api_key=...)
+
+# Flow 1 — prebuilt: zero config
+workflow = build_consensus_workflow(swarm, sign=True, task_id="flow-1")
+result = await workflow.run("Postgres, SQLite, or Supabase for a side project?")
+
+# Flow 2 — embedded: consensus as one executor in your own workflow
+from agent_framework import Executor, WorkflowBuilder, WorkflowContext, handler
+
+class ResearchExecutor(Executor):
+    @handler
+    async def research(self, message: str, ctx: WorkflowContext[str]) -> None:
+        await ctx.send_message(f"prior art on: {message}")
+
+research = ResearchExecutor(id="research")
+consensus = make_consensus_executor(swarm)(id="claudeway_consensus")
+builder = WorkflowBuilder(start_executor=research, output_from=[consensus])
+builder.add_edge(research, consensus)
+workflow = builder.build()
+```
+
+### Streaming
+
+Set `stream=True` on `build_consensus_workflow` and the workflow emits
+intermediate events as agents finish (`kind="agent_completed"`), when
+consensus resolves (`kind="consensus_resolved"`), and when the receipt is
+signed (`kind="consensus_receipt"`). This is what "observable consensus"
+looks like in practice.
+
+```python
+workflow = build_consensus_workflow(swarm, stream=True, sign=True, task_id="flow-3")
+
+async for event in workflow.run(question, stream=True):
+    if event.type != "intermediate":
+        continue
+    data = event.data
+    if data.get("kind") == "agent_completed":
+        print(f"  [{data['agent']}] conf={data['confidence']:.2f}")
+    elif data.get("kind") == "consensus_resolved":
+        print(f"  agreement={data['agreement']:.0%}")
+```
+
+### Install
+
+```bash
+pip install claudeway[maf]
+```
+
+### Live demo
+
+[`examples/maf_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/maf_adapter_demo.py)
+runs three flows end-to-end: prebuilt, embedded, and streaming.
 
 ---
 

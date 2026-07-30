@@ -6,8 +6,8 @@ signed receipt into formats downstream systems consume:
 
   - JSONReceipt: plain JSON, the simplest verifiable artifact.
   - NostrEvent (NIP-01/NIP-78): a kind-30078 addressable event carrying the
-    receipt, signed per the Nostr spec (Schnorr over secp256k1). Drops into a
-    Buzz room or any Nostr relay.
+    receipt, signed per the Nostr spec (Schnorr over secp256k1). Publishes to
+    any Nostr relay.
   - VerifiableCredential: W3C VC v2.0-compatible envelope (the direction the
     W3C AI Agent Protocol CG is standardizing on).
 

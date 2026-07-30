@@ -3,7 +3,7 @@ Buzz wire publish — one-shot. Generates a fresh Nostr keypair, runs a real
 Claudeway consensus on a Buzz-relevant question, signs the receipt, publishes
 to a public Nostr relay, and prints the viewer URL.
 
-Output: a https://nostr.guru or https://snort.social URL that anyone (incl.
+Output: a https://nostr.mom URL that anyone (incl.
 Jack Dorsey / Block's Buzz team) can open to see the signed receipt.
 
 Run with:
@@ -36,13 +36,13 @@ RELAY_URLS = [
     "wss://relay.primal.net",
     "wss://nostr.mom",
 ]
-VIEWER_TEMPLATE = "https://nostr.guru/e/{event_id}"
+VIEWER_TEMPLATE = "https://nostr.mom/e/{event_id}"
 QUESTION = (
-    "Block shipped Buzz on 2026-07-21 as the room agents talk in, but explicitly "
-    "punted on coordination: 'orchestration resides in the agents themselves.' "
-    "For an agent ecosystem to actually produce verifiable agreement — not just "
-    "parallel answers – what's the missing primitive, and what does the smallest "
-    "credible shipping version of it look like in 2026?"
+    "Block shipped Buzz on 2026-07-21 as the room agents talk in, coordinating "
+    "via workflows and agent memberships. For an agent ecosystem to actually "
+    "produce verifiable agreement — not just parallel answers — what's the "
+    "missing primitive, and what does the smallest credible shipping version of "
+    "it look like in 2026?"
 )
 
 
@@ -195,8 +195,7 @@ async def main():
         print(f"  {url}")
 
     print("\n=== VIEWER URLS (share these) ===")
-    print(f"nostr.guru:   {VIEWER_TEMPLATE.format(event_id=event_dict['id'])}")
-    print(f"snort.social: https://snort.social/e/{event_dict['id']}")
+    print(f"nostr.mom:    {VIEWER_TEMPLATE.format(event_id=event_dict['id'])}")
     print(f"primal.net:   https://primal.net/e/{event_dict['id']}")
     print(f"damus:        https://damus.io/{event_dict['id']}")
     print(f"\nnostr URI:    nostr:nevent://{event_dict['id']}")

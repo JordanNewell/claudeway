@@ -55,9 +55,9 @@ decision instead of a hedge. Single-model baselines collapse to a confident
   rounding error.
 - **What's free with Claudeway.** Per-agent outputs are auditable (you see
   *why* each specialist concluded what they did), the consensus is a signed
-  tamper-evident receipt, and the whole thing drops into a Buzz room as a
-  NIP-78 event with no extra work. None of the other approaches give you any
-  of those.
+  tamper-evident receipt, and the whole thing publishes to any Nostr relay
+  as a NIP-78 event with no extra work. None of the other approaches give
+  you any of those.
 
 ## Claudeway's unique artifacts
 

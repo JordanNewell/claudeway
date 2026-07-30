@@ -103,11 +103,11 @@ Step 3 - wrap as Nostr NIP-78 event
 event id: f08a846928be5de3df94ee4baa3aa86045b3f4acae9c14630453d7516e6f7e89
 kind:     30078 (NIP-78 addressable)
 
-Step 4 - publish to relay (simulating a Buzz room)
+Step 4 - publish to relay (simulating a Nostr subscriber)
 relay accepted event with id f08a846928be5de3...
 (relay acceptance == Schnorr signature verified per NIP-01)
 
-Step 5 - Buzz room verifies the receipt
+Step 5 - subscriber verifies the receipt
 receipt signature valid: True
 final answer (relayed): bootstrap
 ```

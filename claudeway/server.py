@@ -2,7 +2,7 @@
 Claudeway MCP server — expose consensus as a tool to any MCP client.
 
 This is the distribution play. Run this server and any MCP-capable agent
-(Claude Code, Goose, Buzz rooms, Cursor) gains a `reach_consensus` tool:
+(Claude Code, Cursor, Goose) gains a `reach_consensus` tool:
 hand it a question + N specialist perspectives, get back a signed,
 verifiable agreement. No framework to learn, no graphs to wire.
 

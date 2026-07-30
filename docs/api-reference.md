@@ -69,14 +69,38 @@ attestation: a canonical payload signed by a key, verifiable by anyone, with
 the signature decoupled from how the receipt is transported.
 
 - `ConsensusReceipt`: transport-agnostic canonical payload.
-- `SignatureBackend` (ABC): swappable crypto. `Ed25519Backend` ships by
-  default (no new deps, works everywhere). A future ML-DSA post-quantum
-  backend drops in without touching consensus code.
+- `SignatureBackend` (ABC): swappable crypto. Two backends ship:
+  - `Ed25519Backend` — default, no native deps, works everywhere.
+  - `MLDSABackend` (`claudeway.signing_pq`) — ML-DSA-65 / FIPS 204
+    post-quantum signatures. Pure-Python via `dilithium-py`. Install with
+    `pip install claudeway[pq]`. Same receipt, same canonical payload hash —
+    swap in at the ABC.
 - `canonical_json`: deterministic serialization. Two processes producing
   the same receipt MUST hash identically so signatures verify across
   machines and languages.
 
 ::: claudeway.signing
+
+## `claudeway.signing_pq` — post-quantum signatures (ML-DSA-65)
+
+ML-DSA-65 (NIST level 3, FIPS 204) backend. Pure-Python via
+[`dilithium-py`](https://pypi.org/project/dilithium-py/). Use when
+attestations must stay verifiable across the transition to cryptographically
+relevant quantum hardware.
+
+```bash
+pip install claudeway[pq]
+```
+
+```python
+from claudeway import ConsensusReceipt
+from claudeway.signing_pq import MLDSABackend
+
+receipt = ConsensusReceipt.from_result(result, swarm_name="ArchReview", task_id="q1")
+MLDSABackend().sign_receipt(receipt, mldsa_private_key)  # receipt.algorithm == "mldsa65"
+```
+
+::: claudeway.signing_pq
 
 ## `claudeway.transports` — JSON, W3C VC, Nostr NIP-78
 
@@ -94,7 +118,7 @@ A thin async runtime helper. Most users won't touch this directly.
 ## `claudeway.server` — MCP server
 
 Exposes `reach_consensus` and `verify_consensus` as MCP tools, so any
-MCP-capable agent (Claude Code, Cursor, Goose, Buzz rooms) can call
+MCP-capable agent (Claude Code, Cursor, Goose) can call
 consensus without learning the SDK.
 
 Install with `pip install claudeway[mcp]`, then:

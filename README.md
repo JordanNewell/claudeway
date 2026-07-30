@@ -4,16 +4,35 @@
 
 # Claudeway
 
-**Verifiable multi-agent consensus for Claude.** A coordination layer built around signed, verifiable agreement.
+**Multi-agent consensus with cryptographic receipts.** Three agents debate, sign the result with Ed25519, anyone can verify — forever.
 
-Every agent framework can make one agent answer. Most can run several in parallel. **None of them ship a signed consensus receipt — agreement with the disagreement surfaced and the result cryptographically verifiable.** That's Claudeway.
+Every agent framework can make one agent answer. Most can run several in parallel. **None of them produce a signed, tamper-evident artifact you can hand to an auditor, a regulator, or a future teammate.** That's Claudeway.
 
-> Buzz coordinates agents via workflows. Goose gave one agent tools. LangGraph makes you wire coordination by hand. Claudeway adds what none of them ship: signed multi-agent consensus with the disagreement surfaced.
+> Frameworks coordinate. Claudeway agrees.
 
 [![CI](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml/badge.svg)](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml)
 [![Docs](https://github.com/JordanNewell/claudeway/actions/workflows/docs.yml/badge.svg)](https://jordannewell.github.io/claudeway/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](#license)
+
+---
+
+## The receipt on the wire
+
+Three Claudeway agents ran a real Debate consensus on *"what's the missing primitive for agent agreement?"* — signed the result with Ed25519, wrapped as a NIP-78 Nostr event, published to four public relays. Not a screenshot. Not a demo video. The actual cryptographically-signed artifact on the actual wire.
+
+**View in any browser:** [nostr.mom/e/3974ebfe...](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b) — kind 30078 (NIP-78), BIP-340 signed.
+
+**Verify the signature yourself** (event is on `wss://nos.lol`, `wss://offchain.pub`, `wss://relay.primal.net`, `wss://nostr.mom`):
+
+```bash
+# After fetching the event JSON from any relay above
+# (or saving it from the viewer URL), verify the BIP-340 signature:
+nak verify < claudeway-event.json && echo "sig valid"
+# silent + exit 0 = signature valid
+```
+
+That's a Claudeway receipt, verifiable forever — on the same Nostr wire Buzz, Damus, Snort, and Primal speak.
 
 ---
 
@@ -57,20 +76,6 @@ The agent-framework field is crowded but lopsided:
 | **MCP marketplaces** | Tool distribution | No agreement primitive |
 
 The whitespace, plain: *everyone built where agents act or where agents talk. Nobody shipped verifiable consensus — agreement with a tamper-evident receipt.* Claudeway fills exactly that.
-
-### Live proof — a signed consensus, published to Nostr
-
-Block shipped Buzz on 2026-07-21. Claudeway ships a complementary primitive: cryptographic consensus with signed, tamper-evident receipts. **The proof is already on the wire**: three Claudeway agents ran a real Debate consensus on *"what's the missing primitive for agent agreement?"* — signed the result with Ed25519, wrapped as a NIP-78 Nostr event, published to five public relays.
-
-Open this in any Nostr-capable client — Damus, Snort, Primal, or your phone's Nostr app:
-
-> **[nostr.mom/e/3974ebfe...](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** — signed consensus event, kind 30078 (NIP-78). Verify the signature yourself:
->
-> ```bash
-> nak verify --relay wss://relay.primal.net "$(cat claudeway-event.json)"
-> ```
-
-That's a Claudeway receipt, verifiable forever. Not a screenshot. Not a demo video. The actual cryptographically-signed artifact, on the same Nostr wire Buzz speaks.
 
 ## What makes it defensible
 
@@ -268,9 +273,10 @@ pytest tests/ -v          # 164 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:1
 ruff check claudeway/ tests/ examples/
 ```
 
-## Author
+## NEWELL
 
-**Jordan Newell**
+*A [NEWELL](https://github.com/JordanNewell) project · maintained by Jordan Newell*
+
 - Site: [jordannewell.com](https://jordannewell.com)
 - GitHub: [@JordanNewell](https://github.com/JordanNewell)
 - Project docs: [jordannewell.github.io/claudeway](https://jordannewell.github.io/claudeway/)

@@ -1,5 +1,5 @@
 site_name: Claudeway
-site_description: Verifiable multi-agent consensus for Claude. The coordination layer frameworks punted on.
+site_description: Verifiable multi-agent consensus for Claude. A coordination layer built around signed agreement.
 site_url: https://jordannewell.github.io/claudeway/
 repo_url: https://github.com/JordanNewell/claudeway
 repo_name: JordanNewell/claudeway
@@ -25,29 +25,19 @@ exclude_docs: |
 theme:
   name: material
   font:
-    text: Inter
+    text: Space Grotesk
     code: JetBrains Mono
   palette:
-    - media: "(prefers-color-scheme: light)"
-      scheme: default
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/weather-night
-        name: Switch to dark
-    - media: "(prefers-color-scheme: dark)"
-      scheme: slate
-      primary: indigo
-      accent: indigo
-      toggle:
-        icon: material/weather-sunny
-        name: Switch to light
+    - scheme: claudeway
+      primary: "#0F0F0F"
+      accent: "#00FF41"
   features:
     - navigation.sections
     - navigation.tabs
     - navigation.indexes
     - navigation.top
     - navigation.tracking
+    - navigation.footer
     - toc.follow
     - content.code.copy
     - content.code.annotate
@@ -67,6 +57,9 @@ extra:
     - icon: fontawesome/brands/python
       link: https://pypi.org/project/claudeway/
   generator: false
+
+extra_css:
+  - stylesheets/extra.css
 
 copyright: Copyright &copy; 2026 Jordan Newell — MIT License
 
@@ -113,8 +106,11 @@ plugins:
 
 nav:
   - Home: index.md
+  - Quick start: quickstart.md
+  - Concepts: concepts.md
   - Transports: transports.md
   - Adapters: adapters.md
+  - MCP server: mcp-server.md
   - Benchmarks: benchmarks.md
   - Threat model: THREAT-MODEL.md
   - Changelog: CHANGELOG.md

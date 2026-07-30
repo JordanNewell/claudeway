@@ -611,8 +611,8 @@ def render(results: list[ApproachResult], judge_usage: TokenUsage, n_runs: int) 
             "- **What's free with Claudeway:** per-agent outputs are auditable "
             "(you see WHY each specialist concluded what they did), the "
             "consensus is a signed tamper-evident receipt, and the whole thing "
-            "drops into a Buzz room as a NIP-78 event with no extra work. "
-            "None of the other approaches give you any of those."
+            "publishes to any Nostr relay as a NIP-78 event with no extra "
+            "work. None of the other approaches give you any of those."
         )
         lines.append("")
     lines.append("## Answers")

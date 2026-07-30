@@ -1,19 +1,21 @@
 ---
 title: Claudeway — Verifiable multi-agent consensus for Claude
-description: The coordination layer frameworks punted on. Signed, tamper-evident agreement across Claude agents.
+description: A coordination layer built around signed, verifiable agreement across Claude agents.
 ---
 
 # Claudeway
 
-**Verifiable multi-agent consensus for Claude.** The coordination layer every
-agent framework punted on.
+**Verifiable multi-agent consensus for Claude.** A coordination layer built
+around signed, verifiable agreement.
 
 Every agent framework can make one Claude answer. Most can run several in
-parallel. **None of them make agents genuinely *agree* — with the disagreement
-surfaced and the result cryptographically signed.** That's Claudeway.
+parallel. **None of them ship a signed consensus receipt — agreement with
+the disagreement surfaced and the result cryptographically verifiable.**
+That's Claudeway.
 
-> Buzz gave agents a room. Goose gave one agent tools. LangGraph makes you
-> wire coordination by hand. **Claudeway is how agents reach agreement.**
+> Buzz coordinates agents via workflows. Goose gave one agent tools.
+> LangGraph makes you wire coordination by hand. **Claudeway adds what none
+> of them ship: signed multi-agent consensus with the disagreement surfaced.**
 
 ---
 
@@ -55,12 +57,13 @@ The agent-framework field is crowded but lopsided:
 | **LangGraph** | Production orchestration, manual graphs | Coordination is DIY wiring |
 | **CrewAI** | DX, fast prototyping | Coordination is shallow; +48% token cost |
 | **Goose** (Block) | Single-agent harness + MCP | No multi-agent at all |
-| **Buzz** (Block) | The *room* agents talk in | **Explicitly punted on coordination** |
+| **Buzz** (Block) | The *room* agents talk in | Coordination via workflows, no consensus primitive |
 | **Anthropic SDK** | Base Claude calls | No coordination layer |
 | **MCP marketplaces** | Tool distribution | No agreement primitive |
 
 The whitespace, plain: *everyone built where agents act or where agents talk.
-Nobody built how agents agree.* Claudeway fills exactly that.
+Nobody shipped verifiable consensus — agreement with a tamper-evident receipt.*
+Claudeway fills exactly that.
 
 ---
 
@@ -84,8 +87,8 @@ Ed25519Backend().verify_receipt(receipt)  # -> True
 - **Swappable signature backend** — a post-quantum (ML-DSA) backend drops in
   later without touching consensus code.
 - **Three transports** — the same signed receipt renders as plain JSON, a
-  W3C Verifiable Credential, or a **Nostr NIP-78 event** that drops into a
-  Buzz room.
+  W3C Verifiable Credential, or a **Nostr NIP-78 event** any Nostr client
+  can read.
 
 This is the layer that makes consensus worth *acquiring* rather than
 reimplementing in a weekend. See [Transports](transports.md) for the
@@ -123,7 +126,7 @@ claudeway-mcp            # stdio — for Claude Code, Cursor
 claudeway-mcp --http     # HTTP/SSE — for remote agents
 ```
 
-Any MCP-capable agent (Claude Code, Goose, Buzz rooms) gains two tools:
+Any MCP-capable agent (Claude Code, Cursor, Goose) gains two tools:
 `reach_consensus` and `verify_consensus`. One tool call gets a signed
 agreement — no framework to learn, no graphs to wire.
 

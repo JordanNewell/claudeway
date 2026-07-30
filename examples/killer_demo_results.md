@@ -23,7 +23,7 @@ _Judge: `claude-sonnet-4-6`, ~9 calls total (1 per approach per run), ~700 token
 
 - **Quality:** Claudeway scored **+6.7/20** vs single Claude on average across 3 runs. Variance is real — LLMs are non-deterministic, and Claudeway's quality depends on whether the specialist agents elaborate (sometimes 3 paragraphs, sometimes one sentence). The structural win is the multi-perspective format: the judge sees how each specialist reasoned, not just the verdict.
 - **Cost:** Claudeway used ~36.1x the tokens of single Claude. That's the real tradeoff. For $0.001-decisions, single Claude is right. For decisions where being wrong is expensive (this one — $20M+), the token cost is rounding error.
-- **What's free with Claudeway:** per-agent outputs are auditable (you see WHY each specialist concluded what they did), the consensus is a signed tamper-evident receipt, and the whole thing drops into a Buzz room as a NIP-78 event with no extra work. None of the other approaches give you any of those.
+- **What's free with Claudeway:** per-agent outputs are auditable (you see WHY each specialist concluded what they did), the consensus is a signed tamper-evident receipt, and the whole thing publishes to any Nostr relay as a NIP-78 event with no extra work. None of the other approaches give you any of those.
 
 ## Answers
 

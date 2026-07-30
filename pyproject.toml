@@ -1,7 +1,7 @@
 [project]
 name = "claudeway"
 version = "0.3.2"
-description = "Verifiable multi-agent consensus for Claude. The coordination layer frameworks punted on."
+description = "Verifiable multi-agent consensus for Claude. A coordination layer built around signed agreement."
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
