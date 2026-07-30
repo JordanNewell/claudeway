@@ -286,3 +286,10 @@ For acquisition, partnership, integration, or "we're Block and we want to talk" 
 ## License
 
 MIT
+
+
+<p align="right">
+  <a href="https://jordannewell.com" title="Built by Jordan Newell">
+    <img src="assets/newell-badge.png" alt="Built by Jordan Newell" width="48" height="48">
+  </a>
+</p>
