@@ -110,10 +110,17 @@ nav:
   - Home: index.md
   - Quick start: quickstart.md
   - Concepts: concepts.md
+  - Configuration: configuration.md
+  - Coordinator: coordinator.md
   - Transports: transports.md
+  - Streaming events: streaming-events.md
+  - Transparency log: transparency-log.md
   - Adapters: adapters.md
   - MCP server: mcp-server.md
+  - Examples: examples.md
   - Benchmarks: benchmarks.md
+  - Troubleshooting: troubleshooting.md
+  - FAQ: faq.md
   - Threat model: THREAT-MODEL.md
   - Changelog: CHANGELOG.md
   - API Reference:

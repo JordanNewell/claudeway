@@ -5,8 +5,7 @@ description: Same hard question, three approaches, blind LLM-judge scoring. The 
 
 # Benchmarks
 
-The marketing asset for the launch: one hard question, three approaches, same
-model, blind judge.
+One hard question, three approaches, same model, blind judge.
 
 > The reproducible run lives at
 > [`examples/killer_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/killer_demo.py).
