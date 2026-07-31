@@ -49,6 +49,7 @@ theme:
     repo: fontawesome/brands/github
   logo: assets/logo.svg
   favicon: favicon-32.png
+  logo: favicon-32.png
 
 extra:
   social:
