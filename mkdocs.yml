@@ -24,6 +24,7 @@ exclude_docs: |
 
 theme:
   name: material
+  custom_dir: docs/overrides
   font:
     text: Space Grotesk
     code: JetBrains Mono
