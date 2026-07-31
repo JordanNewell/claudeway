@@ -1,5 +1,5 @@
 ---
-title: Claudeway — Verifiable multi-agent consensus for Claude
+title: Claudeway
 description: A coordination layer built around signed, verifiable agreement across Claude agents.
 ---
 
