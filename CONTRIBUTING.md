@@ -50,6 +50,20 @@ python examples/quickstart.py
    docstrings, or type annotations on code you didn't touch. Delete unused
    code; don't leave backwards-compat hacks.
 
+## Secret scanning (gitleaks)
+
+CI runs [gitleaks](https://github.com/gitleaks/gitleaks) on every push to
+`main` and every PR (`.github/workflows/gitleaks.yml`), per the fleet
+repo standards (S417 v1). A failed gitleaks job blocks merge.
+
+- If gitleaks flags a **verified false positive**, add an inline
+  `# gitleaks:allow` comment on the offending line — don't bypass or
+  disable the workflow.
+- If a real secret was committed and pushed, treat it as compromised:
+  revoke/rotate it immediately, then remove it from history.
+- To scan locally before pushing: `gitleaks detect --source .` (or
+  `gitleaks protect` for staged changes).
+
 ## Code style
 
 - `ruff` is the only formatter/linter. Config in `pyproject.toml`. It runs
