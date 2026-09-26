@@ -12,8 +12,8 @@ If you have a PGP key, encrypt the report. The fingerprint of the project's
 reporting key will be published here once Jordan generates it:
 
 ```
-PGP fingerprint:  TBD (to be published)
-PGP public key:   TBD (to be published)
+PGP fingerprint:  67567DC5E7C5353F85F2AF0DAC05D3F3E0EFA32A
+PGP public key:   https://jordannewell.com/pgp.asc
 ```
 
 Until the PGP key is published, plaintext email is fine — but please prefer
@@ -28,7 +28,7 @@ Please include, where possible:
 
 ## Response SLA
 
-- **Acknowledgement:** within **48 hours** (typically same business day).
+- **Acknowledgment:** within **72 hours** (typically same business day).
 - **Initial assessment + severity rating:** within **5 business days**.
 - **Fix or mitigation timeline** depends on severity:
   - *Critical* (RCE, signature forgery, key compromise): patch or mitigation
