@@ -4,9 +4,9 @@
 
 # Claudeway
 
-**Multi-agent consensus with cryptographic receipts.** Three agents debate, sign the result with Ed25519, anyone can verify — forever.
+**Multi-agent consensus with cryptographic receipts.** Three agents debate, **each signs its own stance**, and the result ships as a k-of-n signed receipt anyone can verify — forever.
 
-Every agent framework can make one agent answer. Most can run several in parallel. **None of them produce a signed, tamper-evident artifact you can hand to an auditor, a regulator, or a future teammate.** That's Claudeway.
+Every agent framework can make one agent answer. Most can run several in parallel. **None of them produce per-agent signed, quorum-verifiable artifacts you can hand to an auditor, a regulator, or a future teammate.** That's Claudeway.
 
 > Frameworks coordinate. Claudeway agrees.
 
@@ -79,23 +79,34 @@ The whitespace, plain: *everyone built where agents act or where agents talk. No
 
 ## What makes it defensible
 
-Consensus results aren't text — they're **signed, tamper-evident attestations** anyone can verify:
+Consensus results aren't text — they're **signed, tamper-evident attestations** anyone can verify. And since v0.4.0, **each agent signs its own stance**: a Claudeway receipt is a k-of-n multi-sig over machine judgment, not one operator's claim about what the agents said.
 
 ```python
-from claudeway import ConsensusReceipt, Ed25519Backend, MLDSABackend
+from claudeway import (
+    ConsensusReceipt, Ed25519Backend, verify_receipt_detailed,
+)
+
+# Every agent in a Swarm gets its own signing keypair (pin real per-agent
+# keys via AgentConfig.signing_key; otherwise ephemeral keys are
+# provisioned per swarm). Each response carries a signature over that
+# agent's stance — answer, confidence, model, role, task.
 
 receipt = ConsensusReceipt.from_result(result, swarm_name="ArchReview", task_id="q1")
+Ed25519Backend().sign_receipt(receipt, operator_key)
 
-# Sign with Ed25519 (default — compact, fast, everywhere):
-Ed25519Backend().sign_receipt(receipt, ed_private_key)
-
-# Or sign the same payload with ML-DSA-65 (post-quantum, FIPS 204):
-MLDSABackend().sign_receipt(receipt, mldsa_private_key)  # receipt.algorithm == "mldsa65"
-
-# Anyone, anywhere, can verify later — tampering with the answer
-# invalidates the signature under either scheme.
+report = verify_receipt_detailed(
+    receipt,
+    expected_operator_pubkey=operator_pub,                        # pin the operator
+    expected_agent_pubkeys={"A": pub_a, "B": pub_b, "C": pub_c},  # pin every agent
+)
+report.valid                    # aggregate signature valid AND quorum met
+report.valid_statements         # how many agent signatures held up (k of n)
+report.statements[2].reason     # "" | key-mismatch | task-id-mismatch
+                                #    | response-mismatch:answer | ...
 ```
 
+- **k-of-n quorum receipts** — the quorum threshold is part of the signed payload (a post-hoc downgrade is detectable); verifiers count valid agent signatures against it
+- **Fabrication has a named defense** — a malicious operator can mint statements under fresh keys, but pinning per-agent keys catches it (`key-mismatch`); every statement is also cross-checked against the response it claims to attest (`response-mismatch:answer`) and pinned to its task (`task-id-mismatch`)
 - **Ships with both Ed25519 and ML-DSA-65 backends** — switch with one kwarg. Ed25519 for speed and footprint; ML-DSA-65 (NIST level 3, FIPS 204) for attestations that must stay verifiable across the transition to cryptographically relevant quantum hardware
 - **Same receipt, same canonical payload hash** — the SignatureBackend ABC isolates the crypto; consensus code is untouched either way
 - **Three transports** — the same signed receipt renders as plain JSON, a W3C Verifiable Credential, or a **Nostr NIP-78 event** any Nostr client can read
@@ -172,13 +183,30 @@ result = await coord.coordinate(task)
 - [`examples/consensus_demo.py`](examples/consensus_demo.py) — disagreement surfaced, then resolved via Debate
 - [`examples/coordinator_demo.py`](examples/coordinator_demo.py) — real decomposition + parallel specialists
 - [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) — **Buzz adapter**: 3 agents → signed consensus → live Nostr relay → read back + verified
+- [`examples/buzz_wire_publish.py`](examples/buzz_wire_publish.py) — publishes a signed NIP-78 event to public relays
+- [`examples/langgraph_adapter_demo.py`](examples/langgraph_adapter_demo.py) / [`maf_adapter_demo.py`](examples/maf_adapter_demo.py) / [`crewai_adapter_demo.py`](examples/crewai_adapter_demo.py) — the three framework adapters
+- [`examples/transparency_demo.py`](examples/transparency_demo.py) — append-only transparency log anchored to Nostr
+- [`examples/killer_demo.py`](examples/killer_demo.py) — the blind-judge benchmark (Claudeway vs CrewAI vs single Claude); reproducible via the Docker compose appliance
+
+## Repository layout
+
+```
+claudeway/          # the SDK package (wheel contents) — swarm, consensus, signing, transports, server (MCP), adapters
+api/                # FastAPI runner/control plane (platform features deprecated; see docs/DEPRECATION.md)
+dashboard/          # Next.js dashboard frontend for the runner
+tests/              # pytest suite (consensus, coordinator, signing, nostr, adversarial, adapters)
+examples/           # runnable demos (above)
+benchmarks/         # benchmark Dockerfile + run.sh
+docs/               # mkdocs sources (ARCHITECTURE, CHANGELOG, DEPRECATION, ...)
+scripts/ infra/     # supporting tooling
+```
 
 ## Features
 
 - **Real consensus** — `WeightedVote` (cheap, default) and `Debate` (revision round when agents disagree, early-exits when they already agree)
 - **Real decomposition** — JSON plan parsing, dependency-respecting parallel execution, specialist routing
 - **Concurrent** — N-agent swarms issue all Claude calls in parallel, not serially
-- **Verifiable** — every result is a signed, tamper-evident receipt
+- **Verifiable** — every result is a signed, tamper-evident receipt; every agent's stance is individually signed and quorum-countable
 - **MCP-native** — ships as an MCP server for the 10K+ server / 8M-downloads/month ecosystem
 - **Claude-native** — built on the Anthropic SDK, prompt-caching-friendly
 - **Lean** — 4 base dependencies
@@ -232,6 +260,11 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 - Tolerant structured-output parser, substantive `<answer>` contract
 - Stable signing key across adapter runs, async→sync bridge deadlock fix
 
+**Shipped (v0.4.0):**
+- **Per-agent signed statements + k-of-n quorum receipts** — each agent signs its own stance; receipts carry every agent's individual signature plus a signed quorum threshold, upgradeable from "operator's claim" to "countable multi-sig"
+- **`verify_receipt_detailed`** — full verification report: aggregate signature, per-statement signatures, statement/response cross-checks, operator + per-agent key pinning, quorum count
+- **MCP `verify_consensus` upgrade** — the tool now returns the full statement-by-statement verdict
+
 **Next:**
 - A2A (Agent-to-Agent) protocol adapter — verifiable consensus for Google's agent protocol
 - W3C VC presentation exchange flow
@@ -269,7 +302,7 @@ mkdocs serve          # http://127.0.0.1:8000
 
 ```bash
 pip install -e ".[mcp,nostr,pq,dev]"
-pytest tests/ -v          # 164 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
+pytest tests/ -v          # 187 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
 ruff check claudeway/ tests/ examples/
 ```
 
