@@ -14,11 +14,21 @@ from .consensus import (
 )
 from .coordinator import Coordinator, CoordinatorConfig, SubTask
 from .runtime import Runtime
-from .signing import ConsensusReceipt, Ed25519Backend, SignatureBackend
+from .signing import (
+    ConsensusReceipt,
+    Ed25519Backend,
+    ReceiptVerification,
+    SignatureBackend,
+    StatementVerification,
+    sign_statement,
+    statement_hash,
+    verify_receipt_detailed,
+    verify_statement,
+)
 from .signing_pq import MLDSABackend
 from .swarm import AgentResponse, Swarm, SwarmConfig, Task
 
-__version__ = "0.3.2"
+__version__ = "0.4.0"
 
 __all__ = [
     "Agent",
@@ -33,11 +43,17 @@ __all__ = [
     "Ed25519Backend",
     "MLDSABackend",
     "Message",
+    "ReceiptVerification",
     "Runtime",
     "SignatureBackend",
+    "StatementVerification",
     "SubTask",
     "Swarm",
     "SwarmConfig",
     "Task",
     "WeightedVote",
+    "sign_statement",
+    "statement_hash",
+    "verify_receipt_detailed",
+    "verify_statement",
 ]

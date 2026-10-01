@@ -88,7 +88,8 @@ async def real_consensus() -> ConsensusResult:
         agent_count=r["agent_count"],
         responses=[
             AgentResponse(agent_name=resp["agent"], answer=resp["answer"],
-                          confidence=resp["confidence"])
+                          confidence=resp["confidence"],
+                          statement=resp.get("statement"))
             for resp in r["responses"]
         ],
         agreement=r["agreement"],

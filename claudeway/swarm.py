@@ -15,7 +15,7 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import UTC, datetime
 from typing import Any
 
 from .agent import Agent, AgentConfig
@@ -25,6 +25,11 @@ from .consensus import (
     parse_structured_output,
 )
 from .events import AgentCompleted, ConsensusEvent, ConsensusResolved
+from .signing import (
+    AGENT_STATEMENT_TYPE,
+    SignatureBackend,
+    default_backend,
+)
 
 # An async observer of swarm execution. Receives AgentCompleted as each
 # agent's answer lands (inside the gather) and ConsensusResolved once at the
@@ -66,6 +71,10 @@ class AgentResponse:
     reasoning: str = ""
     round: int = 1
     timestamp: datetime = field(default_factory=datetime.utcnow)
+    # Signed agent statement (dict from SignatureBackend.sign_statement) over
+    # this response's stance — the k-of-n receipt building block. None when
+    # the response wasn't signed (e.g. test stubs bypassing _query_agent).
+    statement: dict | None = None
 
 
 # Prompt suffix instructing the agent to emit the structured output contract.
@@ -112,6 +121,7 @@ class Swarm:
         api_key: str | None = None,
         consensus: ConsensusStrategy | None = None,
         on_event: OnEvent | None = None,
+        statement_backend: SignatureBackend | None = None,
     ) -> None:
         self.config = config
         self.api_key = api_key
@@ -120,7 +130,24 @@ class Swarm:
         self.on_event = on_event
         # If a strategy isn't injected, honor the config hint for back-compat.
         self.consensus = consensus or _strategy_from_name(config.consensus_method)
+        # Per-agent statement signing: every agent gets a keypair (pinned via
+        # AgentConfig.signing_key, else ephemeral), and signs its stance as
+        # it answers. Receipts built from these responses carry k-of-n
+        # verifiable agent signatures, not just the operator's claim.
+        self.statement_backend = statement_backend or default_backend()
+        self._agent_keys: dict[str, tuple[str, str]] = {}
+        self._provision_agent_keys()
         self._initialize_agents()
+
+    def _provision_agent_keys(self) -> None:
+        """Give every agent a statement-signing keypair."""
+        for agent_config in self.config.agents:
+            if agent_config.signing_key:
+                priv = agent_config.signing_key
+                pub = self.statement_backend._public_from_private(priv)
+            else:
+                priv, pub = self.statement_backend.generate_keypair()
+            self._agent_keys[agent_config.name] = (priv, pub)
 
     def _initialize_agents(self) -> None:
         """Create agent instances from configs."""
@@ -252,12 +279,12 @@ class Swarm:
     async def _query_agent(
         self, agent_name: str, task: Task, round_num: int
     ) -> AgentResponse:
-        """Query one agent and parse its structured output."""
+        """Query one agent, parse its structured output, sign its stance."""
         agent = self.agents[agent_name]
         prompt = self._craft_agent_input(task, agent_name)
         raw = await agent.think(prompt)
         parsed = parse_structured_output(raw)
-        return AgentResponse(
+        response = AgentResponse(
             agent_name=agent_name,
             content=raw,
             answer=parsed.answer,
@@ -265,6 +292,35 @@ class Swarm:
             reasoning=parsed.reasoning,
             round=round_num,
         )
+        response.statement = self._sign_statement(response, agent_name, task, round_num)
+        return response
+
+    def _sign_statement(
+        self, response: AgentResponse, agent_name: str, task: Task, round_num: int
+    ) -> dict:
+        """Sign one agent's stance with that agent's own key.
+
+        The statement is what the agent attests (answer, confidence, model,
+        role, context). The swarm collects these; a receipt built from this
+        swarm's responses carries every agent's individual signature, so a
+        verifier can count valid signers against the quorum instead of
+        trusting the operator's word.
+        """
+        agent = self.agents[agent_name]
+        priv, _ = self._agent_keys[agent_name]
+        statement = {
+            "type": AGENT_STATEMENT_TYPE,
+            "swarm": self.config.name,
+            "task_id": getattr(task, "id", ""),
+            "agent": agent_name,
+            "role": agent.config.role,
+            "model": agent.config.model,
+            "round": round_num,
+            "answer": response.answer,
+            "confidence": response.confidence,
+            "signed_at": datetime.now(UTC).isoformat(),
+        }
+        return self.statement_backend.sign_statement(statement, priv)
 
     def _craft_agent_input(self, task: Task, agent_name: str) -> str:
         """Craft the input message for a specific agent."""

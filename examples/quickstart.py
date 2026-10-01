@@ -61,11 +61,20 @@ async def main() -> None:
 
 def _result(d: dict):
     """Rebuild a ConsensusResult from its dict form for signing."""
-    from claudeway import ConsensusResult
+    from claudeway import AgentResponse, ConsensusResult
     return ConsensusResult(
         final_answer=d["final_answer"],
         method=d["method"],
         agent_count=d["agent_count"],
+        responses=[
+            AgentResponse(
+                agent_name=r["agent"],
+                answer=r["answer"],
+                confidence=r["confidence"],
+                statement=r.get("statement"),
+            )
+            for r in d.get("responses", [])
+        ],
         agreement=d["agreement"],
         rounds=d["rounds"],
         disagreed=d["disagreed"],

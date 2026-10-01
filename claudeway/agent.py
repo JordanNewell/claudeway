@@ -61,6 +61,12 @@ class AgentConfig:
     temperature: float = 0.7
     max_tokens: int = 4096
     tools: list[Any] = field(default_factory=list)  # List of Tool instances
+    # Hex private key this agent signs its consensus statements with. Empty
+    # = the swarm provisions an ephemeral key (verifiable within the receipt,
+    # but identity doesn't persist across runs). Pin a key to give the agent
+    # a stable, verifiable identity. Independence of these keys is a
+    # deployment property — cross-host agent signing is where it becomes real.
+    signing_key: str = ""
 
 
 class Agent:

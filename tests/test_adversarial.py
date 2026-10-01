@@ -37,9 +37,11 @@ import pytest
 
 from claudeway.consensus import ConsensusResult
 from claudeway.signing import (
+    AGENT_STATEMENT_TYPE,
     ConsensusReceipt,
     Ed25519Backend,
     canonical_json,
+    verify_receipt_detailed,
 )
 from claudeway.swarm import AgentResponse
 from claudeway.transports import to_nostr_event
@@ -581,3 +583,214 @@ def test_unsigned_receipt_cannot_be_verified_by_assuming_trust(
     # is_signed returns True (fields are populated), but verify catches it.
     assert receipt.is_signed is True
     assert backend.verify_receipt(receipt) is False
+
+
+# --- 8. Agent-statement attacks (k-of-n receipts) ----------------------------
+#
+# v2 receipts carry per-agent signed statements. New attack surface:
+# statement fabrication (operator mints signatures under fresh keys),
+# statement tampering inside a signed receipt, cross-task statement replay,
+# and statement/response desync. The last three are caught unconditionally;
+# fabrication is caught by per-agent key pinning — which is exactly why the
+# verifier takes expected_agent_pubkeys.
+
+
+def _make_statement(
+    backend: Ed25519Backend,
+    priv: str,
+    agent: str,
+    answer: str = "use sqlite",
+    task_id: str = "t1",
+) -> dict:
+    """A signed statement over a controlled stance."""
+    return backend.sign_statement({
+        "type": AGENT_STATEMENT_TYPE,
+        "swarm": "DBPicker",
+        "task_id": task_id,
+        "agent": agent,
+        "role": "db specialist",
+        "model": "claude-test",
+        "round": 1,
+        "answer": answer,
+        "confidence": 0.9,
+        "signed_at": "2026-10-01T00:00:00+00:00",
+    }, priv)
+
+
+def _make_v2_receipt(
+    backend: Ed25519Backend,
+    operator_priv: str,
+    statements: list[dict],
+    *,
+    task_id: str = "t1",
+    quorum: int | None = None,
+) -> ConsensusReceipt:
+    """A signed v2 receipt whose responses match the given statements."""
+    responses = [
+        AgentResponse(
+            agent_name=s["agent"], answer=s["answer"],
+            confidence=s["confidence"], round=s.get("round", 1), statement=s,
+        )
+        for s in statements
+    ]
+    result = ConsensusResult(
+        final_answer=statements[0]["answer"],
+        method="weighted_vote",
+        agent_count=len(responses),
+        responses=responses,
+        agreement=0.9,
+    )
+    receipt = ConsensusReceipt.from_result(
+        result, swarm_name="DBPicker", task_id=task_id, quorum=quorum
+    )
+    backend.sign_receipt(receipt, operator_priv)
+    return receipt
+
+
+def test_malicious_operator_fabricating_all_statements_is_caught_by_pinning(
+    backend: Ed25519Backend,
+):
+    """The operator fabricates three 'agent' statements under fresh keys.
+
+    Every statement is cryptographically self-consistent, the aggregate
+    signature is genuinely theirs — nothing detects this WITHOUT the
+    verifier pinning the agent keys it knows. This test is the reason
+    verify_receipt_detailed takes expected_agent_pubkeys.
+    """
+    agent_priv, agent_pub = backend.generate_keypair()
+    operator_priv, _ = backend.generate_keypair()
+    statements = [
+        _make_statement(backend, agent_priv, agent=n) for n in "ABC"
+    ]
+    receipt = _make_v2_receipt(backend, operator_priv, statements)
+
+    # Honest run: pinned keys, all valid, quorum met.
+    known = {a: agent_pub for a in "ABC"}
+    honest = verify_receipt_detailed(receipt, expected_agent_pubkeys=known)
+    assert honest.valid is True
+
+    # Attack: same receipt shape, statements signed by the operator's own
+    # fresh keys — i.e., no agent ever said any of this.
+    forged = [_make_statement(backend, operator_priv, agent=n) for n in "ABC"]
+    receipt = _make_v2_receipt(backend, operator_priv, forged)
+    naive = verify_receipt_detailed(receipt)  # no pinning: nothing to catch it with
+    assert naive.statements[0].valid is True  # self-consistency alone proves nothing
+    pinned = verify_receipt_detailed(receipt, expected_agent_pubkeys=known)
+    assert all(s.valid is False for s in pinned.statements)
+    assert all(s.reason == "key-mismatch" for s in pinned.statements)
+    assert pinned.quorum_met is False
+    assert pinned.valid is False
+
+
+def test_statement_tamper_inside_signed_receipt_invalidates_everything(
+    backend: Ed25519Backend,
+):
+    """Editing an answer inside a signed statement trips both guards."""
+    agent_priv, _ = backend.generate_keypair()
+    operator_priv, _ = backend.generate_keypair()
+    statements = [_make_statement(backend, agent_priv, agent=n) for n in "AB"]
+    receipt = _make_v2_receipt(backend, operator_priv, statements)
+
+    receipt.payload["statements"][0]["answer"] = "use postgres"
+    # Aggregate: the payload (which contains the statement) no longer hashes
+    # to payload_hash. Statement: content hash no longer matches.
+    report = verify_receipt_detailed(receipt)
+    assert report.aggregate_valid is False
+
+
+def test_statement_from_task_a_replayed_in_task_b_receipt_is_caught(
+    backend: Ed25519Backend,
+):
+    """Signed stances are pinned to their task — no cross-task recycling."""
+    agent_priv, _ = backend.generate_keypair()
+    operator_priv, _ = backend.generate_keypair()
+    statements = [
+        _make_statement(backend, agent_priv, agent="A", task_id="t1"),
+        _make_statement(backend, agent_priv, agent="B", task_id="t1"),
+    ]
+    # Same question, same answers, but this receipt claims task t2.
+    receipt = _make_v2_receipt(
+        backend, operator_priv, statements, task_id="t2", quorum=2
+    )
+    report = verify_receipt_detailed(receipt)
+    assert all(s.valid is False for s in report.statements)
+    assert all(s.reason == "task-id-mismatch" for s in report.statements)
+    assert report.valid is False
+
+
+def test_statement_detached_from_its_response_is_caught(
+    backend: Ed25519Backend,
+):
+    """A valid statement for answer X can't attest a response saying Y.
+
+    The verifier cross-checks each statement against the response attributed
+    to the same agent — a signed stance can't be quietly re-pointed at a
+    different answer, even inside an otherwise-untampered receipt.
+    """
+    agent_a_priv, _ = backend.generate_keypair()
+    operator_priv, _ = backend.generate_keypair()
+    statements = [
+        _make_statement(backend, agent_a_priv, agent="A", answer="use sqlite"),
+        _make_statement(backend, agent_a_priv, agent="B", answer="use sqlite"),
+    ]
+    receipt = _make_v2_receipt(backend, operator_priv, statements)
+
+    # The operator rewrites B's response answer but keeps B's statement
+    # (which still says "use sqlite") — the desync is the tell.
+    receipt.payload["result"]["responses"][1]["answer"] = "use postgres"
+    report = verify_receipt_detailed(receipt)
+    assert report.statements[0].valid is True
+    assert report.statements[1].valid is False
+    assert report.statements[1].reason == "response-mismatch:answer"
+
+
+def test_one_compromised_agent_key_forges_only_that_agent(
+    backend: Ed25519Backend,
+):
+    """With A's key stolen, the attacker can forge A's statement — but that
+    same key cannot forge B's statement (pinning rejects it), and honest
+    B's statement verifies untouched.
+
+    Key *custody* is out of scope for signature checks — pinning proves key
+    identity, not who holds the key. A stolen A-key is detectable only via
+    rotation; what signatures guarantee is that the compromise stops at A.
+    """
+    agent_privs, agent_pubs = {}, {}
+    for name in "AB":
+        agent_privs[name], agent_pubs[name] = backend.generate_keypair()
+    operator_priv, _ = backend.generate_keypair()
+
+    # The attacker (holding A's stolen key) mints a statement CLAIMING to be
+    # B and voting "use postgres". B honestly voted "use sqlite".
+    forged = _make_statement(
+        backend, agent_privs["A"], agent="B", answer="use postgres"
+    )
+    honest = _make_statement(
+        backend, agent_privs["B"], agent="B", answer="use sqlite"
+    )
+    known = {n: agent_pubs[n] for n in "AB"}
+
+    # Honest operator: signs the payload containing both statements; the
+    # responses reflect what B actually said ("use sqlite").
+    result = ConsensusResult(
+        final_answer="use sqlite",
+        method="weighted_vote",
+        agent_count=1,
+        responses=[AgentResponse(
+            agent_name="B", answer="use sqlite", confidence=0.9,
+            round=1, statement=honest,
+        )],
+        agreement=0.9,
+    )
+    receipt = ConsensusReceipt.from_result(
+        result, swarm_name="DBPicker", task_id="t1",
+        statements=[forged, honest], quorum=2,
+    )
+    backend.sign_receipt(receipt, operator_priv)
+
+    report = verify_receipt_detailed(receipt, expected_agent_pubkeys=known)
+    reasons = sorted(s.reason for s in report.statements if not s.valid)
+    assert reasons == ["key-mismatch"]  # A's key, claiming to be B
+    assert report.valid_statements == 1  # only B's honest statement
+    assert report.quorum_met is False
+    assert report.valid is False

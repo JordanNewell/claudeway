@@ -13,6 +13,60 @@ Dates are ISO 8601 (UTC).
 
 _No changes yet._
 
+## [0.4.0] — 2026-10-01
+
+Feature release — **per-agent signed statements and k-of-n quorum receipts.**
+The receipt stops being one operator's claim about what the agents said and
+becomes a countable multi-sig: every agent signs its own stance, and anyone
+can verify the signatures individually.
+
+### Added
+- **Per-agent signed statements.** Every agent in a `Swarm` now gets a
+  signing keypair (pinned via `AgentConfig.signing_key`, otherwise an
+  ephemeral key is provisioned per swarm) and signs a
+  `claudeway.agent-statement.v1` statement over its stance — answer,
+  confidence, model, role, task, round. Statements ride on
+  `AgentResponse.statement` and survive dict round-trips through
+  `Task.result`.
+- **v2 receipt payload (`claudeway.consensus.v2`).** When statements are
+  present, `ConsensusReceipt.from_result` emits a payload carrying the
+  statements plus a `quorum` threshold k (default: unanimous). The
+  operator's aggregate signature covers the agent signatures too. v1
+  receipts are produced unchanged when no statements exist — the verifier
+  handles both forever.
+- **`verify_receipt_detailed(receipt, expected_operator_pubkey="",
+  expected_agent_pubkeys={})`** — full verification report: aggregate
+  signature, per-statement signature/hash checks, statement↔response
+  cross-checks (`response-mismatch:answer`/`confidence`), cross-task replay
+  detection (`task-id-mismatch`), operator and per-agent key pinning
+  (`key-mismatch`), and the quorum count. Returns a `ReceiptVerification`
+  with per-statement reasons.
+- **Statement helpers** — `SignatureBackend.sign_statement` /
+  `verify_statement` (implemented once on the ABC, inherited by Ed25519 and
+  ML-DSA-65 backends; mixed-algorithm statements verify per statement),
+  plus module-level `sign_statement` / `verify_statement` /
+  `statement_hash`.
+- **MCP `verify_consensus` upgrade** — the tool now accepts optional
+  `expected_operator_pubkey` / `expected_agent_pubkeys` and returns the
+  full statement-by-statement verdict, not just a boolean.
+
+### Security
+- New adversarial tests for the statement attack surface: operator
+  fabrication of statements under fresh keys (caught by per-agent pinning),
+  statement tampering inside a signed receipt (aggregate hash guard),
+  cross-task statement replay (`task-id-mismatch`), statement/response
+  desync (`response-mismatch`), and stolen-agent-key isolation.
+- Honest threat-model note: a signature proves self-consistency, not key
+  custody. Without per-agent pinning, a malicious operator can mint
+  self-consistent statements under fresh keys — pinning is what makes
+  fabrication detectable. See `docs/THREAT-MODEL.md`.
+
+### Compatibility
+- v1 receipts verify exactly as before; `verify_receipt` semantics are
+  unchanged. Responses without statements keep their v1 dict shape
+  byte-for-byte, so existing payload hashes and transparency-log anchors
+  are unaffected.
+
 ## [0.3.2] — 2026-07-26
 
 Maintenance release — CI/docs only, no package behavior change.

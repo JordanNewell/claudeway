@@ -62,16 +62,28 @@ signed receipt.
 
 ### `verify_consensus`
 
-Verify a receipt's signature without re-running consensus.
+Verify a receipt end to end without re-running consensus: aggregate
+signature, every per-agent statement signature, statement/response
+consistency, and the quorum count.
 
 ```jsonc
 {
-  "receipt": { /* the full receipt object from reach_consensus */ }
+  "receipt": { /* the full receipt object from reach_consensus */ },
+  // optional pinning — see below
+  "expected_operator_pubkey": "hex…",
+  "expected_agent_pubkeys": { "Alice": "hex…", "Bob": "hex…" }
 }
 ```
 
-Returns `{"valid": true}` or `{"valid": false, "reason": "..."}`. No
-network calls — verification is offline and deterministic.
+Returns `{"valid": true/false, "aggregate_valid": …, "quorum": k,
+"valid_statements": m, "total_statements": n, "statements": [{"agent",
+"valid", "reason"}, …]}`. No network calls — verification is offline and
+deterministic.
+
+Pinning matters: without `expected_operator_pubkey`, anyone can re-sign a
+doctored payload with their own key and it verifies "valid". Pin the keys
+you know, and per-statement failures come back named (`key-mismatch`,
+`task-id-mismatch`, `response-mismatch:answer`, `signature-invalid`).
 
 ## Integration examples
 

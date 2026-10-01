@@ -70,22 +70,28 @@ Claudeway fills exactly that.
 ## What makes it defensible
 
 Consensus results aren't text — they're **signed, tamper-evident
-attestations** anyone can verify:
+attestations** anyone can verify. Since v0.4.0, every agent signs its own
+stance: a receipt is a **k-of-n multi-sig over machine judgment**, not one
+operator's claim about what the agents said.
 
 ```python
-from claudeway import ConsensusReceipt, Ed25519Backend
+from claudeway import ConsensusReceipt, Ed25519Backend, verify_receipt_detailed
 
 receipt = ConsensusReceipt.from_result(result, swarm_name="ArchReview", task_id="q1")
 Ed25519Backend().sign_receipt(receipt, private_key)
 
-# Anyone, anywhere, can verify this later:
-Ed25519Backend().verify_receipt(receipt)  # -> True
-# ...and tampering with the answer invalidates the signature.
+# Anyone, anywhere, can verify this later — aggregate signature, every
+# agent's individual statement signature, and the quorum count:
+report = verify_receipt_detailed(receipt, expected_agent_pubkeys=agent_keys)
+report.valid, report.valid_statements  # -> (True, 3)
+# ...and tampering with any answer — or any agent's signature — is caught.
 ```
 
+- **k-of-n quorum receipts** — each agent's statement is individually
+  signed; the quorum threshold is part of the signed payload.
 - **Ed25519 by default** — no new native deps, works everywhere.
-- **Swappable signature backend** — a post-quantum (ML-DSA) backend drops in
-  later without touching consensus code.
+- **Swappable signature backend** — a post-quantum (ML-DSA) backend ships
+  today; statements can mix algorithms and verify per statement.
 - **Three transports** — the same signed receipt renders as plain JSON, a
   W3C Verifiable Credential, or a **Nostr NIP-78 event** any Nostr client
   can read.

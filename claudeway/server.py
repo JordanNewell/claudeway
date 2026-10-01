@@ -24,7 +24,11 @@ from typing import Any
 
 from .agent import AgentConfig
 from .consensus import ConsensusStrategy, Debate, WeightedVote
-from .signing import ConsensusReceipt, Ed25519Backend
+from .signing import (
+    ConsensusReceipt,
+    Ed25519Backend,
+    verify_receipt_detailed,
+)
 from .swarm import Swarm, SwarmConfig, Task
 from .transports import to_json_receipt
 
@@ -110,17 +114,26 @@ def _build_server() -> Any:
         return to_json_receipt(receipt)
 
     @mcp.tool()
-    async def verify_consensus(receipt: dict[str, Any]) -> dict[str, bool]:
+    async def verify_consensus(
+        receipt: dict[str, Any],
+        expected_operator_pubkey: str = "",
+    ) -> dict[str, Any]:
         """
-        Verify a signed consensus receipt's integrity and signature.
+        Verify a signed consensus receipt: integrity, signature, agent
+        statements, and quorum.
 
         Args:
             receipt: A receipt dict as returned by reach_consensus.
+            expected_operator_pubkey: Optional hex key the receipt MUST be
+                signed by. Without pinning, anyone can re-sign a doctored
+                payload with their own key — pinning is what makes the
+                verdict mean something.
 
         Returns:
-            {"valid": true} if the signature matches and the payload is
-            untampered; {"valid": false} otherwise (wrong key, tampered
-            payload, or missing signature).
+            {"valid": true} iff the payload is untampered, the aggregate
+            signature verifies (under the pinned key, if given), and enough
+            valid per-agent statements meet the quorum. "statements" details
+            each agent's check; "quorum"/"valid_statements" report the count.
         """
         rebuilt = ConsensusReceipt(
             payload=receipt.get("payload", {}),
@@ -130,8 +143,18 @@ def _build_server() -> Any:
             payload_hash=receipt.get("payload_hash", ""),
             signed_at=receipt.get("signed_at", ""),
         )
-        valid = Ed25519Backend().verify_receipt(rebuilt)
-        return {"valid": valid}
+        report = verify_receipt_detailed(rebuilt, expected_operator_pubkey)
+        return {
+            "valid": report.valid,
+            "aggregate_valid": report.aggregate_valid,
+            "quorum": report.quorum,
+            "valid_statements": report.valid_statements,
+            "total_statements": report.total_statements,
+            "statements": [
+                {"agent": s.agent, "valid": s.valid, "reason": s.reason}
+                for s in report.statements
+            ],
+        }
 
     return mcp
 
@@ -146,6 +169,7 @@ def _result_from_dict(d: dict[str, Any]):
             agent_name=r.get("agent", ""),
             answer=r.get("answer", ""),
             confidence=r.get("confidence", 0.5),
+            statement=r.get("statement"),
         )
         for r in d.get("responses", [])
     ]

@@ -114,18 +114,27 @@ def _response_to_dict(r: Any) -> dict:
     to_dict). Rebuilding a ConsensusResult from that dict used to crash
     to_dict() on the second pass because r.agent_name doesn't exist on
     dicts. Handle both.
+
+    The signed statement (if any) rides along so v2 receipts survive
+    dict round-trips. Absent statements leave the shape v1-identical.
     """
     if isinstance(r, dict):
-        return {
+        out = {
             "agent": r.get("agent") or r.get("agent_name") or "",
             "confidence": r.get("confidence", 0.5),
             "answer": r.get("answer", ""),
         }
-    return {
+        if r.get("statement"):
+            out["statement"] = r["statement"]
+        return out
+    out = {
         "agent": r.agent_name,
         "confidence": r.confidence,
         "answer": r.answer,
     }
+    if getattr(r, "statement", None):
+        out["statement"] = r.statement
+    return out
 
 
 # --- Consensus result --------------------------------------------------------

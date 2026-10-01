@@ -140,6 +140,42 @@ receipt = ConsensusReceipt.from_result(
 producing the same receipt hash identically, anywhere. This is what makes
 signatures portable across machines, languages, and decades.
 
+## Agent statements (k-of-n)
+
+Since v0.4.0, the receipt isn't just the operator's claim — every agent
+signs its own stance. Each agent in a `Swarm` gets a signing keypair
+(pinned via `AgentConfig.signing_key`, otherwise an ephemeral key is
+provisioned per swarm), and every response carries a signed
+`agent-statement.v1` over its answer, confidence, model, role, task, and
+round.
+
+When statements are present, `ConsensusReceipt.from_result` emits a **v2
+payload**: the statements plus a `quorum` threshold k (default:
+unanimous), all covered by the operator's aggregate signature. The
+verifier counts valid agent signatures against k:
+
+```python
+from claudeway import verify_receipt_detailed
+
+report = verify_receipt_detailed(
+    receipt,
+    expected_operator_pubkey=operator_pub,          # pin the operator
+    expected_agent_pubkeys={"A": pub_a, "B": pub_b, "C": pub_c},
+)
+report.valid                     # aggregate valid AND quorum met
+report.valid_statements          # how many agent signatures held up
+report.statements[0].reason      # "" | key-mismatch | task-id-mismatch
+                                 #    | response-mismatch:answer | ...
+```
+
+Pinning is the difference between "verifiable" and "verifiable as
+someone specific": signatures are self-consistent under any key, so a
+malicious operator can mint statements under fresh keys — pinning the
+agent pubkeys you know makes that detectable. Statements are also
+cross-checked against the responses they claim to attest, and pinned to
+their task (no cross-task replay). See the
+[threat model](THREAT-MODEL.md) for the full attack surface.
+
 ## SignatureBackend
 
 The crypto layer, isolated behind an ABC so consensus code never depends
@@ -162,7 +198,9 @@ assert backend.verify_receipt(receipt) is True
 ```
 
 The same receipt can be signed under either backend — `receipt.algorithm`
-records which. The signing layer is fully decoupled from the transport
+records which. Statements work the same way (`backend.sign_statement` /
+`backend.verify_statement`), and mixed-algorithm statements verify per
+statement. The signing layer is fully decoupled from the transport
 layer, so you can change transports (JSON → W3C VC → Nostr) without
 re-signing. See [Transports](transports.md).
 

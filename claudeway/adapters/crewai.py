@@ -324,6 +324,7 @@ def _rebuild_result(d: dict[str, Any]):
                 agent_name=r["agent"],
                 answer=r["answer"],
                 confidence=r["confidence"],
+                statement=r.get("statement"),
             )
             for r in d.get("responses", [])
         ],
