@@ -13,7 +13,7 @@ Every agent framework can make one agent answer. Most can run several in paralle
 [![CI](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml/badge.svg)](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml)
 [![Docs](https://github.com/JordanNewell/claudeway/actions/workflows/docs.yml/badge.svg)](https://jordannewell.github.io/claudeway/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](#license)
+[![License: BUSL-1.1](https://img.shields.io/badge/license-BUSL--1.1-green.svg)](#license)
 
 ---
 
@@ -285,7 +285,7 @@ For acquisition, partnership, integration, or "we're Block and we want to talk" 
 
 ## License
 
-MIT
+Licensed under the Business Source License 1.1 (BUSL-1.1) — source-available; converts to MIT on 2030-10-12. See [LICENSE](LICENSE).
 
 
 <p align="right">
