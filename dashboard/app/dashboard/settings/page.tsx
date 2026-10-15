@@ -20,7 +20,7 @@ export default function SettingsPage() {
 
           <div className="flex gap-3">
             <Button
-              variant={theme === "light" ? "default" : "outline"}
+              variant={theme === "light" ? "default" : "outline-solid"}
               onClick={() => setTheme("light")}
               className="flex-1"
             >
@@ -28,7 +28,7 @@ export default function SettingsPage() {
               Light
             </Button>
             <Button
-              variant={theme === "dark" ? "default" : "outline"}
+              variant={theme === "dark" ? "default" : "outline-solid"}
               onClick={() => setTheme("dark")}
               className="flex-1"
             >
@@ -36,7 +36,7 @@ export default function SettingsPage() {
               Dark
             </Button>
             <Button
-              variant={theme === "system" ? "default" : "outline"}
+              variant={theme === "system" ? "default" : "outline-solid"}
               onClick={() => setTheme("system")}
               className="flex-1"
             >
