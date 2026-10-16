@@ -23,14 +23,14 @@
     "recharts": "^2.10.0"
   },
   "devDependencies": {
-    "typescript": "^5.3.3",
+    "@tailwindcss/postcss": "^4.3.3",
     "@types/node": "^20.10.0",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
-    "autoprefixer": "^10.4.0",
-    "postcss": "^8.5.23",
-    "tailwindcss": "^3.4.0",
     "eslint": "^8.56.0",
-    "eslint-config-next": "15.1.0"
+    "eslint-config-next": "15.1.0",
+    "postcss": "^8.5.23",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^5.3.3"
   }
 }

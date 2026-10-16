@@ -52,7 +52,7 @@ export default function TemplatesPage() {
                       {template.description}
                     </p>
                   </div>
-                  <Zap className="w-5 h-5 text-yellow-500 flex-shrink-0 ml-2" />
+                  <Zap className="w-5 h-5 text-yellow-500 shrink-0 ml-2" />
                 </div>
               </CardHeader>
               <CardContent>
