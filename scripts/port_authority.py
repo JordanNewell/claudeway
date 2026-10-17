@@ -13,13 +13,12 @@ Features:
 - Cross-project compatibility
 """
 
-import socket
 import json
 import os
-from pathlib import Path
-from typing import Optional, Dict
-from dataclasses import dataclass, asdict
+import socket
+from dataclasses import asdict, dataclass
 from datetime import datetime
+from pathlib import Path
 
 
 @dataclass
@@ -44,7 +43,7 @@ class PortAuthority:
 
     def __init__(self, project_name: str):
         self.project_name = project_name.lower().replace(" ", "-")
-        self._state: Dict[str, PortAllocation] = {}
+        self._state: dict[str, PortAllocation] = {}
         self._load_state()
 
     def _load_state(self) -> None:
@@ -72,7 +71,7 @@ class PortAuthority:
         except OSError:
             return False
 
-    def _find_available_port(self, preferred: Optional[int] = None) -> int:
+    def _find_available_port(self, preferred: int | None = None) -> int:
         """Find an available port in the range."""
         if preferred and self._is_port_available(preferred):
             return preferred
@@ -90,7 +89,7 @@ class PortAuthority:
     def allocate_port(
         self,
         service: str,
-        preferred_port: Optional[int] = None,
+        preferred_port: int | None = None,
         dns_suffix: str = "pa.local"
     ) -> PortAllocation:
         """
@@ -138,7 +137,7 @@ class PortAuthority:
 
         return allocation
 
-    def get_allocation(self, service: str) -> Optional[PortAllocation]:
+    def get_allocation(self, service: str) -> PortAllocation | None:
         """Get existing allocation for a service."""
         cache_key = f"{self.project_name}-{service}"
         return self._state.get(cache_key)

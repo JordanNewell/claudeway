@@ -5,15 +5,14 @@ Data models for deployed agents.
 """
 
 from datetime import datetime
-from enum import Enum
-
-from sqlalchemy import String, DateTime, Integer, ForeignKey, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from enum import StrEnum
 
 from database import Base
+from sqlalchemy import DateTime, ForeignKey, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 
-class AgentStatus(str, Enum):
+class AgentStatus(StrEnum):
     """Agent deployment status."""
     DEPLOYING = "deploying"
     RUNNING = "running"
@@ -27,7 +26,9 @@ class Agent(Base):
     __tablename__ = "agents"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
-    tenant_id: Mapped[str] = mapped_column(String, ForeignKey("tenants.id"), nullable=False, index=True)
+    tenant_id: Mapped[str] = mapped_column(
+        String, ForeignKey("tenants.id"), nullable=False, index=True
+    )
 
     # Configuration
     name: Mapped[str] = mapped_column(String, nullable=False)
@@ -43,7 +44,9 @@ class Agent(Base):
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
     last_active_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     def to_dict(self) -> dict:

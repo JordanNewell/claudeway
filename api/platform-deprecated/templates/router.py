@@ -5,12 +5,11 @@ REST API endpoints for agent template management.
 """
 
 # from typing import list (builtin in Python 3.9+)
-from pydantic import BaseModel
-
+from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
+from pydantic import BaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
 from templates.service import TemplateService
 
 

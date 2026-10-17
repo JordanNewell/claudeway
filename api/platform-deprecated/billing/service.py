@@ -4,15 +4,14 @@ Billing Service
 Business logic for usage tracking and billing.
 """
 
-from datetime import datetime, timedelta
+from datetime import datetime
 from uuid import uuid4
-from typing import Optional
 
-from sqlalchemy import select, func as sql_func
+from sqlalchemy import func as sql_func
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from billing.models import UsageRecord, Invoice, InvoiceStatus
-
+from billing.models import Invoice, InvoiceStatus, UsageRecord
 
 # Pricing (in cents per unit)
 PRICING = {
@@ -119,7 +118,8 @@ class BillingService:
         from tenants.models import TenantTier
 
         if tenant.tier == TenantTier.FREE:
-            messages_charge = max(0, usage["messages"] - tenant.max_messages_per_month) * tier_pricing["messages"]
+            free_messages = max(0, usage["messages"] - tenant.max_messages_per_month)
+            messages_charge = free_messages * tier_pricing["messages"]
             tokens_charge = usage["tokens"] * tier_pricing["tokens"]
         else:
             messages_charge = usage["messages"] * tier_pricing["messages"]
@@ -162,7 +162,7 @@ class BillingService:
         )
         return list(result.scalars().all())
 
-    async def get_invoice(self, invoice_id: str) -> Optional[Invoice]:
+    async def get_invoice(self, invoice_id: str) -> Invoice | None:
         """Get invoice by ID."""
         result = await self.db.execute(
             select(Invoice).where(Invoice.id == invoice_id)

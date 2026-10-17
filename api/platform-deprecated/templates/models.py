@@ -5,12 +5,12 @@ Pre-built agent template configurations.
 """
 
 from datetime import datetime
-# from typing import dict  # dict is built-in in Python 3.9+
-
-from sqlalchemy import String, DateTime, Text
-from sqlalchemy.orm import Mapped, mapped_column
 
 from database import Base
+
+# from typing import dict  # dict is built-in in Python 3.9+
+from sqlalchemy import DateTime, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 
 class Template(Base):
@@ -37,7 +37,9 @@ class Template(Base):
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     def to_dict(self) -> dict:
         """Convert to dictionary for API responses."""

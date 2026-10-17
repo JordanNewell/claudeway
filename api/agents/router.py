@@ -6,12 +6,10 @@ Connected to the Claudeway core orchestration engine.
 """
 
 # from typing import list (builtin in Python 3.9+)
+from fastapi import APIRouter, Depends, HTTPException, status
 from pydantic import BaseModel
 
-from fastapi import APIRouter, Depends, HTTPException, status
-
 from api.orchestration import OrchestrationService
-from api.state import get_runtime
 
 
 class DeployAgentRequest(BaseModel):

@@ -4,15 +4,12 @@ Template Service
 Business logic for agent template management.
 """
 
-from json import loads as json_loads
 from uuid import uuid4
-from typing import Optional
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from templates.models import Template
-
 
 # Built-in templates (seeded on startup)
 BUILTIN_TEMPLATES = [
@@ -137,7 +134,7 @@ class TemplateService:
     def __init__(self, db: AsyncSession) -> None:
         self.db = db
 
-    async def get_template(self, template_id: str) -> Optional[Template]:
+    async def get_template(self, template_id: str) -> Template | None:
         """Get template by ID."""
         result = await self.db.execute(
             select(Template).where(Template.id == template_id)

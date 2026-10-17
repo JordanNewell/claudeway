@@ -7,14 +7,14 @@ New code should use api.orchestration.OrchestrationService instead.
 
 from json import dumps as json_dumps
 from uuid import uuid4
-from typing import Optional
 
-from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
+from agents.deployment import DeploymentStatus as AgentStatus
 
 # Use new naming (backwards compatible)
-from agents.deployment import SwarmDeployment as Agent, DeploymentStatus as AgentStatus
+from agents.deployment import SwarmDeployment as Agent
 from gateway.client import ClaudeFlowClient
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
 from tenants.service import TenantService
 
 
@@ -86,7 +86,7 @@ class AgentService:
 
         return agent
 
-    async def get_agent(self, agent_id: str) -> Optional[Agent]:
+    async def get_agent(self, agent_id: str) -> Agent | None:
         """Get agent by ID."""
         result = await self.db.execute(
             select(Agent).where(Agent.id == agent_id)

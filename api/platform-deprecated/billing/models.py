@@ -5,16 +5,14 @@ Data models for usage tracking and billing.
 """
 
 from datetime import datetime
-from enum import Enum
-from typing import Optional
-
-from sqlalchemy import String, DateTime, Integer, ForeignKey, Float
-from sqlalchemy.orm import Mapped, mapped_column
+from enum import StrEnum
 
 from database import Base
+from sqlalchemy import DateTime, Float, ForeignKey, Integer, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
-class InvoiceStatus(str, Enum):
+class InvoiceStatus(StrEnum):
     """Invoice status."""
     DRAFT = "draft"
     PENDING = "pending"
@@ -29,8 +27,12 @@ class UsageRecord(Base):
     __tablename__ = "usage_records"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
-    tenant_id: Mapped[str] = mapped_column(String, ForeignKey("tenants.id"), nullable=False, index=True)
-    agent_id: Mapped[str] = mapped_column(String, ForeignKey("agents.id"), nullable=False, index=True)
+    tenant_id: Mapped[str] = mapped_column(
+        String, ForeignKey("tenants.id"), nullable=False, index=True
+    )
+    agent_id: Mapped[str] = mapped_column(
+        String, ForeignKey("agents.id"), nullable=False, index=True
+    )
 
     # Usage metrics
     messages: Mapped[int] = mapped_column(Integer, default=0)
@@ -59,7 +61,9 @@ class Invoice(Base):
     __tablename__ = "invoices"
 
     id: Mapped[str] = mapped_column(String, primary_key=True)
-    tenant_id: Mapped[str] = mapped_column(String, ForeignKey("tenants.id"), nullable=False, index=True)
+    tenant_id: Mapped[str] = mapped_column(
+        String, ForeignKey("tenants.id"), nullable=False, index=True
+    )
 
     # Invoice details
     invoice_number: Mapped[str] = mapped_column(String, nullable=False, unique=True)
@@ -74,12 +78,12 @@ class Invoice(Base):
     status: Mapped[str] = mapped_column(String, default=InvoiceStatus.DRAFT, nullable=False)
 
     # Stripe
-    stripe_invoice_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
-    stripe_payment_intent_id: Mapped[Optional[str]] = mapped_column(String, nullable=True)
+    stripe_invoice_id: Mapped[str | None] = mapped_column(String, nullable=True)
+    stripe_payment_intent_id: Mapped[str | None] = mapped_column(String, nullable=True)
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    paid_at: Mapped[Optional[datetime]] = mapped_column(DateTime, nullable=True)
+    paid_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     def to_dict(self) -> dict:
         """Convert to dictionary."""

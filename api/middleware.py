@@ -4,14 +4,13 @@ Claudeway Middleware
 Custom middleware for tenant context and rate limiting.
 """
 
-from typing import Callable
+from collections.abc import Callable
 
+import redis.asyncio as redis
+from config import settings
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 from starlette.types import ASGIApp
-import redis.asyncio as redis
-
-from config import settings
 
 
 class TenantContextMiddleware(BaseHTTPMiddleware):

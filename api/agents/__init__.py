@@ -5,11 +5,8 @@ The actual agent intelligence is in core/agent.py.
 """
 
 # New clear naming
-from agents.deployment import SwarmDeployment, DeploymentStatus
-
 # Backwards compatibility (deprecated)
-from agents.deployment import Agent, AgentStatus
-
+from agents.deployment import Agent, AgentStatus, DeploymentStatus, SwarmDeployment
 from agents.router import router
 
 __all__ = [

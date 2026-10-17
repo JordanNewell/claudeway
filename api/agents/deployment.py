@@ -6,15 +6,14 @@ Note: These are database records, NOT the actual agents (which are in core/agent
 """
 
 from datetime import datetime
-from enum import Enum
-
-from sqlalchemy import String, DateTime, Integer, ForeignKey, Text
-from sqlalchemy.orm import Mapped, mapped_column
+from enum import StrEnum
 
 from database import Base
+from sqlalchemy import DateTime, Integer, String, Text
+from sqlalchemy.orm import Mapped, mapped_column
 
 
-class DeploymentStatus(str, Enum):
+class DeploymentStatus(StrEnum):
     """Swarm deployment status."""
     DEPLOYING = "deploying"
     RUNNING = "running"
@@ -43,7 +42,8 @@ class SwarmDeployment(Base):
     config: Mapped[str] = mapped_column(Text, nullable=True)  # JSON string
 
     # Runtime integration
-    swarm_id: Mapped[str | None] = mapped_column(String, nullable=True, unique=True)  # References core Swarm
+    # References core Swarm
+    swarm_id: Mapped[str | None] = mapped_column(String, nullable=True, unique=True)
 
     # Status
     status: Mapped[str] = mapped_column(String, default=DeploymentStatus.DEPLOYING, nullable=False)
@@ -54,7 +54,9 @@ class SwarmDeployment(Base):
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
     last_active_at: Mapped[datetime | None] = mapped_column(DateTime, nullable=True)
 
     def to_dict(self) -> dict:

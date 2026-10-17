@@ -15,15 +15,17 @@ These features were built before proving the core worked. They can be re-enabled
 when there are actual users to justify the complexity.
 """
 
+from collections.abc import AsyncGenerator
 from contextlib import asynccontextmanager
-from typing import Any, AsyncGenerator
+from typing import Any
 
+# Platform config (still needed for CORS, etc)
+from config import settings
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
-# Platform config (still needed for CORS, etc)
-from config import settings
+from api.agents import router as agents_router
 
 # NOTE: Database init removed - deprecated features not needed
 # from database import init_db, close_db
@@ -96,8 +98,6 @@ async def debug_state() -> dict[str, Any]:
 
 # Include routers
 # NOTE: Only agents router is active - other routes moved to platform-deprecated/
-from api.agents import router as agents_router
-
 app.include_router(agents_router, prefix="/v1/agents", tags=["agents"])
 
 # Deprecated platform routes (NOT active):

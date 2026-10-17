@@ -5,15 +5,13 @@ REST API endpoints for tenant management.
 """
 
 # from typing import list (builtin in Python 3.9+)
-from uuid import uuid4
 
+from database import get_db
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
-from tenants.models import Tenant, TenantTier
+from tenants.models import TenantTier
 from tenants.service import TenantService
-
 
 router = APIRouter()
 

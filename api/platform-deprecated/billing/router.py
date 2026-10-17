@@ -7,12 +7,11 @@ REST API endpoints for billing and usage tracking.
 # from typing import list (builtin in Python 3.9+)
 from datetime import datetime
 
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from database import get_db
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from database import get_db
 from billing.service import BillingService
-
 
 router = APIRouter()
 

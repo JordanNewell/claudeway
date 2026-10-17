@@ -5,22 +5,21 @@ Multi-tenant data models for Claudeway.
 """
 
 from datetime import datetime
-from enum import Enum
-
-from sqlalchemy import String, DateTime
-from sqlalchemy.orm import Mapped, mapped_column
+from enum import StrEnum
 
 from database import Base
+from sqlalchemy import DateTime, String
+from sqlalchemy.orm import Mapped, mapped_column
 
 
-class TenantTier(str, Enum):
+class TenantTier(StrEnum):
     """Tenant subscription tiers."""
     FREE = "free"
     PRO = "pro"
     ENTERPRISE = "enterprise"
 
 
-class TenantStatus(str, Enum):
+class TenantStatus(StrEnum):
     """Tenant account status."""
     ACTIVE = "active"
     SUSPENDED = "suspended"
@@ -46,7 +45,9 @@ class Tenant(Base):
 
     # Timestamps
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
-    updated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+    )
 
     # Configuration
     max_agents: Mapped[int] = mapped_column(default=1)

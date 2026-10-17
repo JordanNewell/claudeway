@@ -4,13 +4,12 @@ Tenant Service
 Business logic for tenant management.
 """
 
-from typing import Optional
 from uuid import uuid4
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from tenants.models import Tenant, TenantTier, TenantStatus
+from tenants.models import Tenant, TenantStatus, TenantTier
 
 
 class TenantService:
@@ -63,14 +62,14 @@ class TenantService:
 
         return tenant
 
-    async def get_tenant(self, tenant_id: str) -> Optional[Tenant]:
+    async def get_tenant(self, tenant_id: str) -> Tenant | None:
         """Get tenant by ID."""
         result = await self.db.execute(
             select(Tenant).where(Tenant.id == tenant_id)
         )
         return result.scalar_one_or_none()
 
-    async def get_tenant_by_email(self, email: str) -> Optional[Tenant]:
+    async def get_tenant_by_email(self, email: str) -> Tenant | None:
         """Get tenant by email."""
         result = await self.db.execute(
             select(Tenant).where(Tenant.email == email)

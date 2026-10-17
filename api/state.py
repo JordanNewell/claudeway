@@ -4,9 +4,7 @@ Claudeway State - Shared application state.
 Holds the Runtime singleton that manages all agents and swarms.
 """
 
-from typing import Any
 from claudeway.runtime import Runtime
-
 
 # Global runtime instance
 _runtime: Runtime | None = None

@@ -4,14 +4,14 @@ Claudeway Orchestration Service
 Bridges the API layer to the core orchestration engine.
 """
 
-from typing import Any
 from datetime import datetime
+from typing import Any
 from uuid import uuid4
 
+from api.state import get_runtime
 from claudeway.agent import Agent, AgentConfig
 from claudeway.coordinator import Coordinator, CoordinatorConfig
-from claudeway.swarm import Swarm, SwarmConfig, Task
-from api.state import get_runtime
+from claudeway.swarm import SwarmConfig, Task
 
 
 class OrchestrationService:
@@ -128,7 +128,6 @@ class OrchestrationService:
         )
 
         # Create coordinator
-        from claudeway.coordinator import Coordinator
         coordinator = Coordinator(coord_config)
 
         # Add specialists

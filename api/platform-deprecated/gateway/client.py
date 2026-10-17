@@ -5,10 +5,9 @@ Handles communication with Claude-Flow orchestration layer.
 This is how Claudeway deploys and manages agents via Claude-Flow.
 """
 
-import httpx
 from typing import Any
 
-from config import settings
+import httpx
 
 
 class ClaudeFlowClient:
