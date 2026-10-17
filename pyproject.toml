@@ -82,8 +82,10 @@ benchmark = [
     "crewai>=1.0.0",
 ]
 # MCP server mode: expose consensus as an MCP tool to Claude Code / Goose / Buzz.
+# mcp 2.x renamed FastMCP to MCPServer with breaking API changes — pin to v1
+# until the server is migrated (see mcp v2 migration guide).
 mcp = [
-    "mcp>=1.0.0",
+    "mcp>=1.0.0,<2",
 ]
 dev = [
     "pytest>=8.0.0",
