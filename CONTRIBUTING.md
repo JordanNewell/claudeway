@@ -7,7 +7,7 @@ move fast.
 ## Quick start
 
 ```bash
-git clone https://github.com/JordanNewell/claudeway.git
+git clone https://github.com/JordanNewell/tractum.git
 cd tractum
 pip install -e ".[mcp,nostr,dev]"
 pytest tests/ -v

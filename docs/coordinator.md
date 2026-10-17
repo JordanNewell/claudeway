@@ -129,4 +129,4 @@ Honest about what's not finished:
 
 ## Live demo
 
-[`examples/coordinator_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/coordinator_demo.py) runs the flow end-to-end with real Claude agents. The plan is parsed for real, specialists run in dependency order, results are synthesized.
+[`examples/coordinator_demo.py`](https://github.com/JordanNewell/tractum/blob/main/examples/coordinator_demo.py) runs the flow end-to-end with real Claude agents. The plan is parsed for real, specialists run in dependency order, results are synthesized.

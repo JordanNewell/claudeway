@@ -11,7 +11,7 @@ command below works against the current code.
 
 > **Launch note:** the PyPI package `tractum` is being published alongside
 > this release. Until it lands, install from the repo:
-> `pip install git+https://github.com/JordanNewell/claudeway.git#egg=tractum[mcp]`.
+> `pip install git+https://github.com/JordanNewell/tractum.git#egg=tractum[mcp]`.
 
 ---
 

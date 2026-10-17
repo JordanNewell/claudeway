@@ -111,7 +111,7 @@ swarm = Swarm(config, consensus=WeightedVote())
 swarm = Swarm(config, consensus=Debate())
 ```
 
-See [`examples/consensus_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/consensus_demo.py)
+See [`examples/consensus_demo.py`](https://github.com/JordanNewell/tractum/blob/main/examples/consensus_demo.py)
 for the disagreement → resolution flow.
 
 ## 6. Run Tractum as an MCP server (optional)

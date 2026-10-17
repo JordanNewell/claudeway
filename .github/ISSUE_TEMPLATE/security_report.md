@@ -16,7 +16,7 @@ exploit the bug before a fix ships.
 ## Report vulnerabilities privately
 
 Follow the private reporting process described in
-**[SECURITY.md](https://github.com/JordanNewell/claudeway/blob/main/SECURITY.md)**:
+**[SECURITY.md](https://github.com/JordanNewell/tractum/blob/main/SECURITY.md)**:
 
 1. Email **<security@jordannewell.com>** with a description, reproducer,
    and affected versions.
@@ -25,7 +25,7 @@ Follow the private reporting process described in
 3. Do **not** open a public GitHub issue, blog post, or tweet until a fix
    has shipped and coordinated disclosure is complete.
 
-See [SECURITY.md](https://github.com/JordanNewell/claudeway/blob/main/SECURITY.md)
+See [SECURITY.md](https://github.com/JordanNewell/tractum/blob/main/SECURITY.md)
 for the full scope, SLA, threat model link, and disclosure policy.
 
 ## After you've emailed

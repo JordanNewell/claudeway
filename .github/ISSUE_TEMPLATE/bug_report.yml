@@ -9,7 +9,7 @@ body:
 
         **Security vulnerability?** Do not use this template. Follow the
         private reporting process in
-        [SECURITY.md](https://github.com/JordanNewell/claudeway/blob/main/SECURITY.md)
+        [SECURITY.md](https://github.com/JordanNewell/tractum/blob/main/SECURITY.md)
         instead — public issues risk exposing unpatched flaws.
 
   - type: textarea

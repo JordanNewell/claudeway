@@ -51,7 +51,7 @@ event = to_nostr_event(
 
 ### End-to-end demo
 
-[`examples/buzz_consensus_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/buzz_consensus_demo.py)
+[`examples/buzz_consensus_demo.py`](https://github.com/JordanNewell/tractum/blob/main/examples/buzz_consensus_demo.py)
 runs the full loop: three Claude agents reach consensus, the receipt is
 signed, a NIP-78 event is produced and published to a relay, then read back
 and verified. The demo runs offline (mock agents) or online (real `Swarm`).
@@ -64,7 +64,7 @@ The events Tractum emits verify under the reference Nostr CLI:
 nak verify < event.json
 ```
 
-See [`TESTLOG.md`](https://github.com/JordanNewell/claudeway/blob/main/TESTLOG.md)
+See [`TESTLOG.md`](https://github.com/JordanNewell/tractum/blob/main/TESTLOG.md)
 for the four-layer evidence trail: BIP-340 KAT vectors, the test suite,
 `nak verify`, and the end-to-end demo.
 
@@ -126,7 +126,7 @@ without the extra, `import tractum` never touches LangGraph.
 
 ### Live demo
 
-[`examples/langgraph_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/langgraph_adapter_demo.py)
+[`examples/langgraph_adapter_demo.py`](https://github.com/JordanNewell/tractum/blob/main/examples/langgraph_adapter_demo.py)
 runs the adapter end-to-end with real Claude agents. The LangGraph
 integration test is opt-in (set `TRACTUM_TEST_LANGGRAPH=1`).
 
@@ -180,7 +180,7 @@ pip install tractum[crewai]
 
 ### Live demo
 
-[`examples/crewai_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/crewai_adapter_demo.py)
+[`examples/crewai_adapter_demo.py`](https://github.com/JordanNewell/tractum/blob/main/examples/crewai_adapter_demo.py)
 runs both flows end-to-end with real Claude agents.
 
 ---
@@ -262,7 +262,7 @@ pip install tractum[maf]
 
 ### Live demo
 
-[`examples/maf_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/maf_adapter_demo.py)
+[`examples/maf_adapter_demo.py`](https://github.com/JordanNewell/tractum/blob/main/examples/maf_adapter_demo.py)
 runs three flows end-to-end: prebuilt, embedded, and streaming.
 
 ---

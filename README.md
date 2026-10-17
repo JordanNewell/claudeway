@@ -10,8 +10,8 @@ Every agent framework can make one agent answer. Most can run several in paralle
 
 > Frameworks coordinate. Tractum agrees.
 
-[![CI](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml/badge.svg)](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml)
-[![Docs](https://github.com/JordanNewell/claudeway/actions/workflows/docs.yml/badge.svg)](https://jordannewell.github.io/claudeway/)
+[![CI](https://github.com/JordanNewell/tractum/actions/workflows/ci.yml/badge.svg)](https://github.com/JordanNewell/tractum/actions/workflows/ci.yml)
+[![Docs](https://github.com/JordanNewell/tractum/actions/workflows/docs.yml/badge.svg)](https://jordannewell.github.io/tractum/)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: BUSL-1.1](https://img.shields.io/badge/license-BUSL--1.1-green.svg)](#license)
 
@@ -143,7 +143,7 @@ pip install tractum[docs]        # + build the docs site locally
 
 > **Launch note:** the PyPI package `tractum` is being published alongside
 > this release. Until it lands, install from the repo:
-> `pip install git+https://github.com/JordanNewell/claudeway.git#egg=tractum[mcp]`.
+> `pip install git+https://github.com/JordanNewell/tractum.git#egg=tractum[mcp]`.
 > (v0.4.x and earlier shipped to GitHub only, as `claudeway`.)
 
 ## Use it three ways
@@ -262,7 +262,7 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 - **Streaming consensus events** — `OnEvent` callback surfaces `AgentCompleted` and `ConsensusResolved` events as they happen
 - **Killer benchmark** — Tractum beats single Claude (+7/20) and CrewAI (+5/20) on a hard question, blind-judge scored, Mann-Whitney U
 - **Adversarial security suite** — 20 tests across 7 attack classes + published threat model
-- **Docs site** — jordannewell.github.io/claudeway (mkdocs-material + mkdocstrings)
+- **Docs site** — jordannewell.github.io/tractum (mkdocs-material + mkdocstrings)
 - Tolerant structured-output parser, substantive `<answer>` contract
 - Stable signing key across adapter runs, async→sync bridge deadlock fix
 
@@ -281,13 +281,13 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 
 ## Docs
 
-Full documentation at **[jordannewell.github.io/claudeway](https://jordannewell.github.io/claudeway/)**:
+Full documentation at **[jordannewell.github.io/tractum](https://jordannewell.github.io/tractum/)**:
 
-- [Transports](https://jordannewell.github.io/claudeway/transports/) — JSON vs W3C VC vs Nostr NIP-78, and when to pick each
-- [Adapters](https://jordannewell.github.io/claudeway/adapters/) — Buzz and LangGraph integration paths
-- [Benchmarks](https://jordannewell.github.io/claudeway/benchmarks/) — Tractum vs single Claude vs CrewAI
-- [API reference](https://jordannewell.github.io/claudeway/api-reference/) — auto-generated from the source
-- [Changelog](https://jordannewell.github.io/claudeway/CHANGELOG/)
+- [Transports](https://jordannewell.github.io/tractum/transports/) — JSON vs W3C VC vs Nostr NIP-78, and when to pick each
+- [Adapters](https://jordannewell.github.io/tractum/adapters/) — Buzz and LangGraph integration paths
+- [Benchmarks](https://jordannewell.github.io/tractum/benchmarks/) — Tractum vs single Claude vs CrewAI
+- [API reference](https://jordannewell.github.io/tractum/api-reference/) — auto-generated from the source
+- [Changelog](https://jordannewell.github.io/tractum/CHANGELOG/)
 
 The docs site deploys automatically on push to `main` via the
 [`docs.yml`](.github/workflows/docs.yml) workflow. Build locally:
@@ -302,7 +302,7 @@ mkdocs serve          # http://127.0.0.1:8000
 - [CONTRIBUTING.md](CONTRIBUTING.md) — branch model, commit rules, test commands, how to add docs
 - [SECURITY.md](SECURITY.md) — private vulnerability reporting process and SLA
 - [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Contributor Covenant 2.1
-- Bug reports and feature requests: use the [issue templates](https://github.com/JordanNewell/claudeway/issues/new/choose)
+- Bug reports and feature requests: use the [issue templates](https://github.com/JordanNewell/tractum/issues/new/choose)
 
 ## Development
 
@@ -318,9 +318,9 @@ ruff check tractum/ tests/ examples/
 
 - Site: [jordannewell.com](https://jordannewell.com)
 - GitHub: [@JordanNewell](https://github.com/JordanNewell)
-- Project docs: [jordannewell.github.io/claudeway](https://jordannewell.github.io/claudeway/)
+- Project docs: [jordannewell.github.io/tractum](https://jordannewell.github.io/tractum/)
 
-For acquisition, partnership, integration, or "we're Block and we want to talk" — open a [private security advisory](https://github.com/JordanNewell/claudeway/security/advisories/new) (it routes to my email) or email `jordan` @ `jordannewell.com`.
+For acquisition, partnership, integration, or "we're Block and we want to talk" — open a [private security advisory](https://github.com/JordanNewell/tractum/security/advisories/new) (it routes to my email) or email `jordan` @ `jordannewell.com`.
 
 ## License
 

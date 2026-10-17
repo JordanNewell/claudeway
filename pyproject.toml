@@ -93,7 +93,7 @@ dev = [
     "mypy>=1.8.0",
     "build>=1.2.0",
 ]
-# Build the docs site (https://jordannewell.github.io/claudeway/).
+# Build the docs site (https://jordannewell.github.io/tractum/).
 # mkdocstrings[python] generates the API reference from tractum/*.py
 # docstrings; mkdocs-material is the theme.
 docs = [
@@ -103,11 +103,11 @@ docs = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/JordanNewell/claudeway"
-Repository = "https://github.com/JordanNewell/claudeway"
-Documentation = "https://jordannewell.github.io/claudeway/"
-Changelog = "https://jordannewell.github.io/claudeway/CHANGELOG/"
-Issues = "https://github.com/JordanNewell/claudeway/issues"
+Homepage = "https://github.com/JordanNewell/tractum"
+Repository = "https://github.com/JordanNewell/tractum"
+Documentation = "https://jordannewell.github.io/tractum/"
+Changelog = "https://jordannewell.github.io/tractum/CHANGELOG/"
+Issues = "https://github.com/JordanNewell/tractum/issues"
 
 [project.scripts]
 # Run after: pip install tractum[mcp]

@@ -1,11 +1,11 @@
 blank_issues_enabled: true
 contact_links:
   - name: Security vulnerability (read SECURITY.md, do NOT use a public issue)
-    url: https://github.com/JordanNewell/claudeway/blob/main/SECURITY.md
+    url: https://github.com/JordanNewell/tractum/blob/main/SECURITY.md
     about: Found a security issue? Follow the private reporting process in SECURITY.md.
   - name: Docs site
-    url: https://jordannewell.github.io/claudeway/
+    url: https://jordannewell.github.io/tractum/
     about: API reference, transports, adapters, and benchmarks.
   - name: Questions / discussions
-    url: https://github.com/JordanNewell/claudeway/discussions
+    url: https://github.com/JordanNewell/tractum/discussions
     about: Usage questions and design discussion go in Discussions, not Issues.

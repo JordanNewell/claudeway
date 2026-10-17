@@ -83,7 +83,7 @@ event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 The events Tractum produces verify clean under [`nak`](https://github.com/fiatjaf/nak)
 (the reference Nostr CLI) and round-trip through `nak serve` — publish,
 subscribe, read back, receipt signature still verifies. See
-[`TESTLOG.md`](https://github.com/JordanNewell/claudeway/blob/main/TESTLOG.md)
+[`TESTLOG.md`](https://github.com/JordanNewell/tractum/blob/main/TESTLOG.md)
 for the four-layer evidence trail (BIP-340 KAT, test suite, `nak verify`,
 end-to-end demo).
 

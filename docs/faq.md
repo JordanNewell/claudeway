@@ -29,7 +29,7 @@ The signatures make receipts tamper-evident. Nostr makes them globally publishab
 
 Ensembles run N model calls and **average** the results into a single confident answer. Tractum runs N specialist agents, **surfaces disagreement** explicitly, and signs the consensus *with the trace intact* — who said what, where they diverged, how the strategy resolved it.
 
-The receipt includes per-agent responses and the disagreement score, not just the final answer. See the [ensemble comparison](https://jordannewell.github.io/claudeway-site/#not-ensemble) on the landing page.
+The receipt includes per-agent responses and the disagreement score, not just the final answer. See the [ensemble comparison](https://jordannewell.github.io/tractum-site/#not-ensemble) on the landing page.
 
 ---
 
@@ -51,7 +51,7 @@ Rough numbers at Haiku/Sonnet pricing:
 | Debate (Haiku · 1k tok) | 3 agents, 2 rounds | ~$0.30 |
 | Premium (Debate · Sonnet · 2k tok) | 3 agents, 2 rounds | ~$1.50 |
 
-100 questions/day at the debate path ≈ $90/month. Use it for what's worth it; skip it when single-model confidence is enough. See [Tradeoffs](https://jordannewell.github.io/claudeway-site/#tradeoffs) on the landing.
+100 questions/day at the debate path ≈ $90/month. Use it for what's worth it; skip it when single-model confidence is enough. See [Tradeoffs](https://jordannewell.github.io/tractum-site/#tradeoffs) on the landing.
 
 ---
 
@@ -91,7 +91,7 @@ The SDK is MIT-licensed and will stay MIT. No BSL rug, no SSPL switch, no Open C
 
 ## Is there a hosted/managed version?
 
-**Not yet.** Multi-tenancy, billing, Stripe, template marketplace are explicitly **deferred** until paying demand appears (the "Curtis lesson" — don't build before there's demand). See [DEPRECATION.md](https://github.com/JordanNewell/claudeway/blob/main/docs/DEPRECATION.md) for the rationale.
+**Not yet.** Multi-tenancy, billing, Stripe, template marketplace are explicitly **deferred** until paying demand appears (the "Curtis lesson" — don't build before there's demand). See [DEPRECATION.md](https://github.com/JordanNewell/tractum/blob/main/docs/DEPRECATION.md) for the rationale.
 
 A single-tenant runner (FastAPI + SQLite + dashboard, `docker compose up`) is on the roadmap.
 
@@ -109,7 +109,7 @@ Currently 164 tests passing, 97% on critical-path modules (`signing`, `transport
 
 ```
 Tractum — Verifiable multi-agent consensus for Claude.
-Jordan Newell, 2026-. https://github.com/JordanNewell/claudeway
+Jordan Newell, 2026-. https://github.com/JordanNewell/tractum
 ```
 
 Or just link to the repo or the docs.

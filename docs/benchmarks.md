@@ -8,10 +8,10 @@ description: Same hard question, three approaches, blind LLM-judge scoring. The 
 One hard question, three approaches, same model, blind judge.
 
 > The reproducible run lives at
-> [`examples/killer_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/killer_demo.py).
+> [`examples/killer_demo.py`](https://github.com/JordanNewell/tractum/blob/main/examples/killer_demo.py).
 > The full output — including every agent's full response and the signed
 > receipt — is at
-> [`examples/killer_demo_results.md`](https://github.com/JordanNewell/claudeway/blob/main/examples/killer_demo_results.md).
+> [`examples/killer_demo_results.md`](https://github.com/JordanNewell/tractum/blob/main/examples/killer_demo_results.md).
 
 ---
 

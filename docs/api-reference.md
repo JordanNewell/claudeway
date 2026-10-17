@@ -11,7 +11,7 @@ re-exports the most-used names — `from tractum import Swarm,
 ConsensusReceipt, Ed25519Backend` is all you need for most apps.
 
 For examples, see
-[`examples/`](https://github.com/JordanNewell/claudeway/blob/main/examples/).
+[`examples/`](https://github.com/JordanNewell/tractum/blob/main/examples/).
 
 ---
 
