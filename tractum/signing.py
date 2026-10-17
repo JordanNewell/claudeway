@@ -1,5 +1,5 @@
 """
-Claudeway signing - verifiable, tamper-evident consensus receipts.
+Tractum signing - verifiable, tamper-evident consensus receipts.
 
 This is the moat. A ConsensusResult isn't just "an answer" — it's an
 attestation: a canonical payload signed by a key, verifiable by anyone, with

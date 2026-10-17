@@ -1,13 +1,13 @@
 """
 Buzz adapter demo - the flip-play showcase.
 
-Three Claudeway agents reach signed consensus on a hard question. The signed
+Three Tractum agents reach signed consensus on a hard question. The signed
 receipt is wrapped as a Nostr NIP-78 event and published to a relay. A
 simulated subscriber reads the event back and verifies the consensus
 signature in one line.
 
-This is what shows Block that Claudeway is the consensus layer Buzz doesn't
-ship (Block shipped Buzz 2026-07-21 with workflow coordination - Claudeway
+This is what shows Block that Tractum is the consensus layer Buzz doesn't
+ship (Block shipped Buzz 2026-07-21 with workflow coordination - Tractum
 adds the cryptographic consensus primitive, and the receipts are verifiable
 forever).
 
@@ -20,7 +20,7 @@ forever).
     # or with real Claude agents
     ANTHROPIC_API_KEY=sk-ant-... python examples/buzz_consensus_demo.py
 
-Requires: pip install claudeway[nostr] websockets
+Requires: pip install tractum[nostr] websockets
 """
 
 import asyncio
@@ -29,12 +29,12 @@ import os
 import time
 from typing import Any
 
-from claudeway.consensus import ConsensusResult
-from claudeway.signing import ConsensusReceipt, Ed25519Backend
-from claudeway.swarm import AgentResponse
-from claudeway.transports import to_nostr_event
+from tractum.consensus import ConsensusResult
+from tractum.signing import ConsensusReceipt, Ed25519Backend
+from tractum.swarm import AgentResponse
+from tractum.transports import to_nostr_event
 
-RELAY_URL = os.environ.get("CLAUDEWAY_DEMO_RELAY", "ws://localhost:10547")
+RELAY_URL = os.environ.get("TRACTUM_DEMO_RELAY", "ws://localhost:10547")
 # Deterministic Nostr identity for the demo (NOT the receipt signing key -
 # by design, the relay key can rotate without invalidating receipts).
 DEMO_NOSTR_SECRET = "ab" * 32
@@ -64,8 +64,8 @@ def mock_consensus() -> ConsensusResult:
 
 
 async def real_consensus() -> ConsensusResult:
-    """Online mode: real Claude agents debate via Claudeway's Swarm."""
-    from claudeway import AgentConfig, Swarm, SwarmConfig, Task, WeightedVote
+    """Online mode: real Claude agents debate via Tractum's Swarm."""
+    from tractum import AgentConfig, Swarm, SwarmConfig, Task, WeightedVote
 
     swarm = Swarm(
         SwarmConfig(
@@ -105,7 +105,7 @@ async def publish_and_subscribe(event_payload: dict[str, Any]) -> dict[str, Any]
     """Publish the event to a relay, then subscribe and read it back.
 
     Implements the NIP-01 wire protocol directly so the demo has zero
-    Nostr-specific dependencies beyond `websockets`. A real Claudeway user
+    Nostr-specific dependencies beyond `websockets`. A real Tractum user
     would use pynostr / nostr-sdk / etc. — or the Buzz client itself.
     """
     import websockets
@@ -123,7 +123,7 @@ async def publish_and_subscribe(event_payload: dict[str, Any]) -> dict[str, Any]
                 break
 
         # Subscribe to kind-30078 from ourselves.
-        sub_id = "claudeway-buzz-demo"
+        sub_id = "tractum-buzz-demo"
         await ws.send(json.dumps([
             "REQ", sub_id,
             {"kinds": [30078], "authors": [event_payload["pubkey"]], "limit": 1},
@@ -144,7 +144,7 @@ async def publish_and_subscribe(event_payload: dict[str, Any]) -> dict[str, Any]
 
 async def main() -> None:
     use_real = bool(os.environ.get("ANTHROPIC_API_KEY"))
-    header(f"Claudeway x Buzz - consensus with signed Nostr events"
+    header(f"Tractum x Buzz - consensus with signed Nostr events"
            f"\n({'real Claude agents' if use_real else 'offline mock agents'})")
     print(f"relay: {RELAY_URL}")
     print(f"question: {QUESTION}")
@@ -176,7 +176,7 @@ async def main() -> None:
         receipt,
         private_key_hex=DEMO_NOSTR_SECRET,
         created_at=int(time.time()),
-        d_tag="claudeway-buzz-room-runway",
+        d_tag="tractum-buzz-room-runway",
     )
     print(f"event id: {event.id}")
     print(f"pubkey:   {event.pubkey}")

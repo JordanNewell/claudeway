@@ -1,5 +1,5 @@
 """
-Adversarial test suite — proving Claudeway fails safely under attack.
+Adversarial test suite — proving Tractum fails safely under attack.
 
 This is what a serious security reviewer reads before recommending the
 library. Each test asserts a guarantee that holds EVEN UNDER ATTACK:
@@ -35,16 +35,16 @@ from typing import Any
 
 import pytest
 
-from claudeway.consensus import ConsensusResult
-from claudeway.signing import (
+from tractum.consensus import ConsensusResult
+from tractum.signing import (
     AGENT_STATEMENT_TYPE,
     ConsensusReceipt,
     Ed25519Backend,
     canonical_json,
     verify_receipt_detailed,
 )
-from claudeway.swarm import AgentResponse
-from claudeway.transports import to_nostr_event
+from tractum.swarm import AgentResponse
+from tractum.transports import to_nostr_event
 
 # --- helpers ----------------------------------------------------------------
 
@@ -126,7 +126,7 @@ def test_confidently_wrong_agent_does_not_corrupt_receipt(
         AgentResponse(agent_name="Truthful2", answer="2+2=4", confidence=0.9),
     ]
     # WeightedVote picks max-confidence response as the winner — that's the
-    # liar. We don't claim Claudeway prevents that; we claim the receipt
+    # liar. We don't claim Tractum prevents that; we claim the receipt
     # honestly records what happened, signed and verifiable.
     winner = max(responses, key=lambda r: r.confidence)
     receipt = _make_receipt(
@@ -301,7 +301,7 @@ def test_swarm_poisoning_majority_compromised_still_reports_truth(
 ):
     """3 of 4 agents lie. The receipt still records every answer verbatim.
 
-    Claudeway does NOT promise the final_answer is correct under
+    Tractum does NOT promise the final_answer is correct under
     majority compromise — that's a non-guarantee documented in
     THREAT-MODEL.md. What it DOES promise: the disagreement is recorded
     in the signed payload, so a verifier can see the poisoning rather
@@ -315,7 +315,7 @@ def test_swarm_poisoning_majority_compromised_still_reports_truth(
         AgentResponse(agent_name="Liar3", answer="the-lie", confidence=0.99),
     ]
     # The lies win the plurality — that's what gets recorded as the final
-    # answer. Claudeway records this honestly rather than hiding it.
+    # answer. Tractum records this honestly rather than hiding it.
     weights: dict[str, float] = {}
     total = 0.0
     for r in responses:
@@ -450,13 +450,13 @@ def test_nostr_event_with_tampered_content_fails_nak_verify(
 ):
     """A Nostr event with modified content must fail `nak verify`.
 
-    `nak` is fiatjaf's reference Nostr CLI. If Claudeway emits an event
+    `nak` is fiatjaf's reference Nostr CLI. If Tractum emits an event
     that tampered content still passes as valid, every relay on earth
     would also accept it — that's a transport-level break. We tamper
     with content (which is part of the NIP-01 serialization that the
     event id commits to) and confirm nak rejects it.
     """
-    pytest.importorskip("coincurve", reason="install claudeway[nostr]")
+    pytest.importorskip("coincurve", reason="install tractum[nostr]")
 
     priv, _ = keypair
     receipt = _make_receipt(backend, priv, task_id="nostr-task")
@@ -498,7 +498,7 @@ def test_nostr_event_with_tampered_signature_fails_nak_verify(
     backend: Ed25519Backend, keypair: tuple[str, str]
 ):
     """A Nostr event with a flipped signature byte must fail `nak verify`."""
-    pytest.importorskip("coincurve", reason="install claudeway[nostr]")
+    pytest.importorskip("coincurve", reason="install tractum[nostr]")
 
     priv, _ = keypair
     receipt = _make_receipt(backend, priv, task_id="nostr-sig-task")
@@ -534,9 +534,9 @@ def test_nostr_event_tamper_detected_without_nak(
     nak, we prove the event is malformed: the (id, sig) pair no longer
     commits to the (now-modified) content.
     """
-    pytest.importorskip("coincurve", reason="install claudeway[nostr]")
+    pytest.importorskip("coincurve", reason="install tractum[nostr]")
 
-    from claudeway.transports import _nostr_serialization_for_id
+    from tractum.transports import _nostr_serialization_for_id
 
     priv, _ = keypair
     receipt = _make_receipt(backend, priv, task_id="hermetic")
@@ -552,7 +552,7 @@ def test_nostr_event_tamper_detected_without_nak(
     )
     new_id = hashlib.sha256(new_canonical.encode("utf-8")).hexdigest()
     # The stored id is the old one; the recomputed one is different. A
-    # relay re-derives the id and rejects the mismatch. Claudeway's
+    # relay re-derives the id and rejects the mismatch. Tractum's
     # signature was over the OLD id, so it doesn't cover new_id either.
     assert new_id != original_id
     assert event.id == original_id  # we didn't update it -> mismatch detected

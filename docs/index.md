@@ -1,9 +1,9 @@
 ---
-title: Claudeway
+title: Tractum
 description: A coordination layer built around signed, verifiable agreement across Claude agents.
 ---
 
-# Claudeway
+# Tractum
 
 **Verifiable multi-agent consensus for Claude.** A coordination layer built
 around signed, verifiable agreement.
@@ -11,10 +11,10 @@ around signed, verifiable agreement.
 Every agent framework can make one Claude answer. Most can run several in
 parallel. **None of them ship a signed consensus receipt — agreement with
 the disagreement surfaced and the result cryptographically verifiable.**
-That's Claudeway.
+That's Tractum.
 
 > Buzz coordinates agents via workflows. Goose gave one agent tools.
-> LangGraph makes you wire coordination by hand. **Claudeway adds what none
+> LangGraph makes you wire coordination by hand. **Tractum adds what none
 > of them ship: signed multi-agent consensus with the disagreement surfaced.**
 
 ---
@@ -22,7 +22,7 @@ That's Claudeway.
 ## The 30-second pitch
 
 ```python
-from claudeway import AgentConfig, Swarm, SwarmConfig, Task
+from tractum import AgentConfig, Swarm, SwarmConfig, Task
 
 swarm = Swarm(SwarmConfig(
     name="ArchReview",
@@ -63,7 +63,7 @@ The agent-framework field is crowded but lopsided:
 
 The whitespace, plain: *everyone built where agents act or where agents talk.
 Nobody shipped verifiable consensus — agreement with a tamper-evident receipt.*
-Claudeway fills exactly that.
+Tractum fills exactly that.
 
 ---
 
@@ -75,7 +75,7 @@ stance: a receipt is a **k-of-n multi-sig over machine judgment**, not one
 operator's claim about what the agents said.
 
 ```python
-from claudeway import ConsensusReceipt, Ed25519Backend, verify_receipt_detailed
+from tractum import ConsensusReceipt, Ed25519Backend, verify_receipt_detailed
 
 receipt = ConsensusReceipt.from_result(result, swarm_name="ArchReview", task_id="q1")
 Ed25519Backend().sign_receipt(receipt, private_key)
@@ -105,10 +105,10 @@ tradeoffs and [API Reference](api-reference.md) for the surface area.
 ## Install
 
 ```bash
-pip install claudeway              # the SDK (4 deps, lean)
-pip install claudeway[mcp]         # + expose consensus as an MCP server
-pip install claudeway[nostr]       # + sign Nostr events for Buzz interop
-pip install claudeway[langgraph]   # + drop consensus into a LangGraph StateGraph
+pip install tractum              # the SDK (4 deps, lean)
+pip install tractum[mcp]         # + expose consensus as an MCP server
+pip install tractum[nostr]       # + sign Nostr events for Buzz interop
+pip install tractum[langgraph]   # + drop consensus into a LangGraph StateGraph
 ```
 
 ## Use it three ways
@@ -116,7 +116,7 @@ pip install claudeway[langgraph]   # + drop consensus into a LangGraph StateGrap
 ### 1. As a Python SDK
 
 ```python
-from claudeway import Swarm, WeightedVote, Debate
+from tractum import Swarm, WeightedVote, Debate
 
 # Cheap default — one round, picks highest-confidence answer
 swarm = Swarm(config, consensus=WeightedVote())
@@ -128,18 +128,21 @@ swarm = Swarm(config, consensus=Debate())
 ### 2. As an MCP server
 
 ```bash
-claudeway-mcp            # stdio — for Claude Code, Cursor
-claudeway-mcp --http     # HTTP/SSE — for remote agents
+tractum-mcp            # stdio — for Claude Code, Cursor
+tractum-mcp --http     # HTTP/SSE — for remote agents
 ```
 
 Any MCP-capable agent (Claude Code, Cursor, Goose) gains two tools:
 `reach_consensus` and `verify_consensus`. One tool call gets a signed
 agreement — no framework to learn, no graphs to wire.
 
+**Try it in 5 minutes:** [MCP demo](mcp-demo.md) — pip install to a
+verifiable decision, keyless-friendly.
+
 ### 3. As a coordinator (hierarchical decomposition)
 
 ```python
-from claudeway import Coordinator, CoordinatorConfig
+from tractum import Coordinator, CoordinatorConfig
 
 coord = Coordinator(CoordinatorConfig())
 coord.add_sub_agent("Researcher", ...)
@@ -153,6 +156,6 @@ result = await coord.coordinate(task)
 
 - [Transports](transports.md) — JSON vs W3C VC vs Nostr NIP-78, and when to pick each.
 - [Adapters](adapters.md) — Buzz and LangGraph integration paths.
-- [Benchmarks](benchmarks.md) — Claudeway vs single Claude vs CrewAI on a hard question.
+- [Benchmarks](benchmarks.md) — Tractum vs single Claude vs CrewAI on a hard question.
 - [API Reference](api-reference.md) — auto-generated from the source.
 - [Changelog](CHANGELOG.md)

@@ -1,5 +1,5 @@
 """
-Claudeway Configuration
+Tractum Configuration
 
 Settings loaded from environment variables with sensible defaults.
 """
@@ -30,7 +30,7 @@ class Settings(BaseSettings):
 
     # Database - DEPRECATED (not used by core runtime)
     # Re-enable when platform features (tenants, billing, templates) are restored
-    database_url: str = "postgresql+asyncpg://claudeway:claudeway@localhost:5432/claudeway"
+    database_url: str = "postgresql+asyncpg://tractum:tractum@localhost:5432/tractum"
 
     # Redis - DEPRECATED (not used by core runtime)
     # Re-enable when rate limiting middleware is restored

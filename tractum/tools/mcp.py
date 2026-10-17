@@ -3,10 +3,10 @@ MCP tool adapter - let agents call Model Context Protocol servers.
 
 MCP is the 2026 standard for giving agents tools (Goose, Claude Desktop, and
 others all speak it). This adapter lets you hand an MCP server's tools to a
-Claudeway Agent exactly like a Python Tool — same execute()/get_schema() shape.
+Tractum Agent exactly like a Python Tool — same execute()/get_schema() shape.
 
 The `mcp` package is an optional dependency. Importing this module without it
-installed raises a clear ImportError pointing at `pip install claudeway[mcp]`.
+installed raises a clear ImportError pointing at `pip install tractum[mcp]`.
 """
 
 from __future__ import annotations
@@ -18,7 +18,7 @@ from .base import Tool
 
 class MCPTool(Tool):
     """
-    Wrap a single MCP server tool as a Claudeway Tool.
+    Wrap a single MCP server tool as a Tractum Tool.
 
     The server connection is owned by the caller (an MCPClient session) and
     passed in; this class only adapts one tool's schema + invocation.
@@ -69,7 +69,7 @@ class MCPClient:
         except ImportError as e:  # pragma: no cover - env-dependent
             raise ImportError(
                 "MCP support requires the 'mcp' package. "
-                "Install with: pip install claudeway[mcp]"
+                "Install with: pip install tractum[mcp]"
             ) from e
         self._transport = transport
         self._session: Any = None
@@ -90,7 +90,7 @@ class MCPClient:
         self._cm = None
 
     async def tools(self) -> list[MCPTool]:
-        """List the server's tools as Claudeway Tool instances."""
+        """List the server's tools as Tractum Tool instances."""
         listing = await self._session.list_tools()
         return [
             MCPTool(

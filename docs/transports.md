@@ -5,7 +5,7 @@ description: One signed ConsensusReceipt, three wire formats. Pick the one your 
 
 # Transports
 
-Signing ([`claudeway.signing`](api-reference.md#claudeway.signing)) is
+Signing ([`tractum.signing`](api-reference.md#tractum.signing)) is
 **independent of transport**. A `ConsensusReceipt` is a canonical, signed
 payload; the transports below render that *same* receipt into a wire format
 downstream systems consume. Change transports without re-signing.
@@ -25,7 +25,7 @@ community is converging on Verifiable Credentials for agent identity; Nostr
 is the dominant open-protocol transport for real-time agent rooms; and a
 plain JSON receipt is the lowest-common-denominator any system can ingest.
 
-Hardwiring any one of these would force a rewrite. Claudeway's
+Hardwiring any one of these would force a rewrite. Tractum's
 `SignatureBackend` ABC signs the canonical payload once; each transport only
 decides how that signed payload is wrapped for the wire.
 
@@ -38,7 +38,7 @@ JSON document carrying the receipt payload, signature, and public key. Anyone
 holding the document can verify integrity later.
 
 ```python
-from claudeway.transports import to_json_receipt
+from tractum.transports import to_json_receipt
 
 doc = to_json_receipt(receipt)   # -> dict ready for json.dumps
 ```
@@ -72,7 +72,7 @@ addressable application data event:
   and verify it.
 
 ```python
-from claudeway.transports import to_nostr_event
+from tractum.transports import to_nostr_event
 
 event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 # event.kind == 30078
@@ -80,7 +80,7 @@ event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 # publish to any Nostr relay
 ```
 
-The events Claudeway produces verify clean under [`nak`](https://github.com/fiatjaf/nak)
+The events Tractum produces verify clean under [`nak`](https://github.com/fiatjaf/nak)
 (the reference Nostr CLI) and round-trip through `nak serve` — publish,
 subscribe, read back, receipt signature still verifies. See
 [`TESTLOG.md`](https://github.com/JordanNewell/claudeway/blob/main/TESTLOG.md)
@@ -93,12 +93,12 @@ The Nostr path needs secp256k1 + BIP-340 Schnorr, which requires a native
 library. Install the extra:
 
 ```bash
-pip install claudeway[nostr]
+pip install tractum[nostr]
 ```
 
 [`coincurve`](https://pypi.org/project/coincurve/) ships prebuilt wheels for
 CPython 3.11–3.13 on Windows, Linux, and macOS. The import is lazy — `pip
-install claudeway` (without the extra) stays lean and never touches
+install tractum` (without the extra) stays lean and never touches
 secp256k1.
 
 ---

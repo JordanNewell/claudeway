@@ -7,12 +7,12 @@ exercised with fixed AgentResponses.
 
 import pytest
 
-from claudeway.consensus import (
+from tractum.consensus import (
     Debate,
     WeightedVote,
     parse_structured_output,
 )
-from claudeway.swarm import AgentResponse, Swarm, SwarmConfig, Task
+from tractum.swarm import AgentResponse, Swarm, SwarmConfig, Task
 
 
 class StubSwarm(Swarm):
@@ -83,7 +83,7 @@ def test_consensus_result_to_dict_handles_dict_form_responses():
     to_dict() used to access r.agent_name, which only exists on
     AgentResponse objects. The wire form is dicts. Now both work.
     """
-    from claudeway.consensus import ConsensusResult
+    from tractum.consensus import ConsensusResult
 
     result = ConsensusResult(
         final_answer="ship",
@@ -101,7 +101,7 @@ def test_consensus_result_to_dict_handles_dict_form_responses():
 
 def test_consensus_result_to_dict_handles_agentresponse_objects():
     """The original AgentResponse-object path still works after the fix."""
-    from claudeway.consensus import ConsensusResult
+    from tractum.consensus import ConsensusResult
 
     result = ConsensusResult(
         final_answer="ship",
@@ -259,7 +259,7 @@ async def test_all_agents_failing_yields_empty_not_raise():
 @pytest.mark.asyncio
 async def test_on_event_fires_per_agent_as_they_land():
     """A successful agent must fire AgentCompleted, with the answer's data."""
-    from claudeway.events import AgentCompleted
+    from tractum.events import AgentCompleted
 
     events: list = []
 
@@ -344,7 +344,7 @@ async def test_on_event_none_is_noop():
 @pytest.mark.asyncio
 async def test_on_event_emits_consensus_resolved_after_resolve():
     """process() fires one ConsensusResolved at the end, after the per-agent events."""
-    from claudeway.events import ConsensusResolved
+    from tractum.events import ConsensusResolved
 
     events: list = []
 

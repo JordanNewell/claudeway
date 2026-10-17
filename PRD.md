@@ -1,7 +1,7 @@
-# Product Requirement Document (PRD): Claudeway
+# Product Requirement Document (PRD): Tractum
 
 ## 1. Executive Summary
-Claudeway is a Claude-native agent platform designed to provide a monetizeable multi-agent orchestration layer. It combines a working core orchestration engine with a SaaS platform layer, allowing developers to deploy, manage, and bill for custom Claude agent swarms.
+Tractum is a Claude-native agent platform designed to provide a monetizeable multi-agent orchestration layer. It combines a working core orchestration engine with a SaaS platform layer, allowing developers to deploy, manage, and bill for custom Claude agent swarms.
 
 ## 2. Problem Statement
 While LLMs like Claude are powerful individually, coordinating multiple specialized AI agents for complex tasks is difficult. Developers lack a standardized "coordination layer" that handles task decomposition, multi-agent consensus, and usage billing for production-ready AI applications.

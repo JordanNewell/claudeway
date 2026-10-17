@@ -1,6 +1,6 @@
 ---
 title: Transparency log
-description: RFC 6962-style append-only Merkle log of consensus receipts, anchored to Nostr on a cadence. Proves the set of decisions Claudeway made, not just each receipt's integrity.
+description: RFC 6962-style append-only Merkle log of consensus receipts, anchored to Nostr on a cadence. Proves the set of decisions Tractum made, not just each receipt's integrity.
 ---
 
 # Transparency log
@@ -11,7 +11,7 @@ An **append-only Merkle log of consensus receipts**, anchored to Nostr. Certific
 
 ## Why it exists
 
-Per-receipt Ed25519 signatures prove **integrity** — the receipt wasn't altered. They don't prove **completeness** — nothing prevents Claudeway from quietly hiding, removing, or re-issuing a receipt.
+Per-receipt Ed25519 signatures prove **integrity** — the receipt wasn't altered. They don't prove **completeness** — nothing prevents Tractum from quietly hiding, removing, or re-issuing a receipt.
 
 The transparency log closes that gap on a separate trust axis: it commits to *the set of decisions that exist*. Once a log root is published, a receipt that disappears leaves a detectable gap; a receipt that was secretly altered invalidates every proof that referenced it.
 
@@ -36,16 +36,16 @@ Cross-validated byte-for-byte against Google's reference `ct/crypto/merkle.py` a
 
 ## Nostr anchoring
 
-A `LogAnchor` (tree_size + root + timestamp) is rendered as a **NIP-78 kind-30078 event** via `claudeway.transports.to_log_anchor_event`, scoped by the d-tag `claudeway-transparency` and a `name` tag carrying the logical log identity.
+A `LogAnchor` (tree_size + root + timestamp) is rendered as a **NIP-78 kind-30078 event** via `tractum.transports.to_log_anchor_event`, scoped by the d-tag `tractum-transparency` and a `name` tag carrying the logical log identity.
 
-Publishing anchors on a cadence makes the log's history globally visible: third parties watching the relay see every root Claudeway commits, and a missing or replaced anchor is detectable. Day 1 relies on Nostr's append-only-on-relay semantics plus operator reputation; day-2 consistency proofs and Bitcoin anchoring turn "tamper-evident" into "tamper-proof."
+Publishing anchors on a cadence makes the log's history globally visible: third parties watching the relay see every root Tractum commits, and a missing or replaced anchor is detectable. Day 1 relies on Nostr's append-only-on-relay semantics plus operator reputation; day-2 consistency proofs and Bitcoin anchoring turn "tamper-evident" into "tamper-proof."
 
 ---
 
 ## API surface
 
 ```python
-from claudeway.transparency import (
+from tractum.transparency import (
     TransparencyLog, InclusionProof, LogAnchor,
     leaf_hash, node_hash,
 )
@@ -53,7 +53,7 @@ from claudeway.transparency import (
 
 | Symbol | Signature | Notes |
 |---|---|---|
-| `TransparencyLog(name="claudeway")` | constructor | One logical log per Nostr key. In-memory. |
+| `TransparencyLog(name="tractum")` | constructor | One logical log per Nostr key. In-memory. |
 | `log.append(receipt)` | `-> int` | Appends the receipt's leaf hash; returns the 0-based leaf index. Only mutator. |
 | `log.size` | `@property -> int` | Current leaf count. |
 | `log.root` | `@property -> bytes` | 32-byte Merkle root; `SHA-256(b"")` when empty. |
@@ -69,9 +69,9 @@ from claudeway.transparency import (
 ## Example
 
 ```python
-from claudeway.transparency import TransparencyLog
+from tractum.transparency import TransparencyLog
 
-log = TransparencyLog(name="claudeway-canonical")
+log = TransparencyLog(name="tractum-canonical")
 indices = [log.append(r) for r in (r1, r2, r3)]   # -> [0, 1, 2]
 root = log.root                                    # publish this as a Nostr anchor
 

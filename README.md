@@ -1,14 +1,14 @@
 <p align="center">
-  <img src="assets/og/claudeway-og.png" alt="Claudeway — verifiable multi-agent consensus for Claude" width="100%" />
+  <img src="assets/og/tractum-og.png" alt="Tractum — verifiable multi-agent consensus for Claude" width="100%" />
 </p>
 
-# Claudeway
+# Tractum
 
 **Multi-agent consensus with cryptographic receipts.** Three agents debate, **each signs its own stance**, and the result ships as a k-of-n signed receipt anyone can verify — forever.
 
-Every agent framework can make one agent answer. Most can run several in parallel. **None of them produce per-agent signed, quorum-verifiable artifacts you can hand to an auditor, a regulator, or a future teammate.** That's Claudeway.
+Every agent framework can make one agent answer. Most can run several in parallel. **None of them produce per-agent signed, quorum-verifiable artifacts you can hand to an auditor, a regulator, or a future teammate.** That's Tractum.
 
-> Frameworks coordinate. Claudeway agrees.
+> Frameworks coordinate. Tractum agrees.
 
 [![CI](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml/badge.svg)](https://github.com/JordanNewell/claudeway/actions/workflows/ci.yml)
 [![Docs](https://github.com/JordanNewell/claudeway/actions/workflows/docs.yml/badge.svg)](https://jordannewell.github.io/claudeway/)
@@ -19,7 +19,7 @@ Every agent framework can make one agent answer. Most can run several in paralle
 
 ## The receipt on the wire
 
-Three Claudeway agents ran a real Debate consensus on *"what's the missing primitive for agent agreement?"* — signed the result with Ed25519, wrapped as a NIP-78 Nostr event, published to four public relays. Not a screenshot. Not a demo video. The actual cryptographically-signed artifact on the actual wire.
+Three Tractum agents ran a real Debate consensus on *"what's the missing primitive for agent agreement?"* — signed the result with Ed25519, wrapped as a NIP-78 Nostr event, published to four public relays. Not a screenshot. Not a demo video. The actual cryptographically-signed artifact on the actual wire.
 
 **View in any browser:** [nostr.mom/e/3974ebfe...](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b) — kind 30078 (NIP-78), BIP-340 signed.
 
@@ -28,18 +28,18 @@ Three Claudeway agents ran a real Debate consensus on *"what's the missing primi
 ```bash
 # After fetching the event JSON from any relay above
 # (or saving it from the viewer URL), verify the BIP-340 signature:
-nak verify < claudeway-event.json && echo "sig valid"
+nak verify < tractum-event.json && echo "sig valid"
 # silent + exit 0 = signature valid
 ```
 
-That's a Claudeway receipt, verifiable forever — on the same Nostr wire Buzz, Damus, Snort, and Primal speak.
+That's a Tractum receipt, verifiable forever — on the same Nostr wire Buzz, Damus, Snort, and Primal speak.
 
 ---
 
 ## The 30-second pitch
 
 ```python
-from claudeway import AgentConfig, Swarm, SwarmConfig, Task
+from tractum import AgentConfig, Swarm, SwarmConfig, Task
 
 swarm = Swarm(SwarmConfig(
     name="ArchReview",
@@ -75,14 +75,14 @@ The agent-framework field is crowded but lopsided:
 | **Anthropic SDK** | Base Claude calls | No coordination layer |
 | **MCP marketplaces** | Tool distribution | No agreement primitive |
 
-The whitespace, plain: *everyone built where agents act or where agents talk. Nobody shipped verifiable consensus — agreement with a tamper-evident receipt.* Claudeway fills exactly that.
+The whitespace, plain: *everyone built where agents act or where agents talk. Nobody shipped verifiable consensus — agreement with a tamper-evident receipt.* Tractum fills exactly that.
 
 ## What makes it defensible
 
-Consensus results aren't text — they're **signed, tamper-evident attestations** anyone can verify. And since v0.4.0, **each agent signs its own stance**: a Claudeway receipt is a k-of-n multi-sig over machine judgment, not one operator's claim about what the agents said.
+Consensus results aren't text — they're **signed, tamper-evident attestations** anyone can verify. And since v0.4.0, **each agent signs its own stance**: a Tractum receipt is a k-of-n multi-sig over machine judgment, not one operator's claim about what the agents said.
 
 ```python
-from claudeway import (
+from tractum import (
     ConsensusReceipt, Ed25519Backend, verify_receipt_detailed,
 )
 
@@ -118,7 +118,7 @@ This is the layer that makes consensus worth *acquiring* rather than reimplement
 The Nostr transport is exercised end-to-end against a reference relay:
 
 ```python
-from claudeway.transports import to_nostr_event
+from tractum.transports import to_nostr_event
 
 event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 # event.kind == 30078 (NIP-78 addressable)
@@ -126,27 +126,32 @@ event = to_nostr_event(receipt, private_key_hex=nostr_key, d_tag="room-42")
 # event.content carries the signed JSON receipt — any Nostr client decodes it
 ```
 
-The event Claudeway produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 164-test suite, `nak verify`, end-to-end demo), [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the offline showcase, and [`examples/buzz_wire_publish.py`](examples/buzz_wire_publish.py) for the script that produced the **[live published v0.3.0 event](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** on five public relays.
+The event Tractum produces verifies clean under [`nak`](https://github.com/fiatjaf/nak) (the reference Nostr CLI) and round-trips through `nak serve` — publish, subscribe, read back, receipt signature still verifies. See [`TESTLOG.md`](TESTLOG.md) for the four-layer evidence trail (BIP-340 KAT, 164-test suite, `nak verify`, end-to-end demo), [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) for the offline showcase, and [`examples/buzz_wire_publish.py`](examples/buzz_wire_publish.py) for the script that produced the **[live published v0.3.0 event](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b)** on five public relays.
 
 ## Install
 
 ```bash
-pip install claudeway              # the SDK (4 deps, lean)
-pip install claudeway[mcp]         # + expose consensus as an MCP server
-pip install claudeway[nostr]       # + sign Nostr events for Buzz interop
-pip install claudeway[pq]          # + ML-DSA-65 post-quantum signature backend
-pip install claudeway[langgraph]   # + LangGraph StateGraph adapter
-pip install claudeway[maf]         # + Microsoft Agent Framework adapter
-pip install claudeway[crewai]      # + CrewAI @tool + Flow adapter
-pip install claudeway[docs]        # + build the docs site locally
+pip install tractum              # the SDK (4 deps, lean)
+pip install tractum[mcp]         # + expose consensus as an MCP server
+pip install tractum[nostr]       # + sign Nostr events for Buzz interop
+pip install tractum[pq]          # + ML-DSA-65 post-quantum signature backend
+pip install tractum[langgraph]   # + LangGraph StateGraph adapter
+pip install tractum[maf]         # + Microsoft Agent Framework adapter
+pip install tractum[crewai]      # + CrewAI @tool + Flow adapter
+pip install tractum[docs]        # + build the docs site locally
 ```
+
+> **Launch note:** the PyPI package `tractum` is being published alongside
+> this release. Until it lands, install from the repo:
+> `pip install git+https://github.com/JordanNewell/claudeway.git#egg=tractum[mcp]`.
+> (v0.4.x and earlier shipped to GitHub only, as `claudeway`.)
 
 ## Use it three ways
 
 ### 1. As a Python SDK
 
 ```python
-from claudeway import Swarm, WeightedVote, Debate
+from tractum import Swarm, WeightedVote, Debate
 
 # Cheap default — one round, picks highest-confidence answer
 swarm = Swarm(config, consensus=WeightedVote())
@@ -158,16 +163,16 @@ swarm = Swarm(config, consensus=Debate())
 ### 2. As an MCP server (any agent can call consensus)
 
 ```bash
-claudeway-mcp            # stdio — for Claude Code, Cursor
-claudeway-mcp --http     # HTTP/SSE — for remote agents
+tractum-mcp            # stdio — for Claude Code, Cursor
+tractum-mcp --http     # HTTP/SSE — for remote agents
 ```
 
-Now any MCP-capable agent (Claude Code, Cursor, Goose) gains two tools: `reach_consensus` and `verify_consensus`. One tool call gets a signed agreement — no framework to learn, no graphs to wire.
+Now any MCP-capable agent (Claude Code, Cursor, Goose) gains two tools: `reach_consensus` and `verify_consensus`. One tool call gets a signed agreement — no framework to learn, no graphs to wire. **Try it in 5 minutes:** [docs/mcp-demo.md](docs/mcp-demo.md).
 
 ### 3. As a coordinator (hierarchical decomposition)
 
 ```python
-from claudeway import Coordinator, CoordinatorConfig
+from tractum import Coordinator, CoordinatorConfig
 
 coord = Coordinator(CoordinatorConfig())
 coord.add_sub_agent("Researcher", ...)
@@ -183,15 +188,16 @@ result = await coord.coordinate(task)
 - [`examples/consensus_demo.py`](examples/consensus_demo.py) — disagreement surfaced, then resolved via Debate
 - [`examples/coordinator_demo.py`](examples/coordinator_demo.py) — real decomposition + parallel specialists
 - [`examples/buzz_consensus_demo.py`](examples/buzz_consensus_demo.py) — **Buzz adapter**: 3 agents → signed consensus → live Nostr relay → read back + verified
+- [`examples/mcp_demo.py`](examples/mcp_demo.py) — **MCP headline demo**: 3 agents → signed receipt → verified through the MCP server's `verify_consensus` tool (runs keyless)
 - [`examples/buzz_wire_publish.py`](examples/buzz_wire_publish.py) — publishes a signed NIP-78 event to public relays
 - [`examples/langgraph_adapter_demo.py`](examples/langgraph_adapter_demo.py) / [`maf_adapter_demo.py`](examples/maf_adapter_demo.py) / [`crewai_adapter_demo.py`](examples/crewai_adapter_demo.py) — the three framework adapters
 - [`examples/transparency_demo.py`](examples/transparency_demo.py) — append-only transparency log anchored to Nostr
-- [`examples/killer_demo.py`](examples/killer_demo.py) — the blind-judge benchmark (Claudeway vs CrewAI vs single Claude); reproducible via the Docker compose appliance
+- [`examples/killer_demo.py`](examples/killer_demo.py) — the blind-judge benchmark (Tractum vs CrewAI vs single Claude); reproducible via the Docker compose appliance
 
 ## Repository layout
 
 ```
-claudeway/          # the SDK package (wheel contents) — swarm, consensus, signing, transports, server (MCP), adapters
+tractum/          # the SDK package (wheel contents) — swarm, consensus, signing, transports, server (MCP), adapters
 api/                # FastAPI runner/control plane (platform features deprecated; see docs/DEPRECATION.md)
 dashboard/          # Next.js dashboard frontend for the runner
 tests/              # pytest suite (consensus, coordinator, signing, nostr, adversarial, adapters)
@@ -215,22 +221,22 @@ scripts/ infra/     # supporting tooling
 
 ```
 ┌─────────────────────────────────────────────┐
-│  Transports (claudeway.transports)          │
+│  Transports (tractum.transports)          │
 │  JSON receipt · W3C VC · Nostr NIP-78 event │
 └──────────────────┬──────────────────────────┘
                    │ carries
 ┌──────────────────▼──────────────────────────┐
-│  Signing (claudeway.signing)                │
+│  Signing (tractum.signing)                │
 │  ConsensusReceipt · Ed25519Backend · (PQ)   │  ← the moat
 └──────────────────┬──────────────────────────┘
                    │ signs
 ┌──────────────────▼──────────────────────────┐
-│  Consensus (claudeway.consensus)            │
+│  Consensus (tractum.consensus)            │
 │  WeightedVote · Debate · (your strategy)    │
 └──────────────────┬──────────────────────────┘
                    │ aggregates
 ┌──────────────────▼──────────────────────────┐
-│  Core (claudeway.swarm/coordinator/agent)   │
+│  Core (tractum.swarm/coordinator/agent)   │
 │  Swarm · Coordinator · Runtime · Tools/MCP  │
 └─────────────────────────────────────────────┘
 ```
@@ -244,17 +250,17 @@ See [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) for the full design.
 - WeightedVote + Debate consensus strategies with cost-guarded early-exit
 - Signed receipts with the swappable `SignatureBackend` ABC and an **Ed25519** default backend
 - Three transports: JSON receipt, W3C Verifiable Credential, Nostr NIP-78 event
-- MCP server (`claudeway-mcp`) exposing `reach_consensus` + `verify_consensus`
+- MCP server (`tractum-mcp`) exposing `reach_consensus` + `verify_consensus`
 - **Buzz adapter** — verifiable end-to-end against `nak serve`
 
 **Shipped (v0.3.0):**
 - **Post-quantum signature backend** — **ML-DSA-65** (FIPS 204), pure-Python via `dilithium-py`. Same receipt, same canonical hash; swap in at the `SignatureBackend` ABC.
-- **LangGraph adapter** — Claudeway consensus as a single `StateGraph` node
-- **Microsoft Agent Framework adapter** — Claudeway as a workflow + agent in MAF (AutoGen + Semantic Kernel successor)
-- **CrewAI adapter** — Claudeway as a `@tool` and Flow; inverts the killer demo so a CrewAI crew can *call* Claudeway for agreement
+- **LangGraph adapter** — Tractum consensus as a single `StateGraph` node
+- **Microsoft Agent Framework adapter** — Tractum as a workflow + agent in MAF (AutoGen + Semantic Kernel successor)
+- **CrewAI adapter** — Tractum as a `@tool` and Flow; inverts the killer demo so a CrewAI crew can *call* Tractum for agreement
 - **Consensus transparency log** — RFC 6962-style append-only log, anchored to Nostr on a cadence
 - **Streaming consensus events** — `OnEvent` callback surfaces `AgentCompleted` and `ConsensusResolved` events as they happen
-- **Killer benchmark** — Claudeway beats single Claude (+7/20) and CrewAI (+5/20) on a hard question, blind-judge scored, Mann-Whitney U
+- **Killer benchmark** — Tractum beats single Claude (+7/20) and CrewAI (+5/20) on a hard question, blind-judge scored, Mann-Whitney U
 - **Adversarial security suite** — 20 tests across 7 attack classes + published threat model
 - **Docs site** — jordannewell.github.io/claudeway (mkdocs-material + mkdocstrings)
 - Tolerant structured-output parser, substantive `<answer>` contract
@@ -279,7 +285,7 @@ Full documentation at **[jordannewell.github.io/claudeway](https://jordannewell.
 
 - [Transports](https://jordannewell.github.io/claudeway/transports/) — JSON vs W3C VC vs Nostr NIP-78, and when to pick each
 - [Adapters](https://jordannewell.github.io/claudeway/adapters/) — Buzz and LangGraph integration paths
-- [Benchmarks](https://jordannewell.github.io/claudeway/benchmarks/) — Claudeway vs single Claude vs CrewAI
+- [Benchmarks](https://jordannewell.github.io/claudeway/benchmarks/) — Tractum vs single Claude vs CrewAI
 - [API reference](https://jordannewell.github.io/claudeway/api-reference/) — auto-generated from the source
 - [Changelog](https://jordannewell.github.io/claudeway/CHANGELOG/)
 
@@ -302,8 +308,8 @@ mkdocs serve          # http://127.0.0.1:8000
 
 ```bash
 pip install -e ".[mcp,nostr,pq,dev]"
-pytest tests/ -v          # 187 tests (set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
-ruff check claudeway/ tests/ examples/
+pytest tests/ -v          # 187 tests (set TRACTUM_TEST_RELAY=ws://localhost:10547 to exercise the relay integration test)
+ruff check tractum/ tests/ examples/
 ```
 
 ## NEWELL

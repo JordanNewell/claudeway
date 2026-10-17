@@ -1,5 +1,5 @@
 """
-LangGraph adapter — drop Claudeway consensus into a StateGraph.
+LangGraph adapter — drop Tractum consensus into a StateGraph.
 
 LangGraph is the orchestration framework that "makes you wire coordination
 by hand." This adapter is the seam: one node gets a signed agreement the
@@ -15,7 +15,7 @@ compile inside a node, never return a subgraph from a node):
       Prebuilt subgraph: {"question": str} -> signed agreement out.
       Use standalone, or add_node() the compiled graph into a parent graph.
 
-LangGraph is imported lazily so core `claudeway` stays dependency-free.
+LangGraph is imported lazily so core `tractum` stays dependency-free.
 Install it yourself: `pip install langgraph`.
 """
 
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
 
 # --- State schema ------------------------------------------------------------
 
-# langgraph is the optional dep; import lazily so `import claudeway` doesn't
+# langgraph is the optional dep; import lazily so `import tractum` doesn't
 # drag it in. The TypedDict below references add_messages via a string
 # forward ref (PEP 563 / `from __future__ import annotations`), so the name
 # only needs to resolve when _state_schema() runs — which it does, by
@@ -257,7 +257,7 @@ def _result_from_dict(d: dict[str, Any]):
     task.result is always a dict (Swarm.process stores result.to_dict()).
     ConsensusResult.to_dict() — called inside ConsensusReceipt.from_result
     — handles both AgentResponse objects and dict-form responses natively
-    (fixed in claudeway core), so we don't need to rebuild AgentResponse
+    (fixed in tractum core), so we don't need to rebuild AgentResponse
     objects here. Just pass the responses through.
     """
     from ..consensus import ConsensusResult

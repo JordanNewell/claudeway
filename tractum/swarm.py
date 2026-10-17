@@ -1,5 +1,5 @@
 """
-Claudeway Swarm - Multi-agent coordination with real consensus.
+Tractum Swarm - Multi-agent coordination with real consensus.
 
 This is the differentiator. A swarm isn't "N agents that all answer and we
 pick the first" — it's N agents whose answers are aggregated through a

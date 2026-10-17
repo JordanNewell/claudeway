@@ -69,9 +69,9 @@ Three lazy imports raise clear install hints:
 
 | Missing | Error | Install |
 |---|---|---|
-| `coincurve` (Nostr transport) | `ImportError("Nostr transport requires coincurve (BIP-340 Schnorr). Install with: pip install claudeway[nostr]")` | `pip install claudeway[nostr]` |
-| `dilithium-py` (post-quantum backend) | `ImportError("ML-DSA-65 backend requires dilithium-py… pip install claudeway[pq]")` | `pip install claudeway[pq]` |
-| `mcp` (MCP client) | `ImportError("MCP support requires the 'mcp' package… pip install claudeway[mcp]")` | `pip install claudeway[mcp]` |
+| `coincurve` (Nostr transport) | `ImportError("Nostr transport requires coincurve (BIP-340 Schnorr). Install with: pip install tractum[nostr]")` | `pip install tractum[nostr]` |
+| `dilithium-py` (post-quantum backend) | `ImportError("ML-DSA-65 backend requires dilithium-py… pip install tractum[pq]")` | `pip install tractum[pq]` |
+| `mcp` (MCP client) | `ImportError("MCP support requires the 'mcp' package… pip install tractum[mcp]")` | `pip install tractum[mcp]` |
 
 ---
 
@@ -95,7 +95,7 @@ Tamper detection at the relay boundary uses `nak verify` (the reference Nostr CL
 
 **Recovery:** `_run_sync()` in `adapters/crewai.py` always spawns a **fresh daemon thread** with its own event loop and `asyncio.run(coro)`, then `t.join()`. Worker exceptions are re-raised in the caller.
 
-**Never** replace this with loop reuse. If you're writing a custom adapter that wraps async Claudeway calls into a sync surface, copy the `_run_sync` pattern verbatim.
+**Never** replace this with loop reuse. If you're writing a custom adapter that wraps async Tractum calls into a sync surface, copy the `_run_sync` pattern verbatim.
 
 ---
 

@@ -3,7 +3,7 @@ Consensus transparency log demo — the headline visual.
 
 Three swarms reach consensus. Each result is appended to a transparency
 log. The log root is published as a Nostr anchor event. Later, anyone —
-without trusting Claudeway — can verify a specific receipt was in the
+without trusting Tractum — can verify a specific receipt was in the
 log, using only the receipt + an inclusion proof + the published root.
 
 This is the README demo: Certificate Transparency for agent consensus,
@@ -23,10 +23,10 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from claudeway.consensus import ConsensusResult  # noqa: E402
-from claudeway.signing import ConsensusReceipt, Ed25519Backend  # noqa: E402
-from claudeway.swarm import AgentResponse  # noqa: E402
-from claudeway.transparency import TransparencyLog  # noqa: E402
+from tractum.consensus import ConsensusResult  # noqa: E402
+from tractum.signing import ConsensusReceipt, Ed25519Backend  # noqa: E402
+from tractum.swarm import AgentResponse  # noqa: E402
+from tractum.transparency import TransparencyLog  # noqa: E402
 
 
 def _receipt(swarm_name: str, task_id: str, answer: str) -> ConsensusReceipt:
@@ -45,8 +45,8 @@ def _receipt(swarm_name: str, task_id: str, answer: str) -> ConsensusReceipt:
         disagreed=False,
     )
     receipt = ConsensusReceipt.from_result(result, swarm_name=swarm_name, task_id=task_id)
-    # A fresh key per run (a real deployment persists CLAUDEWAY_SIGNING_KEY).
-    priv = os.environ.get("CLAUDEWAY_SIGNING_KEY") or Ed25519Backend().generate_keypair()[0]
+    # A fresh key per run (a real deployment persists TRACTUM_SIGNING_KEY).
+    priv = os.environ.get("TRACTUM_SIGNING_KEY") or Ed25519Backend().generate_keypair()[0]
     Ed25519Backend().sign_receipt(receipt, priv)
     return receipt
 
@@ -70,7 +70,7 @@ def main() -> None:
     print("=" * 70)
     print("Step 2 - append all three to the transparency log")
     print("=" * 70)
-    log = TransparencyLog(name="claudeway-canonical")
+    log = TransparencyLog(name="tractum-canonical")
     for rc in receipts:
         idx = log.append(rc)
         print(f"  appended {rc.payload['task_id']} -> leaf {idx}")
@@ -86,10 +86,10 @@ def main() -> None:
     print("=" * 70)
     from datetime import datetime
 
-    from claudeway.transports import to_log_anchor_event
+    from tractum.transports import to_log_anchor_event
 
-    # A 32-byte Nostr key. In production, the canonical Claudeway log lives
-    # under a Claudeway-published key; anyone can run their own log under
+    # A 32-byte Nostr key. In production, the canonical Tractum log lives
+    # under a Tractum-published key; anyone can run their own log under
     # their own key.
     nostr_key = "0b" * 32
     anchor_event = to_log_anchor_event(
@@ -97,7 +97,7 @@ def main() -> None:
         # would return one.
         type("LogAnchor", (), {
             "to_dict": lambda self: {
-                "type": "claudeway.transparency.anchor.v1",
+                "type": "tractum.transparency.anchor.v1",
                 "log_name": log.name,
                 "tree_size": log.size,
                 "root": log.root.hex(),
@@ -119,7 +119,7 @@ def main() -> None:
     print("=" * 70)
     print("Step 4 - third party verifies a receipt was in the log")
     print("=" * 70)
-    print("(No Claudeway trust required: receipt + proof + published root)")
+    print("(No Tractum trust required: receipt + proof + published root)")
     print()
 
     # A third party has: a specific receipt they care about (task-2), an
@@ -150,13 +150,13 @@ def main() -> None:
     print("=" * 70)
     print("The upshot")
     print("=" * 70)
-    print("Today Claudeway signs receipts — anyone can verify the signature,")
-    print("but you have to trust Claudeway to *show you* the receipt.")
+    print("Today Tractum signs receipts — anyone can verify the signature,")
+    print("but you have to trust Tractum to *show you* the receipt.")
     print()
-    print("After this: Claudeway's published log root commits to every receipt")
+    print("After this: Tractum's published log root commits to every receipt")
     print("ever issued. A receipt that was secretly altered, or quietly removed,")
     print("leaves a detectable gap in the log. Anyone — without trusting")
-    print("Claudeway — can confirm a receipt was in the log at a given root.")
+    print("Tractum — can confirm a receipt was in the log at a given root.")
     print()
     print("Day 2 anchors each root to Bitcoin via OpenTimestamps (NIP-3),")
     print("turning 'tamper-evident' into 'tamper-proof.'")

@@ -12,7 +12,7 @@ Run:
 import asyncio
 import os
 
-from claudeway import Agent, AgentConfig, Coordinator, CoordinatorConfig, Task
+from tractum import Agent, AgentConfig, Coordinator, CoordinatorConfig, Task
 
 
 async def main() -> None:
@@ -26,7 +26,7 @@ async def main() -> None:
     coordinator = Coordinator(CoordinatorConfig(), api_key=api_key)
 
     # Specialists it can delegate to. The coordinator's decomposition plan
-    # names which role should handle each sub-task; Claudeway routes to the
+    # names which role should handle each sub-task; Tractum routes to the
     # matching specialist and runs independent ones in parallel.
     coordinator.add_sub_agent(
         "Researcher",

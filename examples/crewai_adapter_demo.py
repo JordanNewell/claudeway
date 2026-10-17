@@ -1,11 +1,11 @@
 """
-CrewAI adapter demo — Claudeway consensus inside a CrewAI crew.
+CrewAI adapter demo — Tractum consensus inside a CrewAI crew.
 
 Two flows, mirroring the LangGraph adapter demo:
 
   1. Tool shape: a CrewAI Agent with `reach_consensus(swarm)` in its tool
      belt. The agent decides when to call consensus. The wedge case —
-     CrewAI does the orchestration, Claudeway does the agreement.
+     CrewAI does the orchestration, Tractum does the agreement.
 
   2. Flow shape: a prebuilt ConsensusFlow. question in -> signed agreement
      out. Idiomatic for users who orchestrate with Flows.
@@ -23,8 +23,8 @@ import sys
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from claudeway import AgentConfig, Swarm, SwarmConfig  # noqa: E402
-from claudeway.adapters.crewai import (  # noqa: E402
+from tractum import AgentConfig, Swarm, SwarmConfig  # noqa: E402
+from tractum.adapters.crewai import (  # noqa: E402
     ConsensusFlow,
     reach_consensus,
 )
@@ -66,7 +66,7 @@ async def flow1_tool() -> None:
     """The wedge case: a CrewAI agent with the consensus tool."""
     from crewai import LLM, Agent, Crew, Task
 
-    print(f"\n{'=' * 70}\nFlow 1 - CrewAI agent calls Claudeway consensus tool\n{'=' * 70}")
+    print(f"\n{'=' * 70}\nFlow 1 - CrewAI agent calls Tractum consensus tool\n{'=' * 70}")
 
     llm = LLM(
         model="anthropic/claude-3-5-haiku-20241022",

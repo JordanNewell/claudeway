@@ -27,16 +27,16 @@ fi
 # network. killer_demo.py itself doesn't use the relay, but the env is here
 # for the test suite and the buzz demo if a reviewer runs them in the same
 # container. Harmless no-op for the killer demo.
-export CLAUDEWAY_TEST_RELAY="${CLAUDEWAY_TEST_RELAY:-ws://relay:10547}"
+export TRACTUM_TEST_RELAY="${TRACTUM_TEST_RELAY:-ws://relay:10547}"
 
 # How many runs per approach. Default 10 for a stable mean; override for a
 # faster smoke test (KILLER_DEMO_RUNS=1).
 export KILLER_DEMO_RUNS="${KILLER_DEMO_RUNS:-10}"
 
-echo "=== Claudeway killer benchmark ==="
+echo "=== Tractum killer benchmark ==="
 echo "ANTHROPIC_API_KEY: set (len ${#ANTHROPIC_API_KEY})"
 echo "KILLER_DEMO_RUNS:  ${KILLER_DEMO_RUNS}"
-echo "Relay:             ${CLAUDEWAY_TEST_RELAY} (optional, for Nostr tests)"
+echo "Relay:             ${TRACTUM_TEST_RELAY} (optional, for Nostr tests)"
 echo
 
 # --- Run --------------------------------------------------------------------

@@ -1,5 +1,5 @@
 """
-Claudeway post-quantum signing — ML-DSA-65 backend.
+Tractum post-quantum signing — ML-DSA-65 backend.
 
 A sibling to Ed25519Backend. Same SignatureBackend interface, same
 ConsensusReceipt shape, same canonical_json/payload_hash — only the
@@ -12,7 +12,7 @@ Hardness of Module Learning With Errors.
 
 The dilithium-py package (pure Python, no native deps) provides the
 FIPS 204 reference implementation. It's imported lazily so the core
-SDK stays lean; install `claudeway[pq]` to enable this backend.
+SDK stays lean; install `tractum[pq]` to enable this backend.
 
 Why a pure-Python backend ships by default: the SignatureBackend ABC is
 the moat, not any one crypto. A backend that pip-installs everywhere
@@ -33,7 +33,7 @@ def _load_mldsa65():
     except ImportError as exc:
         raise ImportError(
             "ML-DSA-65 backend requires dilithium-py (FIPS 204). "
-            "Install with: pip install claudeway[pq]"
+            "Install with: pip install tractum[pq]"
         ) from exc
     return ML_DSA_65
 

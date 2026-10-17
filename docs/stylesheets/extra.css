@@ -1,5 +1,5 @@
 /* =========================================================================
-   Claudeway docs — NEWELL Brand System overrides
+   Tractum docs — NEWELL Brand System overrides
    Single source of truth: e:/vaults/anything.xyz/50_Projects/brand-system/
    Tokens: bg #0A0A0A · surface #0F0F0F · border #1F1F1F · text #FFFFFF
            muted #A0A0A0 · primary #00FF41 · accent #1AFF72
@@ -20,7 +20,7 @@
 /* ---- Force the dark scheme to NEWELL OLED black ----------------------- */
 [data-md-color-scheme="default"],
 [data-md-color-scheme="slate"],
-[data-md-color-scheme="claudeway"] {
+[data-md-color-scheme="tractum"] {
   --md-default-bg-color:             var(--newell-bg);
   --md-default-fg-color:             --newell-text;
   --md-default-fg-color--light:      var(--newell-muted);

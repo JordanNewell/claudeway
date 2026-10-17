@@ -30,7 +30,7 @@ jobs:
           pip install -e ".[mcp,pq,dev]"
 
       - name: Lint (ruff)
-        run: ruff check claudeway/ tests/ examples/
+        run: ruff check tractum/ tests/ examples/
 
       - name: Test (pytest)
         run: pytest tests/ -v
@@ -53,7 +53,7 @@ jobs:
           import zipfile, glob
           w = glob.glob('dist/*.whl')[0]
           names = zipfile.ZipFile(w).namelist()
-          assert 'claudeway/__init__.py' in names, 'missing claudeway package'
-          assert 'claudeway/server.py' in names, 'missing MCP server'
+          assert 'tractum/__init__.py' in names, 'missing tractum package'
+          assert 'tractum/server.py' in names, 'missing MCP server'
           print('wheel OK:', w)
           "

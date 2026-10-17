@@ -8,17 +8,17 @@ rejection, generated-keypair distinctness, and multi-backend coexistence
 under each respective backend).
 
 Skips gracefully when the optional `dilithium-py` dep isn't installed
-(`pip install claudeway[pq]`).
+(`pip install tractum[pq]`).
 """
 
 import pytest
 
-from claudeway.consensus import ConsensusResult
-from claudeway.signing import ConsensusReceipt, Ed25519Backend
-from claudeway.signing_pq import MLDSABackend
-from claudeway.swarm import AgentResponse
+from tractum.consensus import ConsensusResult
+from tractum.signing import ConsensusReceipt, Ed25519Backend
+from tractum.signing_pq import MLDSABackend
+from tractum.swarm import AgentResponse
 
-pytest.importorskip("dilithium_py", reason="install with: pip install claudeway[pq]")
+pytest.importorskip("dilithium_py", reason="install with: pip install tractum[pq]")
 
 
 @pytest.fixture

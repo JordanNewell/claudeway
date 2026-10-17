@@ -1,5 +1,5 @@
 """
-Claudeway Consensus - How multiple agents reach agreement.
+Tractum Consensus - How multiple agents reach agreement.
 
 The core differentiator. Frameworks like LangGraph make you wire coordination
 by hand; CrewAI's coordination is shallow. Here, consensus is a first-class,

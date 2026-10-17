@@ -1,4 +1,4 @@
-# Killer demo — Claudeway vs CrewAI vs single Claude
+# Killer demo — Tractum vs CrewAI vs single Claude
 
 > Same hard question. Three approaches. Same model (`claude-haiku-4-5-20251001`).
 > Each approach run **3×** (LLMs are non-deterministic).
@@ -13,7 +13,7 @@
 
 | Approach | Wall-clock (mean) | Tokens (sum) | Judge score (range) |
 |---|---:|---:|---:|
-| **Claudeway Swarm** | 29.8s | 67,522 (49,160 in / 18,362 out) | 18/20 (17–19) |
+| **Tractum Swarm** | 29.8s | 67,522 (49,160 in / 18,362 out) | 18/20 (17–19) |
 | **CrewAI crew** | 43.7s | ~ (~ in / ~ out) | 13/20 (12–14) |
 | **Single Claude** | 7.5s | 1,870 (411 in / 1,459 out) | 11/20 (10–12) |
 
@@ -21,13 +21,13 @@ _Judge: `claude-sonnet-4-6`, ~9 calls total (1 per approach per run), ~700 token
 
 ## The honest takeaway
 
-- **Quality:** Claudeway scored **+6.7/20** vs single Claude on average across 3 runs. Variance is real — LLMs are non-deterministic, and Claudeway's quality depends on whether the specialist agents elaborate (sometimes 3 paragraphs, sometimes one sentence). The structural win is the multi-perspective format: the judge sees how each specialist reasoned, not just the verdict.
-- **Cost:** Claudeway used ~36.1x the tokens of single Claude. That's the real tradeoff. For $0.001-decisions, single Claude is right. For decisions where being wrong is expensive (this one — $20M+), the token cost is rounding error.
-- **What's free with Claudeway:** per-agent outputs are auditable (you see WHY each specialist concluded what they did), the consensus is a signed tamper-evident receipt, and the whole thing publishes to any Nostr relay as a NIP-78 event with no extra work. None of the other approaches give you any of those.
+- **Quality:** Tractum scored **+6.7/20** vs single Claude on average across 3 runs. Variance is real — LLMs are non-deterministic, and Tractum's quality depends on whether the specialist agents elaborate (sometimes 3 paragraphs, sometimes one sentence). The structural win is the multi-perspective format: the judge sees how each specialist reasoned, not just the verdict.
+- **Cost:** Tractum used ~36.1x the tokens of single Claude. That's the real tradeoff. For $0.001-decisions, single Claude is right. For decisions where being wrong is expensive (this one — $20M+), the token cost is rounding error.
+- **What's free with Tractum:** per-agent outputs are auditable (you see WHY each specialist concluded what they did), the consensus is a signed tamper-evident receipt, and the whole thing publishes to any Nostr relay as a NIP-78 event with no extra work. None of the other approaches give you any of those.
 
 ## Answers
 
-### Claudeway Swarm
+### Tractum Swarm
 
 **Scores** — correctness: 4, nuance: 4, completeness: 4, disagreement_surfaced: 5 _(total 17/20)_
 
@@ -247,7 +247,7 @@ Here's my honest math:
 
 ---
 
-## Claudeway's unique artifacts
+## Tractum's unique artifacts
 
 These are the things the other approaches don't give you. They're the actual moat — not 'slightly better final answer.'
 
@@ -371,7 +371,7 @@ Let me model this more rigorously:
 
 ### The signed receipt
 
-Tamper-evident. Anyone can verify it later without trusting Claudeway.
+Tamper-evident. Anyone can verify it later without trusting Tractum.
 
 ```
 public_key:    19bd8a248f6201dacd163e2aa88333164ae1fc0a1de6300ab31433689e8daf7a
@@ -383,11 +383,11 @@ verified:      True
 
 - All agent calls use the same model (`claude-haiku-4-5-20251001`) for fairness.
 - CrewAI uses its default sequential process; each persona writes a report, then a synthesizer agent produces the final answer.
-- Claudeway uses `Debate` — each persona answers, sees peer responses, and revises. The signed receipt is a separate, free artifact.
+- Tractum uses `Debate` — each persona answers, sees peer responses, and revises. The signed receipt is a separate, free artifact.
 - Single-Claude baseline is one direct call with the same prompt.
 - The judge scores blindly — it does not know which approach produced which answer.
 - Latency is wall-clock from kickoff to final answer returned.
-- Token counts are exact for single-Claude and Claudeway (captured from the Anthropic SDK response.usage). CrewAI's litellm callback capture is unreliable on Windows + litellm 1.18+ — its token count is not reported here. Use wall-clock + output length as proxies.
+- Token counts are exact for single-Claude and Tractum (captured from the Anthropic SDK response.usage). CrewAI's litellm callback capture is unreliable on Windows + litellm 1.18+ — its token count is not reported here. Use wall-clock + output length as proxies.
 
 ## Reproduce
 

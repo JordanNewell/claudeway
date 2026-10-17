@@ -1,6 +1,6 @@
 [project]
-name = "claudeway"
-version = "0.4.0"
+name = "tractum"
+version = "0.5.0"
 description = "Verifiable multi-agent consensus for Claude. A coordination layer built around signed agreement."
 readme = "README.md"
 license = { text = "BUSL-1.1" }
@@ -19,7 +19,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
 ]
 
-# Base install = the consensus SDK. Lean on purpose: pip install claudeway
+# Base install = the consensus SDK. Lean on purpose: pip install tractum
 # and you can build signed multi-agent agreement with zero extras.
 dependencies = [
     "anthropic>=0.40.0",
@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# Run Claudeway as a service: FastAPI control plane + dashboard backend.
+# Run Tractum as a service: FastAPI control plane + dashboard backend.
 runner = [
     "fastapi>=0.109.0",
     "uvicorn[standard]>=0.27.0",
@@ -52,13 +52,13 @@ nostr = [
 pq = [
     "dilithium-py>=1.4.0",
 ]
-# Drop Claudeway consensus into a LangGraph StateGraph as a single node.
+# Drop Tractum consensus into a LangGraph StateGraph as a single node.
 # LangGraph makes you wire coordination by hand; this adapter is the seam.
 langgraph = [
     "langgraph>=0.2.0",
     "langchain-core>=0.3.0",
 ]
-# Drop Claudeway consensus into a Microsoft Agent Framework workflow.
+# Drop Tractum consensus into a Microsoft Agent Framework workflow.
 # MAF unifies AutoGen + Semantic Kernel; this adapter is the seam.
 # Depends on agent-framework-core (the lean core — same `agent_framework`
 # import as the `agent-framework` meta-package, but without dragging in
@@ -66,12 +66,12 @@ langgraph = [
 maf = [
     "agent-framework-core>=1.0.0",
 ]
-# Drop Claudeway consensus into CrewAI as a @tool or Flow. Inverts the
-# killer demo: a CrewAI crew can *call* Claudeway for agreement.
+# Drop Tractum consensus into CrewAI as a @tool or Flow. Inverts the
+# killer demo: a CrewAI crew can *call* Tractum for agreement.
 crewai = [
     "crewai>=1.0.0",
 ]
-# Run the killer benchmark (examples/killer_demo.py): Claudeway vs CrewAI
+# Run the killer benchmark (examples/killer_demo.py): Tractum vs CrewAI
 # vs single Claude. Heavy dep — install only if you want to reproduce.
 # Note: token-cost tracking in the demo also wants `litellm` installed
 # separately, but we don't pin it here because litellm 1.18+ pulls a
@@ -94,7 +94,7 @@ dev = [
     "build>=1.2.0",
 ]
 # Build the docs site (https://jordannewell.github.io/claudeway/).
-# mkdocstrings[python] generates the API reference from claudeway/*.py
+# mkdocstrings[python] generates the API reference from tractum/*.py
 # docstrings; mkdocs-material is the theme.
 docs = [
     "mkdocs>=1.6.0",
@@ -110,17 +110,17 @@ Changelog = "https://jordannewell.github.io/claudeway/CHANGELOG/"
 Issues = "https://github.com/JordanNewell/claudeway/issues"
 
 [project.scripts]
-# Run after: pip install claudeway[mcp]
-claudeway-mcp = "claudeway.server:main"
+# Run after: pip install tractum[mcp]
+tractum-mcp = "tractum.server:main"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-# The SDK ships as the `claudeway` package. `api/` (the runner) and `examples/`
+# The SDK ships as the `tractum` package. `api/` (the runner) and `examples/`
 # stay in the repo but aren't installed by the SDK wheel.
-packages = ["claudeway"]
+packages = ["tractum"]
 
 [tool.ruff]
 line-length = 100

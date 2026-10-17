@@ -6,7 +6,7 @@ Claude has **two different ways** to run parallel agents. They serve different p
 
 ## Quick Comparison
 
-| Aspect | Native Parallel (SDK) | Claudeway Tool |
+| Aspect | Native Parallel (SDK) | Tractum Tool |
 |--------|----------------------|----------------|
 | **Persistence** | Temporary (dies after response) | Persistent (runs until stopped) |
 | **Reusability** | One-shot | Reusable across tasks |
@@ -29,11 +29,11 @@ Claude has **two different ways** to run parallel agents. They serve different p
 ✅ **Results needed immediately**
 ✅ **No need for specialist persistence**
 
-### Use Claudeway Tool when:
+### Use Tractum Tool when:
 
 ```python
 # Creates a persistent, reusable team
-claudeway(
+tractum(
     action="deploy_swarm",
     swarm_name="research-team",
     agents=[...]
@@ -62,7 +62,7 @@ Claude: "I'll analyze these 3 documents in parallel using my native capability"
 ```
 Claude: "This project needs ongoing research. I'll deploy a dedicated research swarm
 that I can query multiple times."
-<uses claudeway tool>
+<uses tractum tool>
 ```
 
 ## Decision Tree
@@ -72,7 +72,7 @@ Need parallel processing?
          ↓
     Will you reuse these agents?
          ↓
-    Yes → Use Claudeway tool
+    Yes → Use Tractum tool
          ↓
     No → Use native parallel
 ```
@@ -89,7 +89,7 @@ When Claude has both capabilities, it should think:
    YES → Deploy a swarm (persistent, reusable)
 
 3. Do I need to manage/monitor the agents?
-   YES → Use Claudeway tool (has status, management)
+   YES → Use Tractum tool (has status, management)
 
 4. Is this simple concurrency?
    YES → Use native parallel (built-in)
@@ -109,17 +109,17 @@ async def process_three_things():
     )
 ```
 
-### Claudeway Tool (explicit decision)
+### Tractum Tool (explicit decision)
 
 ```python
 # Claude must CHOOSE to use this
-claudeway(
+tractum(
     action="deploy_swarm",
     swarm_name="my-team",
     agents=[...]
 )
 # Later...
-claudeway(
+tractum(
     action="submit_task",
     swarm_id="my-team-123",
     task="Do another task"
@@ -129,6 +129,6 @@ claudeway(
 ## Key Takeaway
 
 **Native parallel** = "I need to do 3 things at once, right now"
-**Claudeway tool** = "I need a dedicated team that will work on multiple tasks over time"
+**Tractum tool** = "I need a dedicated team that will work on multiple tasks over time"
 
 The tool description now explicitly states this distinction so Claude knows when to use which approach.

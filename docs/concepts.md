@@ -1,6 +1,6 @@
 ---
 title: Concepts
-description: Swarm, Agent, Task, Consensus, Receipt, SignatureBackend — the six primitives you need to understand Claudeway.
+description: Swarm, Agent, Task, Consensus, Receipt, SignatureBackend — the six primitives you need to understand Tractum.
 ---
 
 # Concepts
@@ -42,7 +42,7 @@ directly — you describe what you want via an `AgentConfig` and the `Swarm`
 materializes agents on demand.
 
 ```python
-from claudeway import AgentConfig
+from tractum import AgentConfig
 
 AgentConfig(
     name="StrongConsistency",
@@ -63,7 +63,7 @@ The unit of work a `Swarm` processes. Carries an id, the question, and any
 input data specialists need.
 
 ```python
-from claudeway import Task
+from tractum import Task
 
 Task(
     id="q1",
@@ -83,7 +83,7 @@ the responses to the consensus strategy, and returns a `ConsensusResult`
 with the final answer, per-agent responses, and the agreement score.
 
 ```python
-from claudeway import Swarm, SwarmConfig, AgentConfig
+from tractum import Swarm, SwarmConfig, AgentConfig
 
 swarm = Swarm(SwarmConfig(
     name="ArchReview",
@@ -111,7 +111,7 @@ Pluggable aggregation over agent responses. Two strategies ship:
   agreement on hard questions; early-exits when agents already agree.
 
 ```python
-from claudeway import Swarm, WeightedVote, Debate
+from tractum import Swarm, WeightedVote, Debate
 
 swarm = Swarm(config, consensus=Debate())
 ```
@@ -127,7 +127,7 @@ agreed answer, the agents who produced it, the strategy used, and the
 task id. It's not text; it's an attestation.
 
 ```python
-from claudeway import ConsensusReceipt
+from tractum import ConsensusReceipt
 
 receipt = ConsensusReceipt.from_result(
     result,
@@ -155,7 +155,7 @@ unanimous), all covered by the operator's aggregate signature. The
 verifier counts valid agent signatures against k:
 
 ```python
-from claudeway import verify_receipt_detailed
+from tractum import verify_receipt_detailed
 
 report = verify_receipt_detailed(
     receipt,
@@ -183,12 +183,12 @@ on which algorithm you pick. Two backends ship:
 
 - **`Ed25519Backend`** (default): compact, fast, no native deps, works
   everywhere.
-- **`MLDSABackend`** (`claudeway.signing_pq`): ML-DSA-65 / FIPS 204
+- **`MLDSABackend`** (`tractum.signing_pq`): ML-DSA-65 / FIPS 204
   post-quantum. Pure-Python via `dilithium-py`.
 
 ```python
-from claudeway import Ed25519Backend
-# or: from claudeway.signing_pq import MLDSABackend
+from tractum import Ed25519Backend
+# or: from tractum.signing_pq import MLDSABackend
 
 backend = Ed25519Backend()
 private_key, public_key = backend.generate_keypair()
@@ -210,7 +210,7 @@ re-signing. See [Transports](transports.md).
 
 ```python
 import asyncio
-from claudeway import (
+from tractum import (
     AgentConfig, ConsensusReceipt, Debate, Ed25519Backend,
     Swarm, SwarmConfig, Task,
 )

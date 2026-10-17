@@ -1,20 +1,20 @@
 """
-Claudeway transparency log — globally auditable consensus history.
+Tractum transparency log — globally auditable consensus history.
 
-Today the moat is "signed, tamper-evident attestations": Claudeway signs a
+Today the moat is "signed, tamper-evident attestations": Tractum signs a
 receipt, anyone can verify the signature. But "verify the signature" still
-requires trusting Claudeway to *show you* the receipt. A receipt that was
+requires trusting Tractum to *show you* the receipt. A receipt that was
 secretly altered and re-signed, or quietly removed, leaves no trace.
 
 This module closes that gap. Every signed receipt is appended to an
 append-only Merkle log; the log root is published as a Nostr event. Now:
 
   - **Issuance is provable.** Anyone can verify a receipt was in the log
-    at a given root, with an inclusion proof — no Claudeway trust required.
+    at a given root, with an inclusion proof — no Tractum trust required.
   - **Removal is detectable.** Append-only means a published root commits
     to every leaf before it. Re-anchoring a missing leaf changes the root.
   - **History is auditable.** The Nostr event stream IS the log's history;
-    anyone watching sees every anchor Claudeway publishes.
+    anyone watching sees every anchor Tractum publishes.
 
 This is Certificate Transparency (RFC 6962) for agent consensus — adapted
 to receipts-as-leaves, anchored to Nostr on day 1, with Bitcoin anchoring
@@ -30,7 +30,7 @@ appends — a proof issued at size N still verifies at size N+k.
 Day-1 honesty: a *cryptographically* global log needs a finality anchor
 (Bitcoin, day 2). Day 1 gives one logical log per Nostr key, globally
 visible and tamper-evident via Nostr's signature model. The canonical
-Claudeway log lives under a Claudeway-published Nostr key; anyone can run
+Tractum log lives under a Tractum-published Nostr key; anyone can run
 their own log under their own key. Day-2 Bitcoin anchoring turns
 "tamper-evident" into "tamper-proof."
 """
@@ -109,7 +109,7 @@ class TransparencyLog:
     root") — out of scope for day 1, where logs are small and per-key.
     """
 
-    def __init__(self, name: str = "claudeway") -> None:
+    def __init__(self, name: str = "tractum") -> None:
         self.name = name
         # Stored as leaf hashes (not receipts) so the log doesn't hold
         # payload data it doesn't need. Receipts are reproducible from
@@ -193,7 +193,7 @@ class LogAnchor:
 
     def to_dict(self) -> dict:
         return {
-            "type": "claudeway.transparency.anchor.v1",
+            "type": "tractum.transparency.anchor.v1",
             "log_name": "",  # filled by the publisher (to_log_anchor_event)
             "tree_size": self.tree_size,
             "root": self.root.hex(),
@@ -206,7 +206,7 @@ class LogAnchor:
 #
 # We use the recursive "hash sub-tree" formulation from RFC 6962 §2.1.1
 # directly. It's the clearest expression of the spec and the tree sizes
-# Claudeway deals with (per-key, day 1) are small; recursion depth is
+# Tractum deals with (per-key, day 1) are small; recursion depth is
 # ~log2(size), so even a million-leaf log only recurses 20 deep.
 #
 # The spec defines a "Merkle subtree hash" over a half-open range [start,

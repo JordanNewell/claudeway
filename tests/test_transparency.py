@@ -24,10 +24,10 @@ import hashlib
 
 import pytest
 
-from claudeway.consensus import ConsensusResult
-from claudeway.signing import ConsensusReceipt
-from claudeway.swarm import AgentResponse
-from claudeway.transparency import (
+from tractum.consensus import ConsensusResult
+from tractum.signing import ConsensusReceipt
+from tractum.swarm import AgentResponse
+from tractum.transparency import (
     InclusionProof,
     LogAnchor,
     TransparencyLog,
@@ -238,10 +238,10 @@ def test_proof_remains_valid_after_more_appends():
 def test_verify_inclusion_needs_no_log_instance():
     """The whole point: verify with just (receipt, proof, root) — no log.
 
-    Anyone, anywhere, can confirm a receipt was in a log Claudeway
-    published, without trusting Claudeway to run the verification.
+    Anyone, anywhere, can confirm a receipt was in a log Tractum
+    published, without trusting Tractum to run the verification.
     """
-    # Side A: Claudeway publishes the log + an anchor + per-receipt proofs.
+    # Side A: Tractum publishes the log + an anchor + per-receipt proofs.
     log = TransparencyLog()
     for i in range(7):
         log.append(_receipt(f"a{i}", i))
@@ -259,12 +259,12 @@ def test_verify_inclusion_needs_no_log_instance():
 # Anchors are Nostr events, so they need coincurve (the [nostr] extra).
 # Skips cleanly when absent — same pattern as test_nostr.py.
 
-pytest.importorskip("coincurve", reason="install claudeway[nostr]")
+pytest.importorskip("coincurve", reason="install tractum[nostr]")
 
 import json  # noqa: E402
 import os  # noqa: E402
 
-from claudeway.transports import (  # noqa: E402
+from tractum.transports import (  # noqa: E402
     NOSTR_TRANSPARENCY_D_TAG,
     NOSTR_TRANSPARENCY_KIND,
     _nostr_pubkey,
@@ -332,21 +332,21 @@ def test_anchor_event_content_carries_tree_size_and_root():
     for i in range(7):
         log.append(_receipt(f"leaf{i}", i))
     anchor = LogAnchor(tree_size=log.size, root=log.root, published_at=datetime.utcnow())
-    event = to_log_anchor_event(anchor, _nostr_key(), log_name="claudeway")
+    event = to_log_anchor_event(anchor, _nostr_key(), log_name="tractum")
 
     payload = json.loads(event.content)
     assert payload["tree_size"] == 7
     assert payload["root"] == log.root.hex()
-    assert payload["type"] == "claudeway.transparency.anchor.v1"
-    assert payload["log_name"] == "claudeway"
+    assert payload["type"] == "tractum.transparency.anchor.v1"
+    assert payload["log_name"] == "tractum"
 
 
-RELAY_URL = os.environ.get("CLAUDEWAY_TEST_RELAY")
+RELAY_URL = os.environ.get("TRACTUM_TEST_RELAY")
 
 
 @pytest.mark.skipif(
     not RELAY_URL,
-    reason="set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to run integration test",
+    reason="set TRACTUM_TEST_RELAY=ws://localhost:10547 to run integration test",
 )
 @pytest.mark.asyncio
 async def test_anchor_event_publishes_and_reads_back():

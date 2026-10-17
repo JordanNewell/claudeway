@@ -1,9 +1,9 @@
 """
-CrewAI adapter — Claudeway consensus as a CrewAI tool and Flow.
+CrewAI adapter — Tractum consensus as a CrewAI tool and Flow.
 
-CrewAI is the role-based framework Claudeway's killer demo already beats on
+CrewAI is the role-based framework Tractum's killer demo already beats on
 cost and answer quality. This adapter inverts that relationship: a CrewAI
-crew can *call* Claudeway for consensus. Same dep, opposite direction —
+crew can *call* Tractum for consensus. Same dep, opposite direction —
 the competitor becomes a distribution channel.
 
 Two entry points, mirroring the LangGraph adapter's two-shape pattern:
@@ -16,8 +16,8 @@ Two entry points, mirroring the LangGraph adapter's two-shape pattern:
       Idiomatic for users who orchestrate with Flows. Async-native.
       Embed in a larger Flow via @listen, or run standalone.
 
-CrewAI is imported lazily so core `claudeway` stays dependency-free.
-Install it yourself: `pip install claudeway[crewai]`.
+CrewAI is imported lazily so core `tractum` stays dependency-free.
+Install it yourself: `pip install tractum[crewai]`.
 """
 
 from __future__ import annotations
@@ -45,7 +45,7 @@ def reach_consensus(
 
     Attach the returned tool to any CrewAI Agent:
 
-        from claudeway.adapters.crewai import reach_consensus
+        from tractum.adapters.crewai import reach_consensus
         agent = Agent(role='...', tools=[reach_consensus(swarm)])
 
     The agent invokes the tool with a question string; the tool runs the
@@ -132,7 +132,7 @@ def _build_consensus_flow_class():
 
 # ConsensusState is module-scope (not in a factory) so Pydantic can introspect
 # it. Imported lazily-deferred: crewai pulls pydantic, so we import BaseModel
-# at module load — that's a transitive dep, not a new one for claudeway.
+# at module load — that's a transitive dep, not a new one for tractum.
 from pydantic import BaseModel  # noqa: E402
 
 

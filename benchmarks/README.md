@@ -1,6 +1,6 @@
 # Killer benchmark appliance
 
-Reproduce the killer demo from cold: Claudeway vs CrewAI vs single Claude on
+Reproduce the killer demo from cold: Tractum vs CrewAI vs single Claude on
 a hard question, blind Sonnet judge, N runs. You bring an Anthropic API key;
 `docker compose` handles the rest.
 
@@ -19,7 +19,7 @@ the optional Nostr test path; `killer_demo.py` doesn't depend on it.
 
 `benchmarks/out/killer_demo_results.md` — the side-by-side report: wall-clock,
 tokens, blind judge scores (correctness / nuance / completeness /
-disagreement-surfaced), the per-agent Claudeway perspectives, and the signed
+disagreement-surfaced), the per-agent Tractum perspectives, and the signed
 receipt. Same file the demo writes to `examples/`, staged into the volume.
 
 ## Knobs
@@ -28,7 +28,7 @@ receipt. Same file the demo writes to `examples/`, staged into the volume.
 |---|---|---|
 | `ANTHROPIC_API_KEY` | _(required)_ | Drives the agent + judge calls |
 | `KILLER_DEMO_RUNS` | `10` | Runs per approach. Lower for a smoke test |
-| `CLAUDEWAY_TEST_RELAY` | `ws://relay:10547` | Optional; only for Nostr tests |
+| `TRACTUM_TEST_RELAY` | `ws://relay:10547` | Optional; only for Nostr tests |
 
 Smoke test in ~30s: `KILLER_DEMO_RUNS=1 docker compose up killer-bench`.
 
@@ -36,7 +36,7 @@ Smoke test in ~30s: `KILLER_DEMO_RUNS=1 docker compose up killer-bench`.
 
 - **Time:** ~5 min for the default 10 runs (Haiku agents, Sonnet judge).
 - **API cost:** ~$0.50 in Haiku tokens + a few cents of Sonnet for the judge.
-  Claudeway uses the most tokens (3 specialists + a debate revision round);
+  Tractum uses the most tokens (3 specialists + a debate revision round);
   single-Claude is the cheapest baseline.
 
 ## Without Docker

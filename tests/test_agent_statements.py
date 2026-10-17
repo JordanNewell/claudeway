@@ -13,9 +13,9 @@ from unittest.mock import patch
 
 import pytest
 
-from claudeway.agent import Agent, AgentConfig
-from claudeway.consensus import ConsensusResult
-from claudeway.signing import (
+from tractum.agent import Agent, AgentConfig
+from tractum.consensus import ConsensusResult
+from tractum.signing import (
     AGENT_STATEMENT_TYPE,
     CONSENSUS_PAYLOAD_V1,
     CONSENSUS_PAYLOAD_V2,
@@ -26,8 +26,8 @@ from claudeway.signing import (
     verify_receipt_detailed,
     verify_statement,
 )
-from claudeway.signing_pq import MLDSABackend
-from claudeway.swarm import AgentResponse, Swarm, SwarmConfig
+from tractum.signing_pq import MLDSABackend
+from tractum.swarm import AgentResponse, Swarm, SwarmConfig
 
 try:
     MLDSABackend()  # dilithium-py is imported lazily — probe it for real.
@@ -166,7 +166,7 @@ async def test_swarm_signs_every_agent_response():
     async def fake_think(self, prompt):
         return "<answer>use sqlite</answer><confidence>0.9</confidence><reasoning>r</reasoning>"
 
-    from claudeway.swarm import Task
+    from tractum.swarm import Task
     with patch.object(Agent, "think", fake_think):
         task = await swarm.process(Task(id="t1", description="q", input_data={}))
 

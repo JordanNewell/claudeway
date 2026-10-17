@@ -1,5 +1,5 @@
 ---
-title: Benchmarks — Claudeway vs single Claude vs CrewAI
+title: Benchmarks — Tractum vs single Claude vs CrewAI
 description: Same hard question, three approaches, blind LLM-judge scoring. The killer demo.
 ---
 
@@ -32,7 +32,7 @@ decision instead of a hedge. Single-model baselines collapse to a confident
 
 | Approach | Wall-clock | Tokens (sum) | Judge score (/20) |
 |---|---:|---:|---:|
-| **Claudeway Swarm** | 29.8s | 67,522 | **18** (17–19) |
+| **Tractum Swarm** | 29.8s | 67,522 | **18** (17–19) |
 | **CrewAI crew** | 43.7s | — | 13 (12–14) |
 | **Single Claude** | 7.5s | 1,870 | 11 (10–12) |
 
@@ -45,20 +45,20 @@ decision instead of a hedge. Single-model baselines collapse to a confident
 
 ## The honest takeaway
 
-- **Quality.** Claudeway scored **+7/20** vs single Claude on average. The
+- **Quality.** Tractum scored **+7/20** vs single Claude on average. The
   structural win is the multi-perspective format: the judge sees *how* each
   specialist reasoned, not just the verdict.
-- **Cost.** Claudeway used ~36x the tokens of single Claude. That's the real
+- **Cost.** Tractum used ~36x the tokens of single Claude. That's the real
   tradeoff. For `$0.001` decisions, single Claude is right. For decisions
   where being wrong is expensive — this one is $20M+ — the token cost is
   rounding error.
-- **What's free with Claudeway.** Per-agent outputs are auditable (you see
+- **What's free with Tractum.** Per-agent outputs are auditable (you see
   *why* each specialist concluded what they did), the consensus is a signed
   tamper-evident receipt, and the whole thing publishes to any Nostr relay
   as a NIP-78 event with no extra work. None of the other approaches give
   you any of those.
 
-## Claudeway's unique artifacts
+## Tractum's unique artifacts
 
 Two things the other approaches don't produce at all:
 
@@ -66,7 +66,7 @@ Two things the other approaches don't produce at all:
    `disagreed: True`. Each agent's full answer is visible — you can audit
    *why* the consensus landed where it did.
 2. **The signed receipt.** Tamper-evident. Anyone can verify it later
-   without trusting Claudeway:
+   without trusting Tractum:
 
    ```
    public_key:    19bd8a248f6201dacd163e2aa88333164ae1fc0a1de6300ab31433689e8daf7a
@@ -80,12 +80,12 @@ Two things the other approaches don't produce at all:
 - All agent calls use the same model for fairness.
 - **CrewAI** uses its default sequential process; each persona writes a
   report, then a synthesizer agent produces the final answer.
-- **Claudeway** uses `Debate` — each persona answers, sees peer responses,
+- **Tractum** uses `Debate` — each persona answers, sees peer responses,
   and revises once. The signed receipt is a separate, free artifact.
 - **Single-Claude** baseline is one direct call with the same prompt.
 - The judge scores blindly.
 - Latency is wall-clock from kickoff to final answer returned.
-- Token counts are exact for single-Claude and Claudeway (captured from the
+- Token counts are exact for single-Claude and Tractum (captured from the
   Anthropic SDK `response.usage`). CrewAI's litellm callback capture is
   unreliable on Windows + litellm 1.18+; its token count is omitted. Use
   wall-clock + output length as proxies.
@@ -100,11 +100,11 @@ python examples/killer_demo.py
 
 ## Benchmark design principles
 
-Claudeway's benchmark philosophy (drawn from the broader agent benchmark
+Tractum's benchmark philosophy (drawn from the broader agent benchmark
 literature):
 
 1. **Same model across approaches.** Disagreements come from perspective and
-   process, not model capability. Don't compare Claudeway-on-Sonnet to
+   process, not model capability. Don't compare Tractum-on-Sonnet to
    CrewAI-on-Haiku.
 2. **Run N times.** LLMs are non-deterministic. A single run is anecdote,
    not evidence.

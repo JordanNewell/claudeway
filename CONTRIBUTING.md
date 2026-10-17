@@ -1,6 +1,6 @@
-# Contributing to Claudeway
+# Contributing to Tractum
 
-Thanks for considering a contribution. Claudeway is a small, opinionated
+Thanks for considering a contribution. Tractum is a small, opinionated
 project; this doc exists so pull requests land cleanly and reviewers can
 move fast.
 
@@ -8,10 +8,10 @@ move fast.
 
 ```bash
 git clone https://github.com/JordanNewell/claudeway.git
-cd claudeway
+cd tractum
 pip install -e ".[mcp,nostr,dev]"
 pytest tests/ -v
-ruff check claudeway/ tests/ examples/
+ruff check tractum/ tests/ examples/
 ```
 
 Set `ANTHROPIC_API_KEY` to run the examples or any live test:
@@ -25,9 +25,9 @@ python examples/quickstart.py
 
 | Path | Purpose |
 |---|---|
-| `claudeway/` | The shipped SDK package. Lean by design — keep new deps out of the base install. |
-| `claudeway/adapters/` | Optional integrations (LangGraph). Lazy-import the host framework. |
-| `claudeway/tools/` | Tool layer used by `Agent`. MCP tools import lazily. |
+| `tractum/` | The shipped SDK package. Lean by design — keep new deps out of the base install. |
+| `tractum/adapters/` | Optional integrations (LangGraph). Lazy-import the host framework. |
+| `tractum/tools/` | Tool layer used by `Agent`. MCP tools import lazily. |
 | `examples/` | Runnable demos. `killer_demo.py` is the benchmark — don't break it. |
 | `tests/` | Pytest suite. Async tests use `pytest-asyncio` in auto mode. |
 | `docs/` | The mkdocs-material site (`mkdocs.yml` at repo root). |
@@ -43,7 +43,7 @@ python examples/quickstart.py
    `chore:`, `ci:`. Subject ≤72 chars. Body wraps at 80. Explain the *why*
    when it's non-obvious. Match the existing log:
    `git log --oneline -20`.
-4. **Keep the base install lean.** New runtime dependencies in `claudeway/`
+4. **Keep the base install lean.** New runtime dependencies in `tractum/`
    (outside `adapters/`) need a strong justification. Prefer an optional
    extra, lazy imports, or stdlib.
 5. **Don't add features beyond what was asked.** No drive-by refactors,
@@ -67,7 +67,7 @@ repo standards (S417 v1). A failed gitleaks job blocks merge.
 ## Code style
 
 - `ruff` is the only formatter/linter. Config in `pyproject.toml`. It runs
-  on `claudeway/`, `tests/`, and `examples/` in CI.
+  on `tractum/`, `tests/`, and `examples/` in CI.
 - Python 3.11 minimum. Use modern syntax (`from __future__ import
   annotations` where it makes sense).
 - Match the surrounding file. If the file uses dataclasses, use dataclasses;
@@ -75,13 +75,13 @@ repo standards (S417 v1). A failed gitleaks job blocks merge.
 
 ## Tests
 
-- Add or update tests for any behavior change in `claudeway/`.
+- Add or update tests for any behavior change in `tractum/`.
 - Live tests (anything that calls the real Anthropic API or a real Nostr
   relay) must be **opt-in** via an env var. See
   `tests/test_langgraph_adapter.py` for the pattern:
-  `CLAUDEWAY_TEST_LANGGRAPH=1` to enable. The default `pytest tests/` run
+  `TRACTUM_TEST_LANGGRAPH=1` to enable. The default `pytest tests/` run
   must work offline with no API keys.
-- For the Nostr relay integration test, set `CLAUDEWAY_TEST_RELAY=ws://...`
+- For the Nostr relay integration test, set `TRACTUM_TEST_RELAY=ws://...`
   pointing at a relay (`nak serve` works locally).
 
 ## Docs
@@ -102,7 +102,7 @@ mkdocs build        # strict build into site/
 ## The killer demo
 
 `examples/killer_demo.py` is the marketing asset — same question, single
-Claude vs CrewAI vs Claudeway, blind judge. Treat its output as load-bearing:
+Claude vs CrewAI vs Tractum, blind judge. Treat its output as load-bearing:
 
 - Don't change the model or prompt without re-running all three approaches
   3× and updating `examples/killer_demo_results.md`.
@@ -127,7 +127,7 @@ Found a security issue? **Do not open a public issue.** See
 ## Releases
 
 Releases are tagged by the maintainer (Jordan) — don't tag in a PR. Bump
-the version in both `pyproject.toml` and `claudeway/__init__.py`, update
+the version in both `pyproject.toml` and `tractum/__init__.py`, update
 `docs/CHANGELOG.md`, and the maintainer will tag and (eventually) publish
 to PyPI.
 

@@ -1,6 +1,6 @@
-# Claudeway - Deployment Guide
+# Tractum - Deployment Guide
 
-Complete guide for deploying and running the Claudeway agent platform.
+Complete guide for deploying and running the Tractum agent platform.
 
 ---
 
@@ -46,7 +46,7 @@ git --version      # Should run
 
 ```bash
 # 1. Navigate to project
-cd E:/dev/projects/personal/claudeway
+cd E:/dev/projects/personal/tractum
 
 # 2. Copy environment file
 cp .env.example .env
@@ -70,7 +70,7 @@ npm install --legacy-peer-deps
 cd ..
 
 # 7. Start API (Terminal A)
-uvicorn claudeway.api.main:app --reload --host 0.0.0.0 --port 8000
+uvicorn tractum.api.main:app --reload --host 0.0.0.0 --port 8000
 
 # 8. Start Dashboard (Terminal B)
 cd dashboard && npm run dev
@@ -96,10 +96,10 @@ cd dashboard && npm run dev
 .venv\Scripts\activate
 
 # Run with auto-reload
-uvicorn claudeway.api.main:app --reload
+uvicorn tractum.api.main:app --reload
 
 # Run with specific host/port
-uvicorn claudeway.api.main:app --host 0.0.0.0 --port 8080
+uvicorn tractum.api.main:app --host 0.0.0.0 --port 8080
 
 # Run tests
 pytest
@@ -172,7 +172,7 @@ The `infra/docker-compose.yml` includes:
 
 1. **Docker Desktop** - Start the application manually
 2. **Infrastructure** - `docker-compose up -d`
-3. **Backend API** - `uvicorn claudeway.api.main:app --reload`
+3. **Backend API** - `uvicorn tractum.api.main:app --reload`
 4. **Frontend** - `cd dashboard && npm run dev`
 
 ### Stop Order
@@ -192,10 +192,10 @@ docker ps
 curl http://localhost:8000/health
 
 # Check database
-docker exec claudeway-postgres pg_isready -U claudeway
+docker exec tractum-postgres pg_isready -U tractum
 
 # Check Redis
-docker exec claudeway-redis redis-cli ping
+docker exec tractum-redis redis-cli ping
 ```
 
 ---
@@ -334,7 +334,7 @@ taskkill /PID <pid> /F
 
 ### Python Issues
 
-**Problem**: `ModuleNotFoundError: No module named 'claudeway'`
+**Problem**: `ModuleNotFoundError: No module named 'tractum'`
 
 **Solution**:
 ```bash
@@ -349,7 +349,7 @@ pip install -e .
 docker ps | grep postgres
 
 # Restart container
-docker restart claudeway-postgres
+docker restart tractum-postgres
 ```
 
 ### Dashboard Issues
@@ -386,7 +386,7 @@ npm install --legacy-peer-deps
 docker-compose -f infra/docker-compose.yml down
 
 # Remove volumes
-docker volume rm claudeway_postgres_data
+docker volume rm tractum_postgres_data
 
 # Restart
 docker-compose -f infra/docker-compose.yml up -d
@@ -416,7 +416,7 @@ npm start
 
 # Backend (use gunicorn instead of uvicorn)
 pip install gunicorn
-gunicorn claudeway.api.main:app -w 4 -k uvicorn.workers.UvicornWorker
+gunicorn tractum.api.main:app -w 4 -k uvicorn.workers.UvicornWorker
 ```
 
 ### Docker Production

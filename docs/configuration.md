@@ -14,7 +14,7 @@ Every public knob in the SDK. Defaults are sensible for most cases — only devi
 A single Claude agent. You usually pass these into `SwarmConfig.agents` rather than constructing `Agent` directly.
 
 ```python
-from claudeway import AgentConfig
+from tractum import AgentConfig
 
 AgentConfig(
     name="Security",
@@ -53,7 +53,7 @@ AgentConfig(
 The swarm itself — N agents that answer concurrently.
 
 ```python
-from claudeway import Swarm, SwarmConfig, AgentConfig, WeightedVote
+from tractum import Swarm, SwarmConfig, AgentConfig, WeightedVote
 
 swarm = Swarm(SwarmConfig(
     name="ArchReview",
@@ -94,7 +94,7 @@ The constructor takes these on top of the config:
 One round, N API calls. Picks the max-confidence response.
 
 ```python
-from claudeway import WeightedVote
+from tractum import WeightedVote
 swarm = Swarm(config, consensus=WeightedVote())
 ```
 
@@ -107,7 +107,7 @@ No constructor parameters.
 Two rounds (2N API calls). Round 2 shows peers' answers to each agent for revision. **Early-exit**: if round 1 already exceeds the agreement threshold, round 2 is skipped (cost-guarded).
 
 ```python
-from claudeway import Debate
+from tractum import Debate
 swarm = Swarm(config, consensus=Debate(agreement_threshold=0.8))
 ```
 
@@ -124,7 +124,7 @@ swarm = Swarm(config, consensus=Debate(agreement_threshold=0.8))
 The Coordinator is hierarchical decomposition (vs. the Swarm's parallel consensus). Config is a subclass of `AgentConfig` with all defaults overridden.
 
 ```python
-from claudeway import Coordinator, CoordinatorConfig
+from tractum import Coordinator, CoordinatorConfig
 coord = Coordinator(CoordinatorConfig())
 ```
 
@@ -155,7 +155,7 @@ Coordinator(CoordinatorConfig(
 The signed attestation. You usually construct it via `ConsensusReceipt.from_result(...)` rather than field-by-field.
 
 ```python
-from claudeway import ConsensusReceipt, Ed25519Backend
+from tractum import ConsensusReceipt, Ed25519Backend
 
 receipt = ConsensusReceipt.from_result(result, swarm_name="ArchReview", task_id="q1")
 Ed25519Backend().sign_receipt(receipt, private_key)
@@ -182,7 +182,7 @@ Both implement the `SignatureBackend` ABC. **No constructor parameters.**
 ### `Ed25519Backend` (default)
 
 ```python
-from claudeway import Ed25519Backend
+from tractum import Ed25519Backend
 backend = Ed25519Backend()
 ```
 
@@ -192,13 +192,13 @@ backend = Ed25519Backend()
 ### `MLDSABackend` (post-quantum, opt-in)
 
 ```python
-from claudeway.signing_pq import MLDSABackend
+from tractum.signing_pq import MLDSABackend
 backend = MLDSABackend()
 ```
 
 - `algorithm="mldsa65"` (FIPS 204, NIST level 3), ~3.3 KB signatures
 - Pure-Python via `dilithium-py`
-- Install: `pip install claudeway[pq]`
+- Install: `pip install tractum[pq]`
 - Lazy-imported — raises a clear `ImportError` without the extra
 
 ### Common API
@@ -217,13 +217,13 @@ ok = backend.verify_receipt(receipt)            # re-hashes payload to detect po
 
 ## MCP server CLI
 
-Entry point: `claudeway.server:main`. Run as `claudeway-mcp`.
+Entry point: `tractum.server:main`. Run as `tractum-mcp`.
 
 ```bash
-claudeway-mcp                        # stdio (Claude Code, Cursor)
-claudeway-mcp --http                 # HTTP/SSE (remote agents, default port 8765)
-claudeway-mcp --http --port 9000     # custom port
-claudeway-mcp --http --host 0.0.0.0  # bind all interfaces
+tractum-mcp                        # stdio (Claude Code, Cursor)
+tractum-mcp --http                 # HTTP/SSE (remote agents, default port 8765)
+tractum-mcp --http --port 9000     # custom port
+tractum-mcp --http --host 0.0.0.0  # bind all interfaces
 ```
 
 | Flag | Default | Notes |
@@ -238,12 +238,12 @@ No auth flag. No TLS flag. No log-level flag. For remote deployments, put it beh
 
 ## Environment variables
 
-Only two are read anywhere in `claudeway/`:
+Only two are read anywhere in `tractum/`:
 
 | Var | Used by | Purpose |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | `server.py` (MCP server) | Passed to `Swarm(api_key=...)`. |
-| `CLAUDEWAY_SIGNING_KEY` | `server.py` | Hex Ed25519 private key. If set, MCP signs every receipt; if unset, receipts ship unsigned. |
+| `TRACTUM_SIGNING_KEY` | `server.py` | Hex Ed25519 private key. If set, MCP signs every receipt; if unset, receipts ship unsigned. |
 
 **Important:** `Swarm()` and `Agent()` do **not** read env vars themselves. `api_key=None` falls through to the `anthropic` SDK's own env lookup. For non-server use, pass the key explicitly.
 
@@ -255,7 +255,7 @@ Base install pulls: `anthropic>=0.40.0`, `cryptography>=42.0.0`, `httpx>=0.26.0`
 
 | Extra | Pulls | Use when |
 |---|---|---|
-| `mcp` | `mcp>=1.0.0` | Running `claudeway-mcp`. |
+| `mcp` | `mcp>=1.0.0` | Running `tractum-mcp`. |
 | `nostr` | `coincurve>=20.0.0` | Signing/publishing Nostr events (Buzz interop). Prebuilt wheels for CPython 3.11–3.13. |
 | `pq` | `dilithium-py>=1.4.0` | Post-quantum ML-DSA-65 signatures. |
 | `langgraph` | `langgraph>=0.2.0`, `langchain-core>=0.3.0` | LangGraph adapter. |
@@ -267,7 +267,7 @@ Base install pulls: `anthropic>=0.40.0`, `cryptography>=42.0.0`, `httpx>=0.26.0`
 | `dev` | `pytest`, `pytest-asyncio`, `pytest-cov`, `ruff`, `mypy`, `build` | Local development. |
 | `docs` | `mkdocs`, `mkdocs-material`, `mkdocstrings[python]` | Building this docs site. |
 
-Install multiple: `pip install claudeway[mcp,nostr,pq]`.
+Install multiple: `pip install tractum[mcp,nostr,pq]`.
 
 ---
 

@@ -1,4 +1,4 @@
-site_name: Claudeway
+site_name: Tractum
 site_description: Verifiable multi-agent consensus for Claude. A coordination layer built around signed agreement.
 site_url: https://jordannewell.github.io/claudeway/
 repo_url: https://github.com/JordanNewell/claudeway
@@ -15,7 +15,7 @@ site_dir: site
 # link to them via canonical GitHub URLs instead.
 exclude_docs: |
   ARCHITECTURE.md
-  CLAUDEWAY_TOOL.md
+  TRACTUM_TOOL.md
   DEPLOYMENT.md
   DEPRECATION.md
   NAMING.md
@@ -29,7 +29,7 @@ theme:
     text: Space Grotesk
     code: JetBrains Mono
   palette:
-    - scheme: claudeway
+    - scheme: tractum
       primary: "#0F0F0F"
       accent: "#00FF41"
   features:
@@ -117,6 +117,7 @@ nav:
   - Transparency log: transparency-log.md
   - Adapters: adapters.md
   - MCP server: mcp-server.md
+  - MCP demo: mcp-demo.md
   - Examples: examples.md
   - Benchmarks: benchmarks.md
   - Troubleshooting: troubleshooting.md
@@ -124,4 +125,4 @@ nav:
   - Threat model: THREAT-MODEL.md
   - Changelog: CHANGELOG.md
   - API Reference:
-    - claudeway: api-reference.md
+    - tractum: api-reference.md

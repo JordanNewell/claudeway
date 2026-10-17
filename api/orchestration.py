@@ -1,5 +1,5 @@
 """
-Claudeway Orchestration Service
+Tractum Orchestration Service
 
 Bridges the API layer to the core orchestration engine.
 """
@@ -9,9 +9,9 @@ from typing import Any
 from uuid import uuid4
 
 from api.state import get_runtime
-from claudeway.agent import Agent, AgentConfig
-from claudeway.coordinator import Coordinator, CoordinatorConfig
-from claudeway.swarm import SwarmConfig, Task
+from tractum.agent import Agent, AgentConfig
+from tractum.coordinator import Coordinator, CoordinatorConfig
+from tractum.swarm import SwarmConfig, Task
 
 
 class OrchestrationService:

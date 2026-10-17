@@ -1,4 +1,4 @@
-# Claudeway — Threat Model
+# Tractum — Threat Model
 
 What the signed receipts protect, what they don't, and what an acquirer
 should add. `tests/test_adversarial.py` proves each guarantee.
@@ -12,7 +12,7 @@ whose security reduces to: does the receipt hold up?
 
 ## Adversary classes
 
-**Malicious agent.** One agent lies confidently. Claudeway can't tell a
+**Malicious agent.** One agent lies confidently. Tractum can't tell a
 confident lie from a confident truth. It records every response verbatim
 in the signed payload — and since v0.4.0, each agent signs its own stance
 — so disagreement and forgery are visible to any verifier, not hidden
@@ -46,7 +46,7 @@ payload — and statements are individually pinned to their task
 else signed this." The signature binds to the canonical payload and
 recorded public key; swapping either fails verification.
 
-## What Claudeway guarantees
+## What Tractum guarantees
 
 Proven by `tests/test_adversarial.py`:
 
@@ -81,7 +81,7 @@ Since v0.4.0 (per-agent statements, k-of-n receipts):
 - One compromised agent key forges only that agent's statements; with
   pinning it cannot sign as any other agent.
 
-## What Claudeway does NOT guarantee
+## What Tractum does NOT guarantee
 
 The seams an acquirer closes:
 
@@ -106,14 +106,14 @@ The seams an acquirer closes:
 - **Ed25519 and BIP-340 are not post-quantum.** The default Ed25519
   backend and the BIP-340 Schnorr signatures used for Nostr transport
   are classical. An **ML-DSA-65 (FIPS 204)** backend ships as of v0.3.0
-  (`claudeway.signing_pq.MLDSABackend`, pure-Python via `dilithium-py`,
-  install with `pip install claudeway[pq]`) for attestations that must
+  (`tractum.signing_pq.MLDSABackend`, pure-Python via `dilithium-py`,
+  install with `pip install tractum[pq]`) for attestations that must
   stay verifiable across the transition to cryptographically relevant
   quantum hardware. The same receipt, same canonical payload hash —
   swap in at the `SignatureBackend` ABC. Statements can be signed with a
   different (mix of) backend(s) than the aggregate; the verifier
   dispatches per statement algorithm.
-- **Relays can drop or reorder events.** Claudeway signs; delivery is
+- **Relays can drop or reorder events.** Tractum signs; delivery is
   not its problem.
 
 ## Recommended mitigations (out of scope here)

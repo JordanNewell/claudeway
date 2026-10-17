@@ -12,7 +12,7 @@ from api.orchestration import OrchestrationService
 async def test_connection():
     """Test that the platform can talk to the core engine."""
     print("=" * 60)
-    print("Claudeway - Platform to Core Connection Test")
+    print("Tractum - Platform to Core Connection Test")
     print("=" * 60)
 
     # Get API key

@@ -1,44 +1,44 @@
 ---
 title: Adapters — Buzz, LangGraph, CrewAI, Microsoft Agent Framework
-description: Where Claudeway plugs into frameworks that coordinate without consensus.
+description: Where Tractum plugs into frameworks that coordinate without consensus.
 ---
 
 # Adapters
 
-Claudeway is the coordination layer other frameworks don't have. The
+Tractum is the coordination layer other frameworks don't have. The
 adapters below make that layer drop into the frameworks you may already be
 using — without forcing you to rewrite your app around a new SDK.
 
-Four adapters ship today. All of them keep the core `claudeway` package
+Four adapters ship today. All of them keep the core `tractum` package
 dependency-free: the host framework is imported lazily, so `pip install
-claudeway` never pulls LangGraph, CrewAI, MAF, or Nostr in.
+tractum` never pulls LangGraph, CrewAI, MAF, or Nostr in.
 
 | Adapter | Install | Use when |
 |---|---|---|
-| **Buzz** (Nostr transport) | `claudeway[nostr]` | You want consensus events on the open Nostr wire. |
-| **LangGraph** | `claudeway[langgraph]` | You own a `StateGraph` and want consensus as one node. |
-| **CrewAI** | `claudeway[crewai]` | Your crew calls Claudeway as a `@tool` or `Flow`. |
-| **Microsoft Agent Framework** | `claudeway[maf]` | You want consensus as a typed MAF executor / workflow. |
+| **Buzz** (Nostr transport) | `tractum[nostr]` | You want consensus events on the open Nostr wire. |
+| **LangGraph** | `tractum[langgraph]` | You own a `StateGraph` and want consensus as one node. |
+| **CrewAI** | `tractum[crewai]` | Your crew calls Tractum as a `@tool` or `Flow`. |
+| **Microsoft Agent Framework** | `tractum[maf]` | You want consensus as a typed MAF executor / workflow. |
 
 ---
 
 ## Buzz adapter (Nostr transport)
 
-**Buzz coordinates agents via workflows. Claudeway is how they reach signed agreement.**
+**Buzz coordinates agents via workflows. Tractum is how they reach signed agreement.**
 
 Buzz shipped July 2026 with coordination primitives built around workflows
-and agent memberships — not cryptographic consensus. Claudeway ships the
+and agent memberships — not cryptographic consensus. Tractum ships the
 complementary primitive: signed, tamper-evident receipts that any framework
 can verify, on the same Nostr wire Buzz speaks.
 
 The adapter isn't a separate package — it's the [Nostr NIP-78
-transport](transports.md#nostr-nip-78-event). A signed Claudeway consensus
+transport](transports.md#nostr-nip-78-event). A signed Tractum consensus
 receipt renders as a `kind: 30078` event that lands in any Nostr relay.
 Agents already monitoring a relay see the consensus event; the BIP-340
 signature means anyone can verify it wasn't tampered with.
 
 ```python
-from claudeway.transports import to_nostr_event
+from tractum.transports import to_nostr_event
 
 event = to_nostr_event(
     receipt,
@@ -58,7 +58,7 @@ and verified. The demo runs offline (mock agents) or online (real `Swarm`).
 
 ### Verify it yourself
 
-The events Claudeway emits verify under the reference Nostr CLI:
+The events Tractum emits verify under the reference Nostr CLI:
 
 ```bash
 nak verify < event.json
@@ -76,15 +76,15 @@ for the four-layer evidence trail: BIP-340 KAT vectors, the test suite,
 
 LangGraph is production-grade orchestration, but its coordination story is
 "build it yourself": you wire state reducers, fan-out/fan-in nodes,
-checkpoints, and synthesis logic per graph. The Claudeway adapter collapses
+checkpoints, and synthesis logic per graph. The Tractum adapter collapses
 all of that into one node that produces a signed agreement the agents
 actually reached.
 
 ```python
 from langgraph.graph import StateGraph
-from claudeway.adapters.langgraph import make_consensus_node
+from tractum.adapters.langgraph import make_consensus_node
 
-swarm = ...                              # your Claudeway Swarm
+swarm = ...                              # your Tractum Swarm
 graph = StateGraph(dict)
 graph.add_node("consensus", make_consensus_node(swarm))
 graph.set_entry_point("consensus")
@@ -118,29 +118,29 @@ The node composes with chat-style graphs out of the box:
 ### Install
 
 ```bash
-pip install claudeway[langgraph]
+pip install tractum[langgraph]
 ```
 
 Pulls `langgraph>=0.2.0` and `langchain-core>=0.3.0`. The import is lazy;
-without the extra, `import claudeway` never touches LangGraph.
+without the extra, `import tractum` never touches LangGraph.
 
 ### Live demo
 
 [`examples/langgraph_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/langgraph_adapter_demo.py)
 runs the adapter end-to-end with real Claude agents. The LangGraph
-integration test is opt-in (set `CLAUDEWAY_TEST_LANGGRAPH=1`).
+integration test is opt-in (set `TRACTUM_TEST_LANGGRAPH=1`).
 
 ---
 
 ## CrewAI adapter
 
-**CrewAI gives you the crew. Claudeway gives the crew a way to agree.**
+**CrewAI gives you the crew. Tractum gives the crew a way to agree.**
 
 CrewAI shines at multi-role orchestration with great DX. Its coordination
 story is shallow, though — tasks run in sequence, a synthesizer agent
-writes the final answer, and there's no signed agreement. The Claudeway
-adapter inverts the killer demo: instead of Claudeway calling CrewAI, a
-CrewAI crew *calls* Claudeway for agreement.
+writes the final answer, and there's no signed agreement. The Tractum
+adapter inverts the killer demo: instead of Tractum calling CrewAI, a
+CrewAI crew *calls* Tractum for agreement.
 
 Two entry points, both with lazy imports:
 
@@ -152,8 +152,8 @@ Two entry points, both with lazy imports:
   into a larger flow.
 
 ```python
-from claudeway import AgentConfig, Swarm, SwarmConfig
-from claudeway.adapters.crewai import ConsensusFlow, reach_consensus
+from tractum import AgentConfig, Swarm, SwarmConfig
+from tractum.adapters.crewai import ConsensusFlow, reach_consensus
 
 swarm = Swarm(SwarmConfig(
     name="CrewChoice",
@@ -175,7 +175,7 @@ await flow.kickoff_async(inputs={"question": "Postgres, SQLite, or Supabase?"})
 ### Install
 
 ```bash
-pip install claudeway[crewai]
+pip install tractum[crewai]
 ```
 
 ### Live demo
@@ -187,11 +187,11 @@ runs both flows end-to-end with real Claude agents.
 
 ## Microsoft Agent Framework (MAF) adapter
 
-**MAF gives you typed executors and a graph. Claudeway is the executor that does the agreement for you.**
+**MAF gives you typed executors and a graph. Tractum is the executor that does the agreement for you.**
 
 MAF is Microsoft's unified successor to AutoGen + Semantic Kernel — typed
 executors, a workflow builder, and structured intermediate events. The
-Claudeway adapter exposes consensus as both:
+Tractum adapter exposes consensus as both:
 
 - **`build_consensus_workflow(swarm, sign=True, stream=False)`** — returns
   a prebuilt workflow. `await workflow.run(question)` → final payload
@@ -202,8 +202,8 @@ Claudeway adapter exposes consensus as both:
   in one graph.
 
 ```python
-from claudeway import AgentConfig, Swarm, SwarmConfig
-from claudeway.adapters.maf import build_consensus_workflow, make_consensus_executor
+from tractum import AgentConfig, Swarm, SwarmConfig
+from tractum.adapters.maf import build_consensus_workflow, make_consensus_executor
 
 swarm = Swarm(SwarmConfig(
     name="DbChoice",
@@ -227,7 +227,7 @@ class ResearchExecutor(Executor):
         await ctx.send_message(f"prior art on: {message}")
 
 research = ResearchExecutor(id="research")
-consensus = make_consensus_executor(swarm)(id="claudeway_consensus")
+consensus = make_consensus_executor(swarm)(id="tractum_consensus")
 builder = WorkflowBuilder(start_executor=research, output_from=[consensus])
 builder.add_edge(research, consensus)
 workflow = builder.build()
@@ -257,7 +257,7 @@ async for event in workflow.run(question, stream=True):
 ### Install
 
 ```bash
-pip install claudeway[maf]
+pip install tractum[maf]
 ```
 
 ### Live demo
@@ -271,14 +271,14 @@ runs three flows end-to-end: prebuilt, embedded, and streaming.
 
 Both adapters follow the same invariants:
 
-1. **Lazy host imports.** The core `claudeway` package never imports the
+1. **Lazy host imports.** The core `tractum` package never imports the
    host framework. Install the extra only if you need the adapter.
 2. **Async→sync bridge is always a fresh worker thread.** When wrapping an
    async `Swarm.process` call into a sync surface, never reuse the caller's
    event loop — it self-deadlocks under `pytest-asyncio`, CrewAI's async
    runtime, and LangGraph's async executor. Always spawn a daemon thread
    with its own loop and `join()` from the caller. See
-   `claudeway/adapters/crewai.py:_run_sync` for the canonical pattern.
+   `tractum/adapters/crewai.py:_run_sync` for the canonical pattern.
 3. **Rebuild `AgentResponse` objects from dict forms before signing.**
    `Swarm` stores `result.to_dict()`, but `ConsensusReceipt.from_result`
    reads `r.agent_name` on each response. Adapters rebuild the typed

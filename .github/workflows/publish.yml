@@ -43,8 +43,8 @@ jobs:
           import zipfile, glob
           w = sorted(glob.glob('dist/*.whl'))[-1]
           names = zipfile.ZipFile(w).namelist()
-          assert 'claudeway/__init__.py' in names, 'missing claudeway package'
-          assert 'claudeway/server.py' in names, 'missing MCP server'
+          assert 'tractum/__init__.py' in names, 'missing tractum package'
+          assert 'tractum/server.py' in names, 'missing MCP server'
           print('wheel OK:', w)
           "
 

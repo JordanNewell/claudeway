@@ -71,8 +71,8 @@ Or set `swarm.on_event` at runtime — adapters do this per-invoke and restore t
 Yes — streaming works directly on `Swarm`, no adapter required.
 
 ```python
-from claudeway import Swarm, SwarmConfig, AgentConfig
-from claudeway.events import AgentCompleted, ConsensusResolved
+from tractum import Swarm, SwarmConfig, AgentConfig
+from tractum.events import AgentCompleted, ConsensusResolved
 
 async def on_event(event):
     if isinstance(event, AgentCompleted):
@@ -84,7 +84,7 @@ swarm = Swarm(config, api_key=..., on_event=on_event)
 await swarm.process(task)
 ```
 
-**Import note:** events are NOT yet re-exported from `claudeway/__init__.py` — import them from `claudeway.events`.
+**Import note:** events are NOT yet re-exported from `tractum/__init__.py` — import them from `tractum.events`.
 
 ---
 
@@ -127,7 +127,7 @@ The adapter sets `swarm.on_event` to forward each event to `ctx.yield_output(eve
 
 Events and the transparency log compose naturally. `AgentCompleted`/`ConsensusResolved` are observation-only; the **receipt** is what enters the log.
 
-The pattern (from `transparency_demo.py`): capture the `consensus_receipt` event in your stream consumer, hydrate it via `ConsensusReceipt(**data)` (or build from `ConsensusResult` via `ConsensusReceipt.from_result`), then `log.append(receipt)` to add it as a Merkle leaf. Later, anyone can verify inclusion with just the receipt + an inclusion proof + the published log root — no Claudeway trust required.
+The pattern (from `transparency_demo.py`): capture the `consensus_receipt` event in your stream consumer, hydrate it via `ConsensusReceipt(**data)` (or build from `ConsensusResult` via `ConsensusReceipt.from_result`), then `log.append(receipt)` to add it as a Merkle leaf. Later, anyone can verify inclusion with just the receipt + an inclusion proof + the published log root — no Tractum trust required.
 
 ```python
 # Inside your stream consumer:

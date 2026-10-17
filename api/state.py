@@ -1,10 +1,10 @@
 """
-Claudeway State - Shared application state.
+Tractum State - Shared application state.
 
 Holds the Runtime singleton that manages all agents and swarms.
 """
 
-from claudeway.runtime import Runtime
+from tractum.runtime import Runtime
 
 # Global runtime instance
 _runtime: Runtime | None = None

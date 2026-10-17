@@ -28,7 +28,7 @@ When you call `await coordinator.coordinate(task)`:
 ```python
 import asyncio
 import os
-from claudeway import Agent, AgentConfig, Coordinator, CoordinatorConfig, Task
+from tractum import Agent, AgentConfig, Coordinator, CoordinatorConfig, Task
 
 async def main():
     api_key = os.environ["ANTHROPIC_API_KEY"]

@@ -1,5 +1,5 @@
 """
-Pytest configuration for the Claudeway test suite.
+Pytest configuration for the Tractum test suite.
 
 Adds the project root to sys.path so `core` / `api` import without an install,
 and enables asyncio mode so async tests run without per-test decorators (we

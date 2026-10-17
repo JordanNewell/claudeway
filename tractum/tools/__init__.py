@@ -1,5 +1,5 @@
 """
-Claudeway Tools - Extend agent capabilities.
+Tractum Tools - Extend agent capabilities.
 
 Tools allow Claude agents to interact with external systems and platform
 features. Two flavors: Python callables (subclass Tool) and MCP server tools
@@ -7,12 +7,12 @@ features. Two flavors: Python callables (subclass Tool) and MCP server tools
 """
 
 from .base import Tool
-from .claudeway import ClaudewayTool, create_claudeway_tool
+from .tractum import TractumTool, create_tractum_tool
 
 __all__ = [
     "Tool",
-    "ClaudewayTool",
-    "create_claudeway_tool",
+    "TractumTool",
+    "create_tractum_tool",
     "MCPTool",
     "MCPClient",
 ]

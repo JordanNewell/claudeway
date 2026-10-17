@@ -1,5 +1,5 @@
 """
-Claudeway Tool - Allows Claude agents to deploy and manage swarms
+Tractum Tool - Allows Claude agents to deploy and manage swarms
 
 This tool enables meta-cognition: Claude can decide when to spawn
 specialized sub-agents for parallel processing.
@@ -10,7 +10,7 @@ from typing import Any
 from .base import Tool
 
 
-class ClaudewayTool(Tool):
+class TractumTool(Tool):
     """
     Tool that allows Claude agents to deploy and manage agent swarms.
 
@@ -19,7 +19,7 @@ class ClaudewayTool(Tool):
     deploy them automatically.
     """
 
-    name = "claudeway"
+    name = "tractum"
     description = """Deploy PERSISTENT agent swarms that can be reused across multiple tasks.
 
 IMPORTANT: Use this ONLY when you need:
@@ -87,7 +87,7 @@ Actions:
         self.runtime = runtime
 
     async def execute(self, **kwargs) -> dict[str, Any]:
-        """Execute a Claudeway action."""
+        """Execute a Tractum action."""
         action = kwargs.get("action")
 
         if action == "deploy_swarm":
@@ -109,12 +109,12 @@ Actions:
 
     async def _deploy_swarm(self, name: str, agents: list) -> dict:
         """Deploy a new swarm with the specified agents."""
-        from claudeway.swarm import SwarmConfig
+        from tractum.swarm import SwarmConfig
 
         # Create agent configs
         agent_configs = []
         for agent_def in agents:
-            from claudeway.agent import AgentConfig
+            from tractum.agent import AgentConfig
             agent_configs.append(AgentConfig(
                 name=agent_def["name"],
                 role=agent_def["role"],
@@ -140,7 +140,7 @@ Actions:
 
     async def _submit_task(self, swarm_id: str, task: str) -> dict:
         """Submit a task to a swarm."""
-        from claudeway.swarm import Task
+        from tractum.swarm import Task
 
         task_obj = Task(description=task)
 
@@ -185,6 +185,6 @@ Actions:
         }
 
 
-def create_claudeway_tool(runtime) -> ClaudewayTool:
-    """Factory function to create a Claudeway tool."""
-    return ClaudewayTool(runtime)
+def create_tractum_tool(runtime) -> TractumTool:
+    """Factory function to create a Tractum tool."""
+    return TractumTool(runtime)

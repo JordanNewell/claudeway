@@ -1,7 +1,7 @@
 """
 Tenant Models
 
-Multi-tenant data models for Claudeway.
+Multi-tenant data models for Tractum.
 """
 
 from datetime import datetime

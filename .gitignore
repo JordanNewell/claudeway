@@ -84,5 +84,5 @@ benchmarks/raw/
 # Benchmark appliance report output (regenerable; lands in the compose volume)
 benchmarks/out/
 
-# OG image working files (only the canonical claudeway-og.png is committed)
-assets/og/claudeway-og-v030*.png
+# OG image working files (only the canonical tractum-og.png is committed)
+assets/og/tractum-og-v030*.png

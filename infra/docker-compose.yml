@@ -1,4 +1,4 @@
-# Claudeway Development Environment
+# Tractum Development Environment
 #
 # DEPRECATED SERVICES:
 # All infrastructure services (PostgreSQL, Redis, NATS) are NOT required for
@@ -17,17 +17,17 @@
 #   # Needed for: Multi-tenancy, billing, templates (all deprecated)
 #   postgres:
 #     image: postgres:16-alpine
-#     container_name: claudeway-postgres
+#     container_name: tractum-postgres
 #     environment:
-#       POSTGRES_USER: claudeway
-#       POSTGRES_PASSWORD: claudeway
-#       POSTGRES_DB: claudeway
+#       POSTGRES_USER: tractum
+#       POSTGRES_PASSWORD: tractum
+#       POSTGRES_DB: tractum
 #     ports:
 #       - "5432:5432"
 #     volumes:
 #       - postgres_data:/var/lib/postgresql/data
 #     healthcheck:
-#       test: ["CMD-SHELL", "pg_isready -U claudeway"]
+#       test: ["CMD-SHELL", "pg_isready -U tractum"]
 #       interval: 5s
 #       timeout: 5s
 #       retries: 5
@@ -36,7 +36,7 @@
 #   # Needed for: Rate limiting, sessions (middleware deprecated)
 #   redis:
 #     image: redis:7-alpine
-#     container_name: claudeway-redis
+#     container_name: tractum-redis
 #     ports:
 #       - "6379:6379"
 #     volumes:
@@ -52,7 +52,7 @@
 #   # Current: Uses asyncio queues (in-process)
 #   nats:
 #     image: nats:2.10-alpine
-#     container_name: claudeway-nats
+#     container_name: tractum-nats
 #     ports:
 #       - "4222:4222"  # Client connections
 #       - "8222:8222"  # Monitoring

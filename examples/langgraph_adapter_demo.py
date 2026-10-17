@@ -1,5 +1,5 @@
 """
-LangGraph adapter demo — Claudeway consensus as a node in a LangGraph graph.
+LangGraph adapter demo — Tractum consensus as a node in a LangGraph graph.
 
 Two flows:
 
@@ -8,7 +8,7 @@ Two flows:
 
   2. Consensus node inside a user's own StateGraph: upstream research node,
      then consensus. The wedge case — this is what "LangGraph makes you wire
-     coordination by hand; Claudeway is the node that does it for you" looks
+     coordination by hand; Tractum is the node that does it for you" looks
      like in practice.
 
 Requires ANTHROPIC_API_KEY (real Claude agents). The adapter itself is
@@ -26,8 +26,8 @@ import sys
 # Allow running from a checkout without `pip install`.
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from claudeway import AgentConfig, Swarm, SwarmConfig  # noqa: E402
-from claudeway.adapters.langgraph import (  # noqa: E402
+from tractum import AgentConfig, Swarm, SwarmConfig  # noqa: E402
+from tractum.adapters.langgraph import (  # noqa: E402
     build_consensus_graph,
     make_consensus_node,
 )

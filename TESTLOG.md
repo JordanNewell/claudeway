@@ -28,7 +28,7 @@ sig match:    True
 
 ## 2. Pytest suite (45 passing, 1 correctly skipped)
 
-`CLAUDEWAY_TEST_RELAY=ws://localhost:10547 pytest tests/ -v`:
+`TRACTUM_TEST_RELAY=ws://localhost:10547 pytest tests/ -v`:
 
 ```
 ============================= test session starts =============================
@@ -75,7 +75,7 @@ $ echo $?
 ```
 
 Per `nak verify --help`: _"it outputs nothing if the verification is
-successful."_ Silent + exit 0 = the event Claudeway produced is spec-correct
+successful."_ Silent + exit 0 = the event Tractum produced is spec-correct
 Nostr that any relay/client will accept.
 
 ---
@@ -125,7 +125,7 @@ go install github.com/fiatjaf/nak@latest
 nak serve --port 10547 &
 
 # 3. run the suite
-CLAUDEWAY_TEST_RELAY=ws://localhost:10547 pytest tests/ -v
+TRACTUM_TEST_RELAY=ws://localhost:10547 pytest tests/ -v
 
 # 4. run the demo
 python examples/buzz_consensus_demo.py

@@ -1,5 +1,5 @@
 """
-Claudeway Middleware
+Tractum Middleware
 
 Custom middleware for tenant context and rate limiting.
 """

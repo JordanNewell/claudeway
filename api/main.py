@@ -1,5 +1,5 @@
 """
-Claudeway API - Main Entry Point
+Tractum API - Main Entry Point
 
 FastAPI application that provides the control plane for the core orchestration engine.
 
@@ -36,13 +36,13 @@ from api.agents import router as agents_router
 async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     """Application lifespan - startup and shutdown events."""
     # Startup
-    print("Starting Claudeway API...")
+    print("Starting Tractum API...")
 
     # Initialize the Runtime (core orchestration engine)
     from api.state import get_runtime
     runtime = get_runtime()
     await runtime.start()
-    print("[OK] Claudeway Runtime initialized")
+    print("[OK] Tractum Runtime initialized")
 
     # NOTE: Database and deprecated platform features NOT initialized
     # See platform-deprecated/ folder for multi-tenancy, billing, templates
@@ -50,14 +50,14 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
     yield
 
     # Shutdown
-    print("Shutting down Claudeway API...")
+    print("Shutting down Tractum API...")
     await runtime.stop()
     print("[OK] Runtime stopped")
 
 
 # Create FastAPI app
 app = FastAPI(
-    title="Claudeway API",
+    title="Tractum API",
     description="Claude-native agent infrastructure platform",
     version="0.1.0",
     lifespan=lifespan,
@@ -114,7 +114,7 @@ app.include_router(agents_router, prefix="/v1/agents", tags=["agents"])
 async def root() -> dict[str, str]:
     """Root endpoint with API information."""
     return {
-        "name": "Claudeway API",
+        "name": "Tractum API",
         "version": "0.1.0",
         "docs": "/docs",
         "health": "/health",

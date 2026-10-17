@@ -16,7 +16,7 @@ Every example in [`examples/`](https://github.com/JordanNewell/claudeway/blob/ma
 **Use case:** First success. 15 lines from `pip install` to a signed receipt.
 
 ```python
-from claudeway import AgentConfig, Swarm, SwarmConfig, Task
+from tractum import AgentConfig, Swarm, SwarmConfig, Task
 
 swarm = Swarm(SwarmConfig(
     name="HelloSwarm",
@@ -46,13 +46,13 @@ print("Disagreement flagged. Running Debate so agents see each other's reasoning
 r2 = await run_round("Round 2 — Debate (revised)", build_swarm(Debate()))
 ```
 
-The wedge: Claudeway runs a cheap round first, surfaces explicit disagreement, then re-runs with peer reasoning so specialists converge — instead of averaging answers into mush.
+The wedge: Tractum runs a cheap round first, surfaces explicit disagreement, then re-runs with peer reasoning so specialists converge — instead of averaging answers into mush.
 
 ---
 
 ### [`killer_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/killer_demo.py) — benchmark winner
 
-**Use case:** "Show me the receipts." Same hard question (a $20M acqui-hire decision) to Claudeway, CrewAI, and single Claude. Blind judge. Reproducible.
+**Use case:** "Show me the receipts." Same hard question (a $20M acqui-hire decision) to Tractum, CrewAI, and single Claude. Blind judge. Reproducible.
 
 ```bash
 pip install -e ".[nostr,dev]" crewai
@@ -60,7 +60,7 @@ export ANTHROPIC_API_KEY=sk-ant-...
 python examples/killer_demo.py
 ```
 
-Results are documented in [`killer_demo_results.md`](https://github.com/JordanNewell/claudeway/blob/main/examples/killer_demo_results.md) — Claudeway scored +7/20 vs single Claude on a 20-point blind-judge scale. See [Benchmarks](benchmarks.md) for methodology.
+Results are documented in [`killer_demo_results.md`](https://github.com/JordanNewell/claudeway/blob/main/examples/killer_demo_results.md) — Tractum scored +7/20 vs single Claude on a 20-point blind-judge scale. See [Benchmarks](benchmarks.md) for methodology.
 
 ---
 
@@ -68,7 +68,7 @@ Results are documented in [`killer_demo_results.md`](https://github.com/JordanNe
 
 ### [`langgraph_adapter_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/langgraph_adapter_demo.py) — drop-in
 
-**Use case:** Add signed consensus to an existing LangGraph app. Claudeway as one node — no rip-and-replace.
+**Use case:** Add signed consensus to an existing LangGraph app. Tractum as one node — no rip-and-replace.
 
 ```python
 consensus = make_consensus_node(build_swarm())
@@ -130,10 +130,10 @@ See [Coordinator](coordinator.md) for the full primitive.
 
 ### [`transparency_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/transparency_demo.py) — auditability moat
 
-**Use case:** Compliance audit / verifiable AI. Append every receipt to an RFC 6962 Merkle log; anchor the log root to Nostr on a cadence. A third party can verify a receipt was in the log — and detect tampering — without trusting Claudeway.
+**Use case:** Compliance audit / verifiable AI. Append every receipt to an RFC 6962 Merkle log; anchor the log root to Nostr on a cadence. A third party can verify a receipt was in the log — and detect tampering — without trusting Tractum.
 
 ```python
-log = TransparencyLog(name="claudeway-canonical")
+log = TransparencyLog(name="tractum-canonical")
 for rc in receipts:
     log.append(rc)
 proof = log.inclusion_proof(1)
@@ -152,7 +152,7 @@ See [Transparency log](transparency-log.md).
 **Use case:** Real-world publish of a signed consensus to public Nostr relays. The script that produced the [live event](https://nostr.mom/e/3974ebfe688f1639a8534b46bbbfeddf354d18efcd190352da877756d1bac60b) on the open wire.
 
 ```python
-event = to_nostr_event(receipt, private_key_hex=nostr_priv, d_tag="claudeway-buzz-wire-v030")
+event = to_nostr_event(receipt, private_key_hex=nostr_priv, d_tag="tractum-buzz-wire-v030")
 # publish to wss://nos.lol, wss://offchain.pub, wss://relay.primal.net, wss://nostr.mom
 ```
 
@@ -168,7 +168,7 @@ event = to_nostr_event(receipt, private_key_hex=nostr_priv, d_tag="claudeway-buz
 
 ```bash
 git clone https://github.com/JordanNewell/claudeway
-cd claudeway
+cd tractum
 pip install -e ".[mcp,nostr,pq,dev]"
 export ANTHROPIC_API_KEY=sk-ant-...
 

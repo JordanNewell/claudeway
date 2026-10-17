@@ -66,7 +66,7 @@ This is the **anti-pattern** we avoided:
 3. Build templates (no marketplace)
 4. Build ALL THE THINGS (core doesn't work)
 
-✅ RIGHT (Claudeway):
+✅ RIGHT (Tractum):
 1. Prove core works ✅
 2. Get users
 3. Add features when NEEDED

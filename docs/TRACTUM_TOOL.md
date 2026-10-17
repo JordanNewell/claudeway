@@ -1,8 +1,8 @@
-# Claudeway Tool - Meta-Cognitive Swarm Management
+# Tractum Tool - Meta-Cognitive Swarm Management
 
 ## Overview
 
-The Claudeway tool enables Claude agents to deploy and manage their own swarms of sub-agents. This creates a **meta-cognitive** system where Claude can:
+The Tractum tool enables Claude agents to deploy and manage their own swarms of sub-agents. This creates a **meta-cognitive** system where Claude can:
 
 1. **Recognize** when a task needs multiple specialized perspectives
 2. **Deploy** a swarm of specialized agents automatically
@@ -12,16 +12,16 @@ The Claudeway tool enables Claude agents to deploy and manage their own swarms o
 ## How It Works
 
 ```
-User sends task to Claude (with Claudeway tool)
+User sends task to Claude (with Tractum tool)
          ↓
 Claude analyzes the task
          ↓
 Claude recognizes: "This needs multiple specialists"
          ↓
-Claude uses claudeway tool:
+Claude uses tractum tool:
   - deploy_swarm with specialized agents
          ↓
-Claudeway spawns sub-agents (also Claude instances)
+Tractum spawns sub-agents (also Claude instances)
          ↓
 Sub-agents work in parallel
          ↓
@@ -32,21 +32,21 @@ Claude receives results and synthesizes
 
 ```python
 from core.agent import Agent, AgentConfig
-from core.tools.claudeway import create_claudeway_tool
+from core.tools.tractum import create_tractum_tool
 from core.runtime import Runtime
 
 # Create runtime
 runtime = Runtime()
 await runtime.start()
 
-# Create an orchestrator agent WITH the Claudeway tool
+# Create an orchestrator agent WITH the Tractum tool
 orchestrator_config = AgentConfig(
     name="Orchestrator",
     role="A meta-cognitive agent that coordinates specialized swarms",
     instructions="""You are a swarm manager. When you receive complex tasks,
-    analyze them and deploy specialized sub-agents using the claudeway tool.
+    analyze them and deploy specialized sub-agents using the tractum tool.
     Each sub-agent should have a specific role and expertise.""",
-    tools=[create_claudeway_tool(runtime)]
+    tools=[create_tractum_tool(runtime)]
 )
 
 orchestrator = Agent(orchestrator_config)
@@ -68,7 +68,7 @@ response = await orchestrator.think(
 
 ```json
 {
-  "name": "claudeway",
+  "name": "tractum",
   "description": "Deploy and manage Claude agent swarms...",
   "input_schema": {
     "type": "object",
@@ -102,7 +102,7 @@ response = await orchestrator.think(
 Create a new swarm with specialized agents.
 
 ```python
-claudeway(
+tractum(
     action="deploy_swarm",
     swarm_name="research-team",
     agents=[
@@ -124,7 +124,7 @@ claudeway(
 Send a task to an existing swarm.
 
 ```python
-claudeway(
+tractum(
     action="submit_task",
     swarm_id="research-team-123",
     task="Research quantum computing advances in 2024"
@@ -135,7 +135,7 @@ claudeway(
 Check the status of a swarm.
 
 ```python
-claudeway(
+tractum(
     action="get_status",
     swarm_id="research-team-123"
 )
@@ -145,12 +145,12 @@ claudeway(
 List all active swarms.
 
 ```python
-claudeway(action="list_swarms")
+tractum(action="list_swarms")
 ```
 
 ## Claude's Decision Process
 
-When Claude has the Claudeway tool, it can:
+When Claude has the Tractum tool, it can:
 
 1. **Analyze task complexity**
    - "This is too complex for one agent"
@@ -174,7 +174,7 @@ When Claude has the Claudeway tool, it can:
 
 ## Benefits
 
-| Without Claudeway Tool | With Claudeway Tool |
+| Without Tractum Tool | With Tractum Tool |
 |------------------------|---------------------|
 | Claude thinks alone | Claude spawns specialists |
 | Sequential tool use | Parallel agent execution |
@@ -189,14 +189,14 @@ User: "Write a comprehensive analysis of climate change economics."
 
 Claude (without tool): [Writes analysis alone]
 
-Claude (with Claudeway tool):
+Claude (with Tractum tool):
   "This complex task requires multiple perspectives.
    I'll deploy a specialized swarm:
    - Economist: Economic impact analysis
    - Scientist: Climate data review
    - Policy analyst: Policy implications
 
-   <uses claudeway tool to deploy swarm>
+   <uses tractum tool to deploy swarm>
    <submits task to swarm>
    <synthesizes their findings>"
 ```

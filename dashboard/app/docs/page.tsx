@@ -15,7 +15,7 @@ export default function DocsPage() {
           </div>
 
           <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-8">
-            Claudeway Documentation
+            Tractum Documentation
           </h1>
 
           <div className="space-y-8">
@@ -24,7 +24,7 @@ export default function DocsPage() {
                 Getting Started
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Claudeway is a Claude-native agent infrastructure platform built on top of Claude-Flow orchestration.
+                Tractum is a Claude-native agent infrastructure platform built on top of Claude-Flow orchestration.
               </p>
               <ul className="list-disc list-inside text-gray-600 dark:text-gray-400 space-y-2">
                 <li>Deploy and manage Claude agents</li>

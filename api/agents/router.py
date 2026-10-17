@@ -2,7 +2,7 @@
 Agent API Router
 
 REST API endpoints for agent deployment and management.
-Connected to the Claudeway core orchestration engine.
+Connected to the Tractum core orchestration engine.
 """
 
 # from typing import list (builtin in Python 3.9+)

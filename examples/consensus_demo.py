@@ -1,7 +1,7 @@
 """
 Consensus demo - the killer example.
 
-Three specialists disagree on a hard architectural question. Claudeway runs
+Three specialists disagree on a hard architectural question. Tractum runs
 WeightedVote, surfaces the disagreement explicitly, then re-runs Debate so
 the agents see each other's reasoning and converge. The result is signed.
 
@@ -14,7 +14,7 @@ This is the thing you show next to a CrewAI/LangGraph answer to say:
 import asyncio
 import os
 
-from claudeway import (
+from tractum import (
     AgentConfig,
     ConsensusReceipt,
     ConsensusResult,
@@ -25,7 +25,7 @@ from claudeway import (
     Task,
     WeightedVote,
 )
-from claudeway.transports import to_json_receipt
+from tractum.transports import to_json_receipt
 
 QUESTION = (
     "We're choosing a multi-region backend architecture for a payments product "

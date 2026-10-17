@@ -1,5 +1,5 @@
 """
-Microsoft Agent Framework (MAF) adapter demo — Claudeway consensus as a
+Microsoft Agent Framework (MAF) adapter demo — Tractum consensus as a
 node in a MAF workflow.
 
 Two flows:
@@ -9,13 +9,13 @@ Two flows:
 
   2. Consensus executor inside a user's own WorkflowBuilder: upstream
      research executor, then consensus. The wedge case — this is what
-     "MAF gives you typed executors and a graph; Claudeway is the executor
+     "MAF gives you typed executors and a graph; Tractum is the executor
      that does the agreement for you" looks like in practice.
 
 Requires ANTHROPIC_API_KEY (real Claude agents). The adapter itself is
 offline-testable; this demo exercises the live path.
 
-    pip install claudeway[maf]
+    pip install tractum[maf]
     export ANTHROPIC_API_KEY=sk-ant-...
     python examples/maf_adapter_demo.py
 """
@@ -27,8 +27,8 @@ import sys
 # Allow running from a checkout without `pip install`.
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))
 
-from claudeway import AgentConfig, Swarm, SwarmConfig  # noqa: E402
-from claudeway.adapters.maf import (  # noqa: E402
+from tractum import AgentConfig, Swarm, SwarmConfig  # noqa: E402
+from tractum.adapters.maf import (  # noqa: E402
     build_consensus_workflow,
     make_consensus_executor,
 )
@@ -97,7 +97,7 @@ async def flow2_embedded() -> None:
             await ctx.send_message(f"prior art on: {message}")
 
     research = ResearchExecutor(id="research")
-    consensus = make_consensus_executor(build_swarm())(id="claudeway_consensus")
+    consensus = make_consensus_executor(build_swarm())(id="tractum_consensus")
 
     builder = WorkflowBuilder(start_executor=research, output_from=[consensus])
     builder.add_edge(research, consensus)

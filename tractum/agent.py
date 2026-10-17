@@ -1,5 +1,5 @@
 """
-Claudeway Agent - A Claude agent that can think and act.
+Tractum Agent - A Claude agent that can think and act.
 
 Built on Anthropic's Agent SDK with clean abstractions.
 """

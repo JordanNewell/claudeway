@@ -1,11 +1,11 @@
 """
-Microsoft Agent Framework (MAF) adapter — drop Claudeway consensus into a
+Microsoft Agent Framework (MAF) adapter — drop Tractum consensus into a
 MAF workflow.
 
 MAF (the unified successor to AutoGen + Semantic Kernel, v1.0 GA April 2026)
 gives you typed executors wired into a graph. What it does NOT give you is a
 way for those executors to *agree* — that's the same whitespace LangGraph
-punts on, and the same whitespace Claudeway fills.
+punts on, and the same whitespace Tractum fills.
 
 Two entry points, both build-once (per MAF forum guidance: construct
 executors once, wire edges once, never rebuild per invoke):
@@ -22,8 +22,8 @@ executors once, wire edges once, never rebuild per invoke):
       Wraps the workflow in MAF's native .as_agent() so it drops in anywhere
       MAF expects an Agent (orchestrations, other workflows, as a tool).
 
-agent_framework is imported lazily so core `claudeway` stays dependency-free.
-Install it yourself: `pip install claudeway[maf]`.
+agent_framework is imported lazily so core `tractum` stays dependency-free.
+Install it yourself: `pip install tractum[maf]`.
 
 Note: this module deliberately does NOT use `from __future__ import
 annotations`. The Executor subclass is defined inside a factory function
@@ -197,7 +197,7 @@ def build_consensus_workflow(
         task_id=task_id,
         stream=stream,
     )
-    executor = executor_cls(id="claudeway_consensus")
+    executor = executor_cls(id="tractum_consensus")
     # MAF forbids an executor being in BOTH output_from and
     # intermediate_output_from (validated at build). So streaming is a
     # distinct consumption mode: the executor yields EVERYTHING as
@@ -252,7 +252,7 @@ def consensus_as_agent(
         signing_key=signing_key,
         task_id=task_id,
         stream=stream,
-    )(id="claudeway_consensus")
+    )(id="tractum_consensus")
 
     class IngestExecutor(Executor):
         """Flatten inbound list[Message] to a single str prompt."""
@@ -267,7 +267,7 @@ def consensus_as_agent(
             prompt = "\n".join(m.text for m in messages if getattr(m, "text", ""))
             await ctx.send_message(prompt)
 
-    ingest = IngestExecutor(id="claudeway_ingest")
+    ingest = IngestExecutor(id="tractum_ingest")
     builder = WorkflowBuilder(
         start_executor=ingest,
         output_from=[consensus],
@@ -301,7 +301,7 @@ def _result_from_dict(d: dict[str, Any]):
     task.result is always a dict (Swarm.process stores result.to_dict()).
     ConsensusResult.to_dict() — called inside ConsensusReceipt.from_result
     — handles both AgentResponse objects and dict-form responses natively
-    (fixed in claudeway core), so we don't need to rebuild AgentResponse
+    (fixed in tractum core), so we don't need to rebuild AgentResponse
     objects here. Just pass the responses through.
     """
     from ..consensus import ConsensusResult

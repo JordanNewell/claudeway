@@ -1,5 +1,5 @@
 """
-Claudeway Coordinator - Hierarchical task decomposition.
+Tractum Coordinator - Hierarchical task decomposition.
 
 A "manager" agent breaks a complex task into sub-tasks, assigns each to the
 right specialist, and executes them in dependency order — running independent

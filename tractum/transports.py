@@ -1,5 +1,5 @@
 """
-Claudeway transports - emit a signed ConsensusReceipt over a wire format.
+Tractum transports - emit a signed ConsensusReceipt over a wire format.
 
 Signing (core.signing) is independent of transport. Here we render the same
 signed receipt into formats downstream systems consume:
@@ -13,7 +13,7 @@ signed receipt into formats downstream systems consume:
 
 Nostr requires secp256k1+Schnorr (BIP-340), which needs a native lib. It's
 imported lazily so the core stays dependency-free; install
-`claudeway[nostr]` (pynostr / coincurve) to enable NostrEvent.
+`tractum[nostr]` (pynostr / coincurve) to enable NostrEvent.
 """
 
 from __future__ import annotations
@@ -110,7 +110,7 @@ def to_nostr_event(
     receipt: ConsensusReceipt,
     private_key_hex: str,
     created_at: int | None = None,
-    d_tag: str = "claudeway-consensus",
+    d_tag: str = "tractum-consensus",
 ) -> NostrEvent:
     """
     Render a signed receipt as a Nostr kind-30078 event.
@@ -121,13 +121,13 @@ def to_nostr_event(
     private key — distinct from the receipt's signing key by design, so a
     relay's key can rotate without invalidating receipts.
 
-    Lazily imports a BIP-340-capable library. Install `claudeway[nostr]`.
+    Lazily imports a BIP-340-capable library. Install `tractum[nostr]`.
     """
     import time
     created_at = int(time.time()) if created_at is None else int(created_at)
 
     content = json.dumps(to_json_receipt(receipt), sort_keys=True, separators=(",", ":"))
-    tags = [["d", d_tag], ["client", "claudeway"]]
+    tags = [["d", d_tag], ["client", "tractum"]]
     pubkey = _nostr_pubkey(private_key_hex)
 
     canonical = _nostr_serialization_for_id(
@@ -166,7 +166,7 @@ def _load_nostr_crypto():
 
     coincurve ships prebuilt wheels for CPython 3.11-3.13 on Windows + Linux
     + macOS, so it's the only backend we support. Install with
-    `pip install claudeway[nostr]`.
+    `pip install tractum[nostr]`.
     """
     try:
         import coincurve  # type: ignore
@@ -174,7 +174,7 @@ def _load_nostr_crypto():
     except ImportError as exc:
         raise ImportError(
             "Nostr transport requires coincurve (BIP-340 Schnorr). "
-            "Install with: pip install claudeway[nostr]"
+            "Install with: pip install tractum[nostr]"
         ) from exc
 
 
@@ -200,7 +200,7 @@ def _nostr_sign(event_id_hex: str, private_key_hex: str) -> str:
 # Anchors are NIP-78 (kind 30078) events, same kind as receipts, scoped by a
 # distinct d-tag so a relay can serve "all anchors" independently of receipts.
 NOSTR_TRANSPARENCY_KIND = 30078
-NOSTR_TRANSPARENCY_D_TAG = "claudeway-transparency"
+NOSTR_TRANSPARENCY_D_TAG = "tractum-transparency"
 
 
 def to_log_anchor_event(
@@ -214,13 +214,13 @@ def to_log_anchor_event(
 
     The anchor commits to (tree_size, root) at a moment in time. Publishing
     it as a Nostr event makes the log's history globally visible: anyone
-    watching the relay sees every root Claudeway has published, and a
+    watching the relay sees every root Tractum has published, and a
     missing or replaced anchor is detectable (day-2 consistency proofs
     make this rigorous; day 1 relies on Nostr's append-only-on-relay
     semantics + the operator's reputation).
 
     `log_name` is the logical log this anchor belongs to (e.g.
-    "claudeway-canonical"). It goes in the event content, not the d-tag —
+    "tractum-canonical"). It goes in the event content, not the d-tag —
     the d-tag scopes by event *type*, the log_name scopes *within* that.
 
     Reuses the existing _nostr_pubkey / _nostr_sign helpers — no new crypto.
@@ -233,7 +233,7 @@ def to_log_anchor_event(
     payload = dict(anchor.to_dict())
     payload["log_name"] = log_name or payload.get("log_name", "")
     content = json.dumps(payload, sort_keys=True, separators=(",", ":"))
-    tags = [["d", NOSTR_TRANSPARENCY_D_TAG], ["client", "claudeway"]]
+    tags = [["d", NOSTR_TRANSPARENCY_D_TAG], ["client", "tractum"]]
     if log_name:
         # A second d-tag would conflict; use a `name` tag so consumers can
         # filter by log identity without colliding with the type-scoped d-tag.

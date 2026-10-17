@@ -44,9 +44,9 @@ unless you'd prefer to remain anonymous.
 
 **In scope:**
 
-- The `claudeway` Python package (everything under `claudeway/`).
-- The adapters (`claudeway.adapters.*`).
-- The MCP server (`claudeway.server`).
+- The `tractum` Python package (everything under `tractum/`).
+- The adapters (`tractum.adapters.*`).
+- The MCP server (`tractum.server`).
 - The signature and transports layer — particularly anything that could
   break signature verification or canonical serialization.
 
@@ -66,7 +66,7 @@ unless you'd prefer to remain anonymous.
 ## Threat model
 
 See [`docs/THREAT-MODEL.md`](docs/THREAT-MODEL.md) for the full threat
-model — what Claudeway's signatures are and aren't designed to prove,
+model — what Tractum's signatures are and aren't designed to prove,
 which components are trusted, and what an attacker controlling each
 component can and cannot do.
 

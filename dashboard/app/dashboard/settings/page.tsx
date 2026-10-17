@@ -52,7 +52,7 @@ export default function SettingsPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between py-2 border-b border-gray-200 dark:border-gray-700">
               <span className="text-gray-700 dark:text-gray-300">Email</span>
-              <span className="text-gray-900 dark:text-white">admin@claudeway.local</span>
+              <span className="text-gray-900 dark:text-white">admin@tractum.local</span>
             </div>
             <div className="flex items-center justify-between py-2">
               <span className="text-gray-700 dark:text-gray-300">Role</span>

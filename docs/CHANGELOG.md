@@ -1,17 +1,117 @@
 ---
 title: Changelog
-description: All notable changes to Claudeway. Follows Keep a Changelog; dates are ISO 8601.
+description: All notable changes to Tractum. Follows Keep a Changelog; dates are ISO 8601.
 ---
 
 # Changelog
 
-All notable changes to Claudeway. Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
+All notable changes to Tractum (formerly claudeway). Format based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/);
 versions adhere to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 Dates are ISO 8601 (UTC).
 
 ## [Unreleased]
 
 _No changes yet._
+
+## [0.5.0] — 2026-10-17
+
+Feature release — **.curt linkage, self-verifying MCP receipts, and the
+claudeway → tractum rename.**
+
+### Added
+- **.curt linkage** (`tractum.curt_link`): a quorum receipt is the DECISION;
+  the .curt transcript(s) the consensus was computed from are the EVIDENCE.
+  `build_curt_transcript` renders a `ConsensusResult` as a conforming .curt
+  v1 document (per-message agent provenance via the `agent-context`
+  extension), `link_receipt` embeds transcript refs ({id, sha256}) INSIDE
+  the signed payload — so the aggregate signature covers the linkage —
+  `emit_curt_decision` emits receipt + evidence as one .curt artifact (the
+  `consensus-receipt` extension), and `verify_curt_link` verifies the whole
+  chain through the existing crypto paths. Unlinked payloads stay
+  byte-identical to the 0.4.0 wire format.
+- **MCP `reach_consensus` always signs.** Without a configured operator
+  key the server now signs each receipt with a fresh **ephemeral**
+  keypair instead of returning an unsigned receipt that `verify_consensus`
+  would reject. The ephemeral public key rides in the response
+  (`public_key`; `metadata.operator_key: "ephemeral"` marks the mode).
+- **`TRACTUM_REQUIRE_PINNED_KEY=1`** for deployments that must never ship
+  an ephemeral-signed receipt: without a configured `TRACTUM_SIGNING_KEY`
+  the call fails loudly with a clear error instead of signing with a
+  throwaway key.
+- **Dry-run mode.** `TRACTUM_MCP_DRY_RUN=1` or a per-call
+  `"dry_run": true` runs deterministic offline stub agents — per-agent
+  keypairs, real statement signatures, zero API calls. The receipt
+  self-identifies (swarm `mcp-consensus-dry-run`, stub answers, metadata
+  `dry_run`) so it can never pass as a live decision.
+- **MCP `verify_consensus` accepts `expected_agent_pubkeys`** and pins
+  each agent's statement to a known key via
+  `verify_receipt_detailed` (0.4.0's docs promised this; the tool now
+  actually honors it).
+
+### Fixed
+- **MCP docs matched to the code** (`docs/mcp-server.md`): specialists
+  take `instructions` (not `perspective`); removed the phantom
+  `"sign": true` parameter; removed the nonexistent
+  `CLAUDEWAY_MCP_TOKEN` bearer-auth section (the HTTP transport has no
+  built-in auth — now documented as such); documented the real env vars.
+- **.curt message-id collision**: message ids used only the first 12
+  chars of the content-addressed conversation id, so two transcripts whose
+  ids shared leading digest chars (~1-in-256) collided when merged into a
+  decision artifact and `emit_curt_decision` silently dropped evidence.
+  Ids now embed the full conversation id (regression test added).
+
+### Changed
+- **Renamed: claudeway → tractum.** The Python package, module, and CLI
+  are now `tractum`.
+  - Imports: `from claudeway import ...` → `from tractum import ...`;
+    module directory `claudeway/` → `tractum/`; console script
+    `claudeway-mcp` → `tractum-mcp`.
+  - Env vars: `CLAUDEWAY_SIGNING_KEY` → `TRACTUM_SIGNING_KEY`,
+    `CLAUDEWAY_TEST_RELAY` → `TRACTUM_TEST_RELAY`,
+    `CLAUDEWAY_TEST_LANGGRAPH` → `TRACTUM_TEST_LANGGRAPH`,
+    `CLAUDEWAY_RUN_LIVE` → `TRACTUM_RUN_LIVE`, and
+    `CLAUDEWAY_DEMO_RELAY` → `TRACTUM_DEMO_RELAY`.
+  - PyPI: the package publishes as **`tractum`** (the `claudeway` name
+    never shipped to PyPI; 0.2.0–0.4.0 were GitHub-only).
+  - **Wire-format type tags are UNCHANGED for backward compatibility:**
+    receipts still carry `claudeway.consensus.v1` /
+    `claudeway.consensus.v2` / `claudeway.agent-statement.v1` payload
+    types and the `claudeway.receipt.v1` envelope type — all shipped
+    publicly since v0.2.0/0.3.2, and the verifier accepts them forever.
+    The W3C VC context URL is likewise unchanged. Nostr d-tags and the
+    client tag ARE renamed (`claudeway-consensus` → `tractum-consensus`,
+    `claudeway-transparency` → `tractum-transparency`, client
+    `claudeway` → `tractum`): these are self-asserted metadata on
+    self-signed events, not verification inputs, so old events stay valid
+    and old relays keep working. Existing receipts and .curt linkages
+    verify without migration.
+  - Newly written .curt transcripts use `generator: "tractum"` and
+    `tractum-`-prefixed content-addressed conversation ids; existing ids
+    are opaque and remain valid (verification is hash-based).
+  - License unchanged: BUSL-1.1, Licensor Jordan Newell.
+
+### Migration (from claudeway 0.4.x)
+
+```bash
+pip uninstall claudeway   # if installed from the repo under the old name
+pip install tractum       # PyPI at launch; until then install from the repo
+```
+
+```python
+# old                          # new
+from claudeway import Swarm    from tractum import Swarm
+```
+
+| Old | New |
+| --- | --- |
+| `from claudeway import ...` | `from tractum import ...` |
+| `claudeway-mcp` | `tractum-mcp` |
+| `CLAUDEWAY_SIGNING_KEY` | `TRACTUM_SIGNING_KEY` |
+| `CLAUDEWAY_TEST_RELAY` | `TRACTUM_TEST_RELAY` |
+| `CLAUDEWAY_TEST_LANGGRAPH` | `TRACTUM_TEST_LANGGRAPH` |
+| `CLAUDEWAY_RUN_LIVE` | `TRACTUM_RUN_LIVE` |
+| `CLAUDEWAY_DEMO_RELAY` | `TRACTUM_DEMO_RELAY` |
+| `claudeway.consensus.*` / `claudeway.agent-statement.v1` / `claudeway.receipt.v1` type tags | **unchanged** — backward-compat wire format |
 
 ## [0.4.0] — 2026-10-01
 
@@ -201,7 +301,9 @@ questions.
   are deferred — see
   [`docs/DEPRECATION.md`](https://github.com/JordanNewell/claudeway/blob/main/docs/DEPRECATION.md).
 
-[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.3.2...HEAD
+[Unreleased]: https://github.com/JordanNewell/claudeway/compare/v0.4.0...HEAD
+[0.5.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.5.0
+[0.4.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.4.0
 [0.3.2]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.2
 [0.3.1]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.1
 [0.3.0]: https://github.com/JordanNewell/claudeway/releases/tag/v0.3.0

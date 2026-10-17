@@ -1,9 +1,9 @@
 """
-Quickstart - the smallest useful Claudeway program.
+Quickstart - the smallest useful Tractum program.
 
 Run a 3-agent swarm, get a signed consensus answer. ~15 lines.
 
-    pip install claudeway
+    pip install tractum
     export ANTHROPIC_API_KEY=...
     python examples/quickstart.py
 """
@@ -11,7 +11,7 @@ Run a 3-agent swarm, get a signed consensus answer. ~15 lines.
 import asyncio
 import os
 
-from claudeway import AgentConfig, ConsensusReceipt, Ed25519Backend, Swarm, SwarmConfig, Task
+from tractum import AgentConfig, ConsensusReceipt, Ed25519Backend, Swarm, SwarmConfig, Task
 
 
 async def main() -> None:
@@ -55,13 +55,13 @@ async def main() -> None:
     print(completed.result["final_answer"])
     print(f"\nagreement: {completed.result['agreement']:.0%}  "
           f"disagreed: {completed.result['disagreed']}")
-    print(f"\nsigned receipt (verify with claudeway): "
+    print(f"\nsigned receipt (verify with tractum): "
           f"algorithm={receipt.algorithm} sig={receipt.signature[:24]}...")
 
 
 def _result(d: dict):
     """Rebuild a ConsensusResult from its dict form for signing."""
-    from claudeway import AgentResponse, ConsensusResult
+    from tractum import AgentResponse, ConsensusResult
     return ConsensusResult(
         final_answer=d["final_answer"],
         method=d["method"],
@@ -82,8 +82,8 @@ def _result(d: dict):
 
 
 def _key() -> str:
-    """A fresh signing key for the demo (persist CLAUDEWAY_SIGNING_KEY in real use)."""
-    key = os.getenv("CLAUDEWAY_SIGNING_KEY")
+    """A fresh signing key for the demo (persist TRACTUM_SIGNING_KEY in real use)."""
+    key = os.getenv("TRACTUM_SIGNING_KEY")
     if key:
         return key
     priv, _ = Ed25519Backend().generate_keypair()

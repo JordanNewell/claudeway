@@ -1,6 +1,6 @@
 """
 Buzz wire publish — one-shot. Generates a fresh Nostr keypair, runs a real
-Claudeway consensus on a Buzz-relevant question, signs the receipt, publishes
+Tractum consensus on a Buzz-relevant question, signs the receipt, publishes
 to a public Nostr relay, and prints the viewer URL.
 
 Output: a https://nostr.mom URL that anyone (incl.
@@ -16,7 +16,7 @@ import os
 import secrets
 import time
 
-from claudeway import (
+from tractum import (
     AgentConfig,
     ConsensusReceipt,
     Debate,
@@ -25,7 +25,7 @@ from claudeway import (
     SwarmConfig,
     Task,
 )
-from claudeway.transports import to_nostr_event
+from tractum.transports import to_nostr_event
 
 RELAY_URLS = [
     "wss://relay.damus.io",
@@ -47,7 +47,7 @@ QUESTION = (
 
 
 async def run_consensus() -> tuple:
-    """Three Claudeway agents debate via Debate strategy.
+    """Three Tractum agents debate via Debate strategy.
 
     Returns (ConsensusResult, swarm_name, task_id).
     """
@@ -142,8 +142,8 @@ async def main():
         print(f"  - {r['agent']} (conf {r['confidence']:.2f})")
 
     # 3. Build ConsensusResult object + sign with Ed25519
-    from claudeway.consensus import ConsensusResult
-    from claudeway.swarm import AgentResponse
+    from tractum.consensus import ConsensusResult
+    from tractum.swarm import AgentResponse
 
     cr = ConsensusResult(
         final_answer=result["final_answer"],
@@ -168,7 +168,7 @@ async def main():
         receipt,
         private_key_hex=nostr_priv,
         created_at=int(time.time()),
-        d_tag="claudeway-buzz-wire-v030",
+        d_tag="tractum-buzz-wire-v030",
     )
     event_dict = event.to_dict() if hasattr(event, "to_dict") else event
     print(f"\nnostr event id: {event_dict['id']}")

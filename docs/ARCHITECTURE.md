@@ -1,6 +1,6 @@
-# Claudeway - Architecture Documentation
+# Tractum - Architecture Documentation
 
-Technical architecture of the Claudeway multi-agent orchestration platform.
+Technical architecture of the Tractum multi-agent orchestration platform.
 
 ---
 
@@ -21,7 +21,7 @@ Technical architecture of the Claudeway multi-agent orchestration platform.
 
 ## Overview
 
-Claudeway is a **multi-agent orchestration platform** with both a working core engine and a monetizable platform layer. It enables Claude agents to work together collaboratively through various coordination patterns.
+Tractum is a **multi-agent orchestration platform** with both a working core engine and a monetizable platform layer. It enables Claude agents to work together collaboratively through various coordination patterns.
 
 ### Key Design Principles
 
@@ -432,7 +432,7 @@ cd dashboard && npm run dev
 npm run build
 
 # Backend: Use gunicorn
-gunicorn claudeway.api.main:app -w 4 -k uvicorn.workers.UvicornWorker
+gunicorn tractum.api.main:app -w 4 -k uvicorn.workers.UvicornWorker
 
 # Infrastructure: Use managed services
 # - Cloud SQL (PostgreSQL)
@@ -473,13 +473,13 @@ gunicorn claudeway.api.main:app -w 4 -k uvicorn.workers.UvicornWorker
 
 ## Relationship to Claude
 
-**Important**: Claudeway does NOT replace or govern Claude.
+**Important**: Tractum does NOT replace or govern Claude.
 
 ### The Relationship
 
 ```
 ┌─────────────────────────────────────────────────────┐
-│                  Claudeway                          │
+│                  Tractum                          │
 │  • Coordinates multiple agents                      │
 │  • Manages agent lifecycles                         │
 │  • Routes tasks to appropriate agents               │
@@ -499,14 +499,14 @@ gunicorn claudeway.api.main:app -w 4 -k uvicorn.workers.UvicornWorker
 ### Analogy
 
 - **Claude** = The brain (intelligence)
-- **Claudeway** = The organization system (coordination)
+- **Tractum** = The organization system (coordination)
 
-Each agent in Claudeway:
+Each agent in Tractum:
 1. Uses Claude as its "brain" via Anthropic API
 2. Participates in multi-agent collaboration patterns
 3. Is supervised by the Runtime for health and lifecycle
 
-### What Claudeway Provides
+### What Tractum Provides
 
 - **Multi-agent coordination** - How agents talk to each other
 - **Process supervision** - Keeping agents alive and healthy

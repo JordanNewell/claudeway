@@ -10,14 +10,14 @@ separately since it needs an optional native lib.
 
 import pytest
 
-from claudeway.consensus import ConsensusResult
-from claudeway.signing import (
+from tractum.consensus import ConsensusResult
+from tractum.signing import (
     ConsensusReceipt,
     Ed25519Backend,
     canonical_json,
 )
-from claudeway.swarm import AgentResponse
-from claudeway.transports import (
+from tractum.swarm import AgentResponse
+from tractum.transports import (
     NOSTR_CONSENSUS_KIND,
     to_json_receipt,
     to_nostr_event,
@@ -173,4 +173,4 @@ def test_nostr_transport_requires_optional_lib(signed_receipt):
 
     with pytest.raises(ImportError) as exc:
         to_nostr_event(receipt, private_key_hex="aa" * 32)
-    assert "claudeway[nostr]" in str(exc.value)
+    assert "tractum[nostr]" in str(exc.value)

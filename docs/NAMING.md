@@ -1,8 +1,8 @@
-# Claudeway Naming Guide
+# Tractum Naming Guide
 
 ## The Two "Agent" Concepts
 
-Claudeway has two different concepts that were confusingly both called "agent":
+Tractum has two different concepts that were confusingly both called "agent":
 
 ### 1. Core Agent (`core/agent.py`) - The Intelligence
 

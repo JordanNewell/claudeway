@@ -1,8 +1,8 @@
-# Claudeway killer benchmark appliance.
+# Tractum killer benchmark appliance.
 #
 # Reproduces examples/killer_demo.py from cold. The reviewer brings only an
 # Anthropic API key; this image carries every system dep (Python 3.13,
-# claudeway[benchmark,nostr], crewai, litellm) so `docker compose up
+# tractum[benchmark,nostr], crewai, litellm) so `docker compose up
 # killer-bench` lands a report in benchmarks/out/.
 #
 # Single stage: a multi-stage split saves <40MB here (the cost is crewai's
@@ -34,7 +34,7 @@ WORKDIR /app
 # the package source invalidates it, but that's the right tradeoff — the
 # install needs the tree present.
 COPY pyproject.toml README.md LICENSE ./
-COPY claudeway ./claudeway
+COPY tractum ./tractum
 COPY examples ./examples
 
 # Install only what the demo needs at runtime: [benchmark] pulls crewai +
@@ -51,7 +51,7 @@ RUN pip install --no-cache-dir -e ".[benchmark,nostr]"
 RUN mkdir -p /app/benchmarks/out
 VOLUME /app/benchmarks/out
 
-# The entrypoint validates the API key, points CLAUDEWAY_TEST_RELAY at the
+# The entrypoint validates the API key, points TRACTUM_TEST_RELAY at the
 # relay service, runs the demo, then copies the hardcoded report path next
 # to the script out to the mounted volume.
 COPY benchmarks/run.sh /app/benchmarks/run.sh

@@ -1,5 +1,5 @@
 """
-Claudeway Database
+Tractum Database
 
 SQLAlchemy setup with async PostgreSQL support.
 """

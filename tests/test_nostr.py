@@ -9,9 +9,9 @@ Layered:
   - Optional integration test: publish to a real relay, read it back, verify
     the receipt signature on the read-back content. Relays MUST reject
     malformed Schnorr signatures, so acceptance == verification. Gated on
-    the CLAUDEWAY_TEST_RELAY env var (e.g. ws://localhost:10547).
+    the TRACTUM_TEST_RELAY env var (e.g. ws://localhost:10547).
 
-coincurve is required; `pip install claudeway[nostr]` or `pip install coincurve`.
+coincurve is required; `pip install tractum[nostr]` or `pip install coincurve`.
 """
 
 import hashlib
@@ -21,10 +21,10 @@ import time
 
 import pytest
 
-from claudeway.consensus import ConsensusResult
-from claudeway.signing import ConsensusReceipt, Ed25519Backend
-from claudeway.swarm import AgentResponse
-from claudeway.transports import (
+from tractum.consensus import ConsensusResult
+from tractum.signing import ConsensusReceipt, Ed25519Backend
+from tractum.swarm import AgentResponse
+from tractum.transports import (
     NOSTR_CONSENSUS_KIND,
     _nostr_pubkey,
     _nostr_serialization_for_id,
@@ -32,7 +32,7 @@ from claudeway.transports import (
     to_nostr_event,
 )
 
-pytest.importorskip("coincurve", reason="install claudeway[nostr]")
+pytest.importorskip("coincurve", reason="install tractum[nostr]")
 
 
 # BIP-340 published test vector 0 (https://github.com/bitcoin/bips/blob/master/bip-0340/test-vectors.csv).
@@ -56,7 +56,7 @@ BIP340_VECTOR_0 = {
 
 
 def test_bip340_pubkey_matches_vector_0():
-    """The x-only pubkey Claudeway derives must match the BIP-340 vector 0."""
+    """The x-only pubkey Tractum derives must match the BIP-340 vector 0."""
     assert _nostr_pubkey(BIP340_VECTOR_0["secret"]) == BIP340_VECTOR_0["public"]
 
 
@@ -148,7 +148,7 @@ def test_nostr_event_tags_include_d_tag_and_client(signed_receipt, nostr_key):
     d_tag = next(t for t in event.tags if t[0] == "d")
     assert d_tag[1] == "buzz-room-42"
     client_tag = next(t for t in event.tags if t[0] == "client")
-    assert client_tag[1] == "claudeway"
+    assert client_tag[1] == "tractum"
 
 
 def test_nostr_event_content_carries_signed_receipt(signed_receipt, nostr_key):
@@ -174,13 +174,13 @@ def test_nostr_event_roundtrips_through_dict(signed_receipt, nostr_key):
 # --- Integration: relay round-trip (gated) ---
 
 
-RELAY_URL = os.environ.get("CLAUDEWAY_TEST_RELAY")
+RELAY_URL = os.environ.get("TRACTUM_TEST_RELAY")
 
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     not RELAY_URL,
-    reason="set CLAUDEWAY_TEST_RELAY=ws://localhost:10547 to run integration test",
+    reason="set TRACTUM_TEST_RELAY=ws://localhost:10547 to run integration test",
 )
 async def test_nostr_event_publishes_and_reads_back(signed_receipt, nostr_key):
     """End-to-end: publish to a relay, subscribe, read it back, verify receipt.
@@ -203,16 +203,16 @@ async def test_nostr_event_publishes_and_reads_back(signed_receipt, nostr_key):
                 break
 
         # Subscribe for kind-30078 from our pubkey.
-        sub = ["REQ", "claudeway-test", {"kinds": [30078], "authors": [event.pubkey]}]
+        sub = ["REQ", "tractum-test", {"kinds": [30078], "authors": [event.pubkey]}]
         await ws.send(json.dumps(sub))
         seen = None
         for _ in range(10):
             raw = await asyncio_wait(ws, timeout=2.0)
             msg = json.loads(raw)
-            if msg[0] == "EVENT" and msg[1] == "claudeway-test":
+            if msg[0] == "EVENT" and msg[1] == "tractum-test":
                 seen = msg[2]
                 break
-        await ws.send(json.dumps(["CLOSE", "claudeway-test"]))
+        await ws.send(json.dumps(["CLOSE", "tractum-test"]))
 
     assert seen is not None, "did not receive our own event back from relay"
     assert seen["id"] == event.id

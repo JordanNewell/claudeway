@@ -8,7 +8,7 @@ dependency context injection) in isolation.
 
 import pytest
 
-from claudeway.coordinator import Coordinator, SubTask, _extract_json_object
+from tractum.coordinator import Coordinator, SubTask, _extract_json_object
 
 # --- JSON plan extraction ---
 

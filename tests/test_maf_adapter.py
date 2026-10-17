@@ -12,7 +12,7 @@ Two layers:
     adapter and Swarm.process's actual output shape — the one thing the
     stubbed tests can't.
 
-agent_framework is required; `pip install claudeway[maf]`. Skips cleanly
+agent_framework is required; `pip install tractum[maf]`. Skips cleanly
 when absent, matching tests/test_nostr.py's coincurve precedent and
 tests/test_langgraph_adapter.py's langgraph precedent.
 """
@@ -21,16 +21,16 @@ import os
 
 import pytest
 
-pytest.importorskip("agent_framework", reason="pip install claudeway[maf]")
+pytest.importorskip("agent_framework", reason="pip install tractum[maf]")
 
-from claudeway import AgentConfig, Swarm, SwarmConfig  # noqa: E402
-from claudeway.adapters.maf import (  # noqa: E402
+from tractum import AgentConfig, Swarm, SwarmConfig  # noqa: E402
+from tractum.adapters.maf import (  # noqa: E402
     build_consensus_workflow,
     consensus_as_agent,
     make_consensus_executor,
 )
-from claudeway.signing import ConsensusReceipt, Ed25519Backend  # noqa: E402
-from claudeway.swarm import Task  # noqa: E402
+from tractum.signing import ConsensusReceipt, Ed25519Backend  # noqa: E402
+from tractum.swarm import Task  # noqa: E402
 
 # --- Fixtures ----------------------------------------------------------------
 
@@ -71,7 +71,7 @@ class _StubSwarm:
         # When an observer is wired (streaming mode), fire per-agent events
         # then the consensus-resolved event — mirroring real Swarm.process.
         if self.on_event is not None:
-            from claudeway.events import AgentCompleted, ConsensusResolved
+            from tractum.events import AgentCompleted, ConsensusResolved
             for r in CANNED_RESULT["responses"]:
                 await self.on_event(AgentCompleted(
                     swarm_id=getattr(self.config, "name", ""),
@@ -313,7 +313,7 @@ async def test_executor_drops_into_user_workflow():
 
 # --- Integration test (real Claude, opt-in) ----------------------------------
 #
-# Gated on CLAUDEWAY_RUN_LIVE=1 (NOT just ANTHROPIC_API_KEY) so a plain
+# Gated on TRACTUM_RUN_LIVE=1 (NOT just ANTHROPIC_API_KEY) so a plain
 # `pytest` run never spends budget — you must explicitly opt in. When run,
 # it uses the cheapest possible config: one Haiku agent, 64 max_tokens.
 # That's ~one API call, a few hundred tokens total.
@@ -321,13 +321,13 @@ async def test_executor_drops_into_user_workflow():
 # Catches the one thing the stubbed tests can't: drift between the adapter
 # and Swarm.process's actual output shape against real Claude output.
 
-RUN_LIVE = os.environ.get("CLAUDEWAY_RUN_LIVE") == "1"
+RUN_LIVE = os.environ.get("TRACTUM_RUN_LIVE") == "1"
 
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     not RUN_LIVE,
-    reason="set CLAUDEWAY_RUN_LIVE=1 to run the real-Claude integration test",
+    reason="set TRACTUM_RUN_LIVE=1 to run the real-Claude integration test",
 )
 async def test_live_swarm_round_trip_through_maf():
     """Real Swarm + real Claude through the prebuilt workflow."""

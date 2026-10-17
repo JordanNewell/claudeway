@@ -12,7 +12,7 @@ spec is still Development as of 2026-07 — so a future OTel exporter adapter
 is a flat rename, not a schema rewrite. schema_version on the base lets the
 shape evolve without breaking consumers.
 
-Pydantic v2 is already a base claudeway dependency, so this adds nothing.
+Pydantic v2 is already a base tractum dependency, so this adds nothing.
 """
 
 from typing import Literal

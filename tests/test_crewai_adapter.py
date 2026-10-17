@@ -8,9 +8,9 @@ Two layers, matching test_langgraph_adapter.py:
     touching Claude. Fast, hermetic.
 
   - One integration test: real Swarm + real Claude via the @tool, gated
-    on CLAUDEWAY_RUN_LIVE=1. Skips in CI.
+    on TRACTUM_RUN_LIVE=1. Skips in CI.
 
-crewai is required; `pip install claudeway[crewai]`. Skips cleanly when
+crewai is required; `pip install tractum[crewai]`. Skips cleanly when
 absent, matching test_langgraph_adapter.py's langgraph precedent.
 """
 
@@ -18,15 +18,15 @@ import os
 
 import pytest
 
-pytest.importorskip("crewai", reason="pip install claudeway[crewai]")
+pytest.importorskip("crewai", reason="pip install tractum[crewai]")
 
-from claudeway import AgentConfig, Swarm, SwarmConfig  # noqa: E402
-from claudeway.adapters.crewai import (  # noqa: E402
+from tractum import AgentConfig, Swarm, SwarmConfig  # noqa: E402
+from tractum.adapters.crewai import (  # noqa: E402
     ConsensusFlow,
     reach_consensus,
 )
-from claudeway.signing import ConsensusReceipt, Ed25519Backend  # noqa: E402
-from claudeway.swarm import Task  # noqa: E402
+from tractum.signing import ConsensusReceipt, Ed25519Backend  # noqa: E402
+from tractum.swarm import Task  # noqa: E402
 
 # --- Fixtures ----------------------------------------------------------------
 
@@ -196,13 +196,13 @@ async def test_tool_drops_into_crew():
 
 # --- Integration test (real Claude, opt-in) ----------------------------------
 
-RUN_LIVE = os.environ.get("CLAUDEWAY_RUN_LIVE") == "1"
+RUN_LIVE = os.environ.get("TRACTUM_RUN_LIVE") == "1"
 
 
 @pytest.mark.asyncio
 @pytest.mark.skipif(
     not RUN_LIVE,
-    reason="set CLAUDEWAY_RUN_LIVE=1 to run the real-Claude integration test",
+    reason="set TRACTUM_RUN_LIVE=1 to run the real-Claude integration test",
 )
 async def test_live_tool_round_trip():
     """Real Swarm + real Claude through the @tool."""

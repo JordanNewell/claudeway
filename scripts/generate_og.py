@@ -1,4 +1,4 @@
-"""Claudeway OG image generator.
+"""Tractum OG image generator.
 
 Terminal-screen aesthetic, NEWELL brand tokens, honest framing.
 Replaces the prior "BUZZ PUNTED ON" thesis with "VERIFIABLE CONSENSUS".
@@ -86,7 +86,7 @@ def main() -> int:
     margin_x = grid(8)  # 64px
 
     # 1. Receipt chip (top-left)
-    chip_text = "claudeway v0.3.2"
+    chip_text = "tractum v0.3.2"
     chip_font = font(JETBRAINS["Medium"], 18)
     chip_pad_x = grid(2)
     chip_pad_y = grid(1)
@@ -164,7 +164,7 @@ def main() -> int:
     sig_y = CANVAS_H - grid(8) - 14
     draw.text((margin_x, sig_y), sig_text, font=sig_font, fill=primary)
 
-    out_path = Path("assets/og/claudeway-og.png").resolve()
+    out_path = Path("assets/og/tractum-og.png").resolve()
     out_path.parent.mkdir(parents=True, exist_ok=True)
     canvas.save(out_path, format="PNG", optimize=True)
     print(f"wrote {out_path} ({out_path.stat().st_size} bytes)")

@@ -1,5 +1,5 @@
 """
-Claudeway Runtime - Manages long-running agent processes.
+Tractum Runtime - Manages long-running agent processes.
 
 Spawns, monitors, and restarts agents as needed.
 Clean process supervision without over-engineering.
@@ -98,7 +98,7 @@ class AgentProcess:
 
 class Runtime:
     """
-    Claudeway Runtime - manages agent processes.
+    Tractum Runtime - manages agent processes.
 
     Responsibilities:
     - Spawn and manage agent processes
@@ -114,7 +114,7 @@ class Runtime:
     async def start(self) -> None:
         """Start the runtime."""
         self.running = True
-        print("Claudeway Runtime started")
+        print("Tractum Runtime started")
 
     async def stop(self) -> None:
         """Stop the runtime and all agents."""
@@ -124,7 +124,7 @@ class Runtime:
         for agent_process in self.agents.values():
             await agent_process.stop()
 
-        print("Claudeway Runtime stopped")
+        print("Tractum Runtime stopped")
 
     def spawn_agent(self, config: AgentConfig, agent_id: str | None = None) -> str:
         """

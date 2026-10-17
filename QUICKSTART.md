@@ -1,14 +1,14 @@
-# Claudeway — Quick Start
+# Tractum — Quick Start
 
 From zero to a signed consensus answer in under 2 minutes.
 
 ## 1. Install
 
 ```bash
-pip install claudeway
+pip install tractum
 # optional extras:
-pip install claudeway[mcp]      # run consensus as an MCP server
-pip install claudeway[nostr]    # sign Nostr events for Buzz interop
+pip install tractum[mcp]      # run consensus as an MCP server
+pip install tractum[nostr]    # sign Nostr events for Buzz interop
 ```
 
 ## 2. Set your Anthropic key
@@ -23,7 +23,7 @@ Save as `hello.py`:
 
 ```python
 import asyncio
-from claudeway import AgentConfig, Swarm, SwarmConfig, Task
+from tractum import AgentConfig, Swarm, SwarmConfig, Task
 
 async def main():
     swarm = Swarm(SwarmConfig(
@@ -54,7 +54,7 @@ python hello.py
 ## 4. Sign the result (the defensible part)
 
 ```python
-from claudeway import ConsensusReceipt, Ed25519Backend
+from tractum import ConsensusReceipt, Ed25519Backend
 
 receipt = ConsensusReceipt.from_result(result, swarm_name="HelloSwarm", task_id="q1")
 backend = Ed25519Backend()
@@ -66,13 +66,13 @@ assert backend.verify_receipt(receipt) is True
 # Tamper with the answer and verification fails.
 ```
 
-## 5. Run Claudeway as an MCP server
+## 5. Run Tractum as an MCP server
 
 Let any MCP-capable agent (Claude Code, Cursor, Goose, Buzz) call consensus as a tool:
 
 ```bash
-claudeway-mcp            # stdio (local agents)
-claudeway-mcp --http     # HTTP/SSE (remote agents, default port 8765)
+tractum-mcp            # stdio (local agents)
+tractum-mcp --http     # HTTP/SSE (remote agents, default port 8765)
 ```
 
 The exposed tools:
@@ -83,7 +83,7 @@ The exposed tools:
 
 ```bash
 git clone https://github.com/JordanNewell/claudeway
-cd claudeway
+cd tractum
 
 python examples/quickstart.py        # 15-line minimal swarm
 python examples/consensus_demo.py    # the killer demo: disagreement -> Debate

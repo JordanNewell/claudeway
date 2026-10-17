@@ -2,7 +2,7 @@
 Claude-Flow Gateway Client
 
 Handles communication with Claude-Flow orchestration layer.
-This is how Claudeway deploys and manages agents via Claude-Flow.
+This is how Tractum deploys and manages agents via Claude-Flow.
 """
 
 from typing import Any
@@ -64,7 +64,7 @@ class ClaudeFlowClient:
                 **config,
                 "metadata": {
                     "tenant_id": tenant_id,
-                    "deployed_by": "claudeway",
+                    "deployed_by": "tractum",
                 },
             },
         )

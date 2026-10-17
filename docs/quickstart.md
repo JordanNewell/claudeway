@@ -15,18 +15,18 @@ You need Python 3.11+ and an
 ## 1. Install
 
 ```bash
-pip install claudeway
+pip install tractum
 ```
 
 Optional extras, only if you need them:
 
 ```bash
-pip install claudeway[mcp]        # expose consensus as an MCP server
-pip install claudeway[nostr]      # sign Nostr events (Buzz interop)
-pip install claudeway[pq]         # ML-DSA-65 post-quantum signatures
-pip install claudeway[langgraph]  # StateGraph adapter
-pip install claudeway[maf]        # Microsoft Agent Framework adapter
-pip install claudeway[crewai]     # CrewAI @tool + Flow adapter
+pip install tractum[mcp]        # expose consensus as an MCP server
+pip install tractum[nostr]      # sign Nostr events (Buzz interop)
+pip install tractum[pq]         # ML-DSA-65 post-quantum signatures
+pip install tractum[langgraph]  # StateGraph adapter
+pip install tractum[maf]        # Microsoft Agent Framework adapter
+pip install tractum[crewai]     # CrewAI @tool + Flow adapter
 ```
 
 ## 2. Set your Anthropic key
@@ -41,7 +41,7 @@ Save as `hello.py`:
 
 ```python
 import asyncio
-from claudeway import AgentConfig, Swarm, SwarmConfig, Task
+from tractum import AgentConfig, Swarm, SwarmConfig, Task
 
 async def main():
     swarm = Swarm(SwarmConfig(
@@ -80,7 +80,7 @@ This is the defensible part — the answer becomes a tamper-evident
 attestation anyone can verify later:
 
 ```python
-from claudeway import ConsensusReceipt, Ed25519Backend
+from tractum import ConsensusReceipt, Ed25519Backend
 
 receipt = ConsensusReceipt.from_result(result, swarm_name="HelloSwarm", task_id="q1")
 backend = Ed25519Backend()
@@ -93,7 +93,7 @@ assert backend.verify_receipt(receipt) is True
 ```
 
 Want post-quantum signatures instead? Swap one line — see
-[`claudeway.signing_pq`](api-reference.md) in the API reference.
+[`tractum.signing_pq`](api-reference.md) in the API reference.
 
 ## 5. Try a harder question
 
@@ -102,7 +102,7 @@ answer. For genuinely contested questions, switch to `Debate` so agents see
 peers' answers and revise once:
 
 ```python
-from claudeway import Swarm, WeightedVote, Debate
+from tractum import Swarm, WeightedVote, Debate
 
 # Cheap default
 swarm = Swarm(config, consensus=WeightedVote())
@@ -114,14 +114,14 @@ swarm = Swarm(config, consensus=Debate())
 See [`examples/consensus_demo.py`](https://github.com/JordanNewell/claudeway/blob/main/examples/consensus_demo.py)
 for the disagreement → resolution flow.
 
-## 6. Run Claudeway as an MCP server (optional)
+## 6. Run Tractum as an MCP server (optional)
 
 Any MCP-capable agent (Claude Code, Cursor, Goose) can call consensus as a
 tool — no SDK to learn:
 
 ```bash
-claudeway-mcp            # stdio — for Claude Code, Cursor
-claudeway-mcp --http     # HTTP/SSE — for remote agents
+tractum-mcp            # stdio — for Claude Code, Cursor
+tractum-mcp --http     # HTTP/SSE — for remote agents
 ```
 
 See [MCP server](mcp-server.md) for tool schemas and integration examples.

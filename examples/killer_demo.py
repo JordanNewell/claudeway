@@ -4,7 +4,7 @@ Killer demo + benchmark - the marketing asset.
 Same hard question, three approaches:
   (a) Single Claude call (baseline — what most people do)
   (b) CrewAI crew (parallel agents, no consensus primitive)
-  (c) Claudeway Swarm (WeightedVote consensus, signed receipt)
+  (c) Tractum Swarm (WeightedVote consensus, signed receipt)
 
 Captures: wall-clock latency, input/output tokens, output text, and a
 blind LLM-judge score on four dimensions (correctness, nuance,
@@ -222,20 +222,20 @@ async def approach_crewai(usage: TokenUsage) -> str:
     return str(result)
 
 
-# --- Approach (d): CrewAI crew + Claudeway consensus tool -------------------
+# --- Approach (d): CrewAI crew + Tractum consensus tool -------------------
 #
-# The wedge case. Approaches (b) and (c) treat CrewAI and Claudeway as
+# The wedge case. Approaches (b) and (c) treat CrewAI and Tractum as
 # alternatives. This one inverts the killer demo: a CrewAI crew *calls*
-# Claudeway for consensus. Same dep (crewai), opposite direction —
-# CrewAI does the orchestration, Claudeway does the agreement.
+# Tractum for consensus. Same dep (crewai), opposite direction —
+# CrewAI does the orchestration, Tractum does the agreement.
 #
-# Not a fair fight with baseline CrewAI (this *uses* Claudeway). It's here
+# Not a fair fight with baseline CrewAI (this *uses* Tractum). It's here
 # to show the adapter's value prop: any CrewAI agent gains consensus as a
 # tool, no rewiring.
 
 
-async def approach_crewai_with_claudeway(usage: TokenUsage) -> str:
-    """A CrewAI agent with the Claudeway consensus tool in its belt."""
+async def approach_crewai_with_tractum(usage: TokenUsage) -> str:
+    """A CrewAI agent with the Tractum consensus tool in its belt."""
     try:
         import litellm
         captured: list[Any] = []
@@ -245,14 +245,14 @@ async def approach_crewai_with_claudeway(usage: TokenUsage) -> str:
         captured = []
 
     # Track tokens via the same litellm callback CrewAI uses internally,
-    # PLUS patch AsyncMessages to capture the Claudeway swarm's direct
+    # PLUS patch AsyncMessages to capture the Tractum swarm's direct
     # Anthropic calls (the swarm doesn't go through litellm).
     from anthropic.resources.messages import AsyncMessages
     from crewai import LLM, Agent, Crew
     from crewai import Task as CrewTask
 
-    from claudeway import AgentConfig, Debate, Swarm, SwarmConfig
-    from claudeway.adapters.crewai import reach_consensus
+    from tractum import AgentConfig, Debate, Swarm, SwarmConfig
+    from tractum.adapters.crewai import reach_consensus
 
     original_create = AsyncMessages.create
 
@@ -269,7 +269,7 @@ async def approach_crewai_with_claudeway(usage: TokenUsage) -> str:
         max_tokens=MAX_TOKENS,
     )
 
-    # The Claudeway swarm the tool will invoke. Same personas as the other
+    # The Tractum swarm the tool will invoke. Same personas as the other
     # approaches, Debate strategy — apples-to-apples with approach (c).
     swarm = Swarm(
         SwarmConfig(
@@ -331,21 +331,21 @@ async def approach_crewai_with_claudeway(usage: TokenUsage) -> str:
     return str(result)
 
 
-# --- Approach (c): Claudeway Swarm -----------------------------------------
+# --- Approach (c): Tractum Swarm -----------------------------------------
 
 
-async def approach_claudeway(usage: TokenUsage) -> tuple[str, dict[str, Any]]:
+async def approach_tractum(usage: TokenUsage) -> tuple[str, dict[str, Any]]:
     """Returns (formatted_answer_for_judge, debug_info).
 
-    The formatted answer is what a Claudeway user actually sees: each
+    The formatted answer is what a Tractum user actually sees: each
     specialist's perspective + the final consensus. Stripping the per-agent
-    reasoning (which is what Claudeway's `final_answer` field does by design)
+    reasoning (which is what Tractum's `final_answer` field does by design)
     would hide the entire value of the system — the judge has to see it.
     """
     # Patch the AsyncMessages class to capture usage from every call.
     from anthropic.resources.messages import AsyncMessages
 
-    from claudeway import (
+    from tractum import (
         AgentConfig,
         ConsensusReceipt,
         ConsensusResult,
@@ -387,10 +387,10 @@ async def approach_claudeway(usage: TokenUsage) -> tuple[str, dict[str, Any]]:
         )
         result_dict = completed.result
 
-        # Build the signed receipt (Claudeway's other unique artifact).
+        # Build the signed receipt (Tractum's other unique artifact).
         # task.result is already in dict form — ConsensusResult accepts
         # dict-form responses directly (no need to rebuild AgentResponse
-        # objects, that's a Claudeway core guarantee as of d2c1235).
+        # objects, that's a Tractum core guarantee as of d2c1235).
         result_obj = ConsensusResult(
             final_answer=result_dict["final_answer"],
             method=result_dict["method"],
@@ -406,7 +406,7 @@ async def approach_claudeway(usage: TokenUsage) -> tuple[str, dict[str, Any]]:
         priv, pub = backend.generate_keypair()
         backend.sign_receipt(receipt, priv)
 
-        # Format the answer the way Claudeway presents it to a user.
+        # Format the answer the way Tractum presents it to a user.
         formatted_parts = [
             f"# Consensus: {result_dict['final_answer']}",
             f"_Agreement: {result_dict['agreement']:.0%} · "
@@ -543,7 +543,7 @@ async def run_approach(name: str, fn, label_for_judge: str) -> ApproachResult:
 
 def render(results: list[ApproachResult], judge_usage: TokenUsage, n_runs: int) -> str:
     lines = []
-    lines.append("# Killer demo — Claudeway vs CrewAI vs single Claude")
+    lines.append("# Killer demo — Tractum vs CrewAI vs single Claude")
     lines.append("")
     lines.append(f"> Same hard question. Three approaches. Same model (`{MODEL}`).")
     lines.append(f"> Each approach run **{n_runs}×** (LLMs are non-deterministic).")
@@ -581,34 +581,34 @@ def render(results: list[ApproachResult], judge_usage: TokenUsage, n_runs: int) 
     lines.append("")
 
     # Honest takeaway.
-    claudeway = next((r for r in results if "Claudeway" in r.name), None)
+    tractum = next((r for r in results if "Tractum" in r.name), None)
     single = next((r for r in results if r.name == "Single Claude"), None)
-    if (claudeway and single
-            and claudeway.score.get("mean") is not None
+    if (tractum and single
+            and tractum.score.get("mean") is not None
             and single.score.get("mean") is not None):
-        delta = claudeway.score["mean"] - single.score["mean"]
-        tok_mult = (claudeway.usage.total / single.usage.total
+        delta = tractum.score["mean"] - single.score["mean"]
+        tok_mult = (tractum.usage.total / single.usage.total
                     if single.usage.total else 0)
         sign = "+" if delta >= 0 else ""
         lines.append("## The honest takeaway")
         lines.append("")
         lines.append(
-            f"- **Quality:** Claudeway scored **{sign}{delta:.1f}/20** vs single "
+            f"- **Quality:** Tractum scored **{sign}{delta:.1f}/20** vs single "
             f"Claude on average across {n_runs} runs. Variance is real — LLMs "
-            f"are non-deterministic, and Claudeway's quality depends on whether "
+            f"are non-deterministic, and Tractum's quality depends on whether "
             f"the specialist agents elaborate (sometimes 3 paragraphs, "
             f"sometimes one sentence). The structural win is the multi-perspective "
             f"format: the judge sees how each specialist reasoned, not just the "
             f"verdict."
         )
         lines.append(
-            f"- **Cost:** Claudeway used ~{tok_mult:.1f}x the tokens of single "
+            f"- **Cost:** Tractum used ~{tok_mult:.1f}x the tokens of single "
             f"Claude. That's the real tradeoff. For $0.001-decisions, single "
             f"Claude is right. For decisions where being wrong is expensive "
             f"(this one — $20M+), the token cost is rounding error."
         )
         lines.append(
-            "- **What's free with Claudeway:** per-agent outputs are auditable "
+            "- **What's free with Tractum:** per-agent outputs are auditable "
             "(you see WHY each specialist concluded what they did), the "
             "consensus is a signed tamper-evident receipt, and the whole thing "
             "publishes to any Nostr relay as a NIP-78 event with no extra "
@@ -638,12 +638,12 @@ def render(results: list[ApproachResult], judge_usage: TokenUsage, n_runs: int) 
         lines.append("```")
         lines.append("")
 
-    # Claudeway-specific section: per-agent perspectives + signed receipt.
-    claudeway = next((r for r in results if "Claudeway" in r.name), None)
-    if claudeway and claudeway.debug:
+    # Tractum-specific section: per-agent perspectives + signed receipt.
+    tractum = next((r for r in results if "Tractum" in r.name), None)
+    if tractum and tractum.debug:
         lines.append("---")
         lines.append("")
-        lines.append("## Claudeway's unique artifacts")
+        lines.append("## Tractum's unique artifacts")
         lines.append("")
         lines.append("These are the things the other approaches don't give you. They're the "
                      "actual moat — not 'slightly better final answer.'")
@@ -651,12 +651,12 @@ def render(results: list[ApproachResult], judge_usage: TokenUsage, n_runs: int) 
         lines.append("### The disagreement, surfaced")
         lines.append("")
         lines.append(f"Three specialists, agreement score "
-                     f"**{claudeway.debug.get('agreement', 0):.0%}**, "
-                     f"disagreed: **{claudeway.debug.get('disagreed')}**. Each agent's "
+                     f"**{tractum.debug.get('agreement', 0):.0%}**, "
+                     f"disagreed: **{tractum.debug.get('disagreed')}**. Each agent's "
                      f"answer is visible — you can audit *why* the consensus landed where "
                      f"it did.")
         lines.append("")
-        for resp in claudeway.debug.get("responses", []):
+        for resp in tractum.debug.get("responses", []):
             agent = resp.get("agent", "?")
             conf = resp.get("confidence", 0)
             lines.append(f"**{agent}** (confidence {conf:.2f}):")
@@ -665,31 +665,31 @@ def render(results: list[ApproachResult], judge_usage: TokenUsage, n_runs: int) 
             lines.append("")
         lines.append("### The signed receipt")
         lines.append("")
-        lines.append("Tamper-evident. Anyone can verify it later without trusting Claudeway.")
+        lines.append("Tamper-evident. Anyone can verify it later without trusting Tractum.")
         lines.append("")
         lines.append("```")
-        lines.append(f"public_key:    {claudeway.debug.get('receipt_pubkey', '')}")
-        lines.append(f"signature:     {claudeway.debug.get('receipt_sig', '')}")
-        lines.append(f"payload_hash:  {claudeway.debug.get('receipt_payload_hash', '')}")
-        lines.append(f"verified:      {claudeway.debug.get('receipt_verified')}")
+        lines.append(f"public_key:    {tractum.debug.get('receipt_pubkey', '')}")
+        lines.append(f"signature:     {tractum.debug.get('receipt_sig', '')}")
+        lines.append(f"payload_hash:  {tractum.debug.get('receipt_payload_hash', '')}")
+        lines.append(f"verified:      {tractum.debug.get('receipt_verified')}")
         lines.append("```")
     lines.append("## Methodology")
     lines.append("")
     lines.append("- All agent calls use the same model (`" + MODEL + "`) for fairness.")
     lines.append("- CrewAI uses its default sequential process; each persona writes a "
                  "report, then a synthesizer agent produces the final answer.")
-    lines.append("- Claudeway uses `Debate` — each persona answers, sees peer "
+    lines.append("- Tractum uses `Debate` — each persona answers, sees peer "
                  "responses, and revises. The signed receipt is a separate, free artifact.")
-    lines.append("- 'CrewAI + Claudeway' is NOT a fair fight with baseline CrewAI — "
-                 "that crew *uses* Claudeway consensus (via the crewai adapter's "
+    lines.append("- 'CrewAI + Tractum' is NOT a fair fight with baseline CrewAI — "
+                 "that crew *uses* Tractum consensus (via the crewai adapter's "
                  "reach_consensus tool). It's here to show the adapter's value prop: "
                  "any CrewAI agent gains signed consensus as a tool, no rewiring. "
-                 "It should score close to Claudeway, not close to CrewAI.")
+                 "It should score close to Tractum, not close to CrewAI.")
     lines.append("- Single-Claude baseline is one direct call with the same prompt.")
     lines.append("- The judge scores blindly — it does not know which approach "
                  "produced which answer.")
     lines.append("- Latency is wall-clock from kickoff to final answer returned.")
-    lines.append("- Token counts are exact for single-Claude and Claudeway (captured "
+    lines.append("- Token counts are exact for single-Claude and Tractum (captured "
                  "from the Anthropic SDK response.usage). CrewAI's litellm callback "
                  "capture is unreliable on Windows + litellm 1.18+ — its token count "
                  "is not reported here. Use wall-clock + output length as proxies.")
@@ -722,12 +722,12 @@ async def main() -> None:
     print()
 
     approaches = [
-        ("Claudeway Swarm", approach_claudeway, "Claudeway Swarm (Debate)"),
+        ("Tractum Swarm", approach_tractum, "Tractum Swarm (Debate)"),
         ("CrewAI crew", approach_crewai, "CrewAI crew (sequential)"),
         (
-            "CrewAI + Claudeway",
-            approach_crewai_with_claudeway,
-            "CrewAI crew calling Claudeway consensus tool",
+            "CrewAI + Tractum",
+            approach_crewai_with_tractum,
+            "CrewAI crew calling Tractum consensus tool",
         ),
         ("Single Claude", approach_single, "Single-Claude baseline"),
     ]

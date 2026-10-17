@@ -1,5 +1,5 @@
 """
-Base Tool class for Claudeway agents.
+Base Tool class for Tractum agents.
 
 Tools allow agents to interact with external systems and capabilities.
 """

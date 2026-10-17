@@ -7,7 +7,7 @@ import { ThemeProvider } from "@/components/theme-provider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "Claudeway - Claude Agent Platform",
+  title: "Tractum - Claude Agent Platform",
   description: "Deploy and manage Claude agents with ease",
 }
 
@@ -24,7 +24,7 @@ export default function RootLayout({
             __html: `
               (function() {
                 try {
-                  const theme = localStorage.getItem('claudeway-ui-theme') || 'system';
+                  const theme = localStorage.getItem('tractum-ui-theme') || 'system';
                   const isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
                   if (isDark) {
                     document.documentElement.classList.add('dark');
@@ -40,7 +40,7 @@ export default function RootLayout({
         />
       </head>
       <body className={inter.className}>
-        <ThemeProvider defaultTheme="system" storageKey="claudeway-ui-theme">
+        <ThemeProvider defaultTheme="system" storageKey="tractum-ui-theme">
           <Providers>{children}</Providers>
         </ThemeProvider>
       </body>
