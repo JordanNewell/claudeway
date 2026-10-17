@@ -31,7 +31,7 @@ theme:
   palette:
     - scheme: tractum
       primary: "#0F0F0F"
-      accent: "#00FF41"
+      accent: "#FFB000"
   features:
     - navigation.sections
     - navigation.tabs
@@ -50,20 +50,19 @@ theme:
     repo: fontawesome/brands/github
   logo: assets/logo.svg
   favicon: favicon-32.png
-  logo: favicon-32.png
 
 extra:
   social:
     - icon: fontawesome/brands/github
       link: https://github.com/JordanNewell/tractum
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/claudeway/
+      link: https://pypi.org/project/tractum/
   generator: false
 
 extra_css:
   - stylesheets/extra.css
 
-copyright: Copyright &copy; 2026 Jordan Newell — MIT License
+copyright: Copyright &copy; 2026 Jordan Newell — BUSL-1.1
 
 markdown_extensions:
   - admonition

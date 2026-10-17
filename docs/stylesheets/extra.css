@@ -1,88 +1,90 @@
 /* =========================================================================
-   Tractum docs — NEWELL Brand System overrides
-   Single source of truth: e:/vaults/anything.xyz/50_Projects/brand-system/
-   Tokens: bg #0A0A0A · surface #0F0F0F · border #1F1F1F · text #FFFFFF
-           muted #A0A0A0 · primary #00FF41 · accent #1AFF72
+   Tractum docs — Tractum brand overrides
+   Single source of truth: e:/vaults/newell/10_PROJECTS/tractum/brand/
+   Tokens: ink #0A0A0A · surface #0F0F0F · border #1F1F1F · text #FFFFFF
+           muted #A0A0A0 · primary #FFB000 (Seal Amber) · accent #FFC94D
+           non-quorum #3D3D3D · amber ≤10% of any surface
    Type:   Space Grotesk (display + body) · JetBrains Mono (code)
    Rules:  no shadows · no gradients · no glassmorphism · 8px grid
+           Own brand — NOT NEWELL green, NOT interleaf violet.
    ========================================================================= */
 
 :root {
-  --newell-bg:       #0A0A0A;
-  --newell-surface:  #0F0F0F;
-  --newell-border:   #1F1F1F;
-  --newell-text:     #FFFFFF;
-  --newell-muted:    #A0A0A0;
-  --newell-primary:  #00FF41;
-  --newell-accent:   #1AFF72;
+  --tractum-bg:       #0A0A0A;
+  --tractum-surface:  #0F0F0F;
+  --tractum-border:   #1F1F1F;
+  --tractum-text:     #FFFFFF;
+  --tractum-muted:    #A0A0A0;
+  --tractum-primary:  #FFB000;
+  --tractum-accent:   #FFC94D;
 }
 
-/* ---- Force the dark scheme to NEWELL OLED black ----------------------- */
+/* ---- Force the dark scheme to tractum ink ----------------------- */
 [data-md-color-scheme="default"],
 [data-md-color-scheme="slate"],
 [data-md-color-scheme="tractum"] {
-  --md-default-bg-color:             var(--newell-bg);
-  --md-default-fg-color:             --newell-text;
-  --md-default-fg-color--light:      var(--newell-muted);
-  --md-default-fg-color--lighter:    var(--newell-muted);
-  --md-default-fg-color--lightest:   var(--newell-border);
+  --md-default-bg-color:             var(--tractum-bg);
+  --md-default-fg-color:             --tractum-text;
+  --md-default-fg-color--light:      var(--tractum-muted);
+  --md-default-fg-color--lighter:    var(--tractum-muted);
+  --md-default-fg-color--lightest:   var(--tractum-border);
 
-  --md-primary-fg-color:             var(--newell-surface);
-  --md-primary-fg-color--light:      var(--newell-surface);
-  --md-primary-fg-color--dark:       var(--newell-bg);
-  --md-primary-bg-color:             var(--newell-surface);
-  --md-primary-bg-color--light:      var(--newell-border);
+  --md-primary-fg-color:             var(--tractum-surface);
+  --md-primary-fg-color--light:      var(--tractum-surface);
+  --md-primary-fg-color--dark:       var(--tractum-bg);
+  --md-primary-bg-color:             var(--tractum-surface);
+  --md-primary-bg-color--light:      var(--tractum-border);
 
-  --md-accent-fg-color:              var(--newell-primary);
-  --md-accent-fg-color--transparent: rgba(0, 255, 65, 0.08);
-  --md-accent-bg-color:              var(--newell-primary);
-  --md-accent-bg-color--light:       var(--newell-accent);
+  --md-accent-fg-color:              var(--tractum-primary);
+  --md-accent-fg-color--transparent: rgba(255, 176, 0, 0.08);
+  --md-accent-bg-color:              var(--tractum-primary);
+  --md-accent-bg-color--light:       var(--tractum-accent);
 
-  --md-typeset-color:                var(--newell-text);
-  --md-typeset-a-color:              var(--newell-primary);
-  --md-typeset-mark-color:           var(--newell-primary);
-  --md-typeset-del-color:            var(--newell-muted);
-  --md-typeset-ins-color:            var(--newell-accent);
-  --md-typeset-kbd-color:            var(--newell-surface);
-  --md-typeset-kbd-accent-color:     var(--newell-border);
-  --md-typeset-kbd-border-color:     var(--newell-border);
+  --md-typeset-color:                var(--tractum-text);
+  --md-typeset-a-color:              var(--tractum-primary);
+  --md-typeset-mark-color:           var(--tractum-primary);
+  --md-typeset-del-color:            var(--tractum-muted);
+  --md-typeset-ins-color:            var(--tractum-accent);
+  --md-typeset-kbd-color:            var(--tractum-surface);
+  --md-typeset-kbd-accent-color:     var(--tractum-border);
+  --md-typeset-kbd-border-color:     var(--tractum-border);
 
-  --md-code-bg-color:                var(--newell-surface);
-  --md-code-fg-color:                var(--newell-text);
-  --md-code-hl-color:                rgba(0, 255, 65, 0.10);
-  --md-code-hl-name-color:           var(--newell-text);
-  --md-code-hl-operator-color:       var(--newell-muted);
-  --md-code-hl-punctuation-color:    var(--newell-muted);
-  --md-code-hl-comment-color:        var(--newell-muted);
-  --md-code-hl-generic-color:        var(--newell-muted);
-  --md-code-hl-variable-color:       var(--newell-text);
-  --md-code-hl-string-color:         var(--newell-accent);
-  --md-code-hl-number-color:         var(--newell-accent);
-  --md-code-hl-keyword-color:        var(--newell-primary);
-  --md-code-hl-function-color:       var(--newell-text);
-  --md-code-hl-constant-color:       var(--newell-accent);
-  --md-code-hl-name-color:           var(--newell-text);
+  --md-code-bg-color:                var(--tractum-surface);
+  --md-code-fg-color:                var(--tractum-text);
+  --md-code-hl-color:                rgba(255, 176, 0, 0.10);
+  --md-code-hl-name-color:           var(--tractum-text);
+  --md-code-hl-operator-color:       var(--tractum-muted);
+  --md-code-hl-punctuation-color:    var(--tractum-muted);
+  --md-code-hl-comment-color:        var(--tractum-muted);
+  --md-code-hl-generic-color:        var(--tractum-muted);
+  --md-code-hl-variable-color:       var(--tractum-text);
+  --md-code-hl-string-color:         var(--tractum-accent);
+  --md-code-hl-number-color:         var(--tractum-accent);
+  --md-code-hl-keyword-color:        var(--tractum-primary);
+  --md-code-hl-function-color:       var(--tractum-text);
+  --md-code-hl-constant-color:       var(--tractum-accent);
+  --md-code-hl-name-color:           var(--tractum-text);
 
-  --md-header-fg-color:              var(--newell-text);
-  --md-header-bg-color:             var(--newell-surface);
-  --md-header-shadow:                0 -1px 0 var(--newell-border) inset;
+  --md-header-fg-color:              var(--tractum-text);
+  --md-header-bg-color:             var(--tractum-surface);
+  --md-header-shadow:                0 -1px 0 var(--tractum-border) inset;
 
-  --md-nav-fg-color:                 var(--newell-muted);
-  --md-nav-bg-color:                 var(--newell-bg);
-  --md-nav-active-fg-color:          var(--newell-primary);
-  --md-nav-icon-color:               var(--newell-muted);
+  --md-nav-fg-color:                 var(--tractum-muted);
+  --md-nav-bg-color:                 var(--tractum-bg);
+  --md-nav-active-fg-color:          var(--tractum-primary);
+  --md-nav-icon-color:               var(--tractum-muted);
 
-  --md-search-bg-color:              var(--newell-bg);
-  --md-search-fg-color:              var(--newell-text);
-  --md-search-suggestion-color:      var(--newell-muted);
-  --md-search-suggestion-result-color: var(--newell-text);
-  --md-search-suggestion-icon-color:   var(--newell-muted);
-  --md-search-suggestion-meta-color:   var(--newell-muted);
-  --md-search-result-color:          var(--newell-text);
+  --md-search-bg-color:              var(--tractum-bg);
+  --md-search-fg-color:              var(--tractum-text);
+  --md-search-suggestion-color:      var(--tractum-muted);
+  --md-search-suggestion-result-color: var(--tractum-text);
+  --md-search-suggestion-icon-color:   var(--tractum-muted);
+  --md-search-suggestion-meta-color:   var(--tractum-muted);
+  --md-search-result-color:          var(--tractum-text);
 
-  --md-footer-fg-color:              var(--newell-muted);
-  --md-footer-bg-color:              var(--newell-surface);
-  --md-footer-fg-color--lighter:     var(--newell-text);
+  --md-footer-fg-color:              var(--tractum-muted);
+  --md-footer-bg-color:              var(--tractum-surface);
+  --md-footer-fg-color--lighter:     var(--tractum-text);
 
   --md-shadow-z1:                    none;
   --md-shadow-z2:                    none;
@@ -94,8 +96,8 @@ body,
 .md-typeset {
   font-family: 'Space Grotesk', system-ui, -apple-system, sans-serif;
   font-feature-settings: "ss01", "cv11";
-  background-color: var(--newell-bg);
-  color: var(--newell-text);
+  background-color: var(--tractum-bg);
+  color: var(--tractum-text);
 }
 
 .md-typeset {
@@ -115,7 +117,7 @@ body,
   font-family: 'Space Grotesk', sans-serif;
   font-weight: 600;
   letter-spacing: -0.015em;
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 
 .md-typeset h1 {
@@ -129,7 +131,7 @@ body,
   font-size: 1.5rem;
   margin-top: 3rem;
   padding-bottom: 0.4rem;
-  border-bottom: 1px solid var(--newell-border);
+  border-bottom: 1px solid var(--tractum-border);
 }
 
 .md-typeset h3 {
@@ -140,28 +142,28 @@ body,
 /* Lead paragraph class (use {: .lead } in markdown) */
 .md-typeset .lead {
   font-size: 1.15rem;
-  color: var(--newell-text);
+  color: var(--tractum-text);
   font-weight: 400;
 }
 .md-typeset .lead strong {
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
   font-weight: 600;
 }
 
 /* Inline links — primary green, accent on hover */
 .md-typeset a {
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
   text-decoration: none;
   border-bottom: 1px solid transparent;
   transition: color 120ms ease, border-color 120ms ease;
 }
 .md-typeset a:hover,
 .md-typeset a:focus {
-  color: var(--newell-accent);
-  border-bottom-color: var(--newell-accent);
+  color: var(--tractum-accent);
+  border-bottom-color: var(--tractum-accent);
 }
 .md-typeset a:focus {
-  outline: 2px solid var(--newell-primary);
+  outline: 2px solid var(--tractum-primary);
   outline-offset: 2px;
 }
 
@@ -171,11 +173,11 @@ body,
 .md-typeset samp {
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.82em;
-  background: var(--newell-surface);
-  border: 1px solid var(--newell-border);
+  background: var(--tractum-surface);
+  border: 1px solid var(--tractum-border);
   border-radius: 4px;
   padding: 1px 6px;
-  color: var(--newell-accent);
+  color: var(--tractum-accent);
 }
 
 /* ---- Code blocks ------------------------------------------------------ */
@@ -184,8 +186,8 @@ body,
   font-family: 'JetBrains Mono', ui-monospace, monospace;
   font-size: 0.82rem;
   line-height: 1.6;
-  background: var(--newell-surface);
-  border: 1px solid var(--newell-border);
+  background: var(--tractum-surface);
+  border: 1px solid var(--tractum-border);
   border-radius: 8px;
 }
 
@@ -198,13 +200,13 @@ body,
 .md-typeset pre > code {
   display: block;
   padding: 1rem 1.25rem;
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 
 /* Copy button */
 .md-typeset .highlight .md-clipboard {
-  color: var(--newell-muted);
-  border: 1px solid var(--newell-border);
+  color: var(--tractum-muted);
+  border: 1px solid var(--tractum-border);
   border-radius: 4px;
   padding: 4px;
   top: 0.65rem;
@@ -213,16 +215,16 @@ body,
 }
 .md-typeset .highlight .md-clipboard:hover,
 .md-typeset .highlight .md-clipboard:focus {
-  color: var(--newell-primary);
-  border-color: var(--newell-primary);
+  color: var(--tractum-primary);
+  border-color: var(--tractum-primary);
 }
 
 /* ---- Header (top bar) ------------------------------------------------- */
 .md-header {
-  background: var(--newell-surface);
-  border-bottom: 1px solid var(--newell-border);
+  background: var(--tractum-surface);
+  border-bottom: 1px solid var(--tractum-border);
   box-shadow: none;
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 .md-header__title {
   font-family: 'Space Grotesk', sans-serif;
@@ -235,19 +237,19 @@ body,
   font-weight: 600;
 }
 .md-header__button {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
 }
 .md-header__button:hover,
 .md-header__button:focus {
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
 }
 .md-header__source {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
 }
 
 /* Wordmark — keep title plain, no indigo */
 .md-header__title--active .md-header__topic {
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 
 /* ---- Sidebar nav ------------------------------------------------------ */
@@ -266,14 +268,14 @@ body,
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
   font-weight: 500;
 }
 .md-nav__item {
   margin: 0;
 }
 .md-nav__link {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
   padding: 0.35rem 0.75rem;
   border-radius: 4px;
   margin: 1px 0;
@@ -281,22 +283,22 @@ body,
 }
 .md-nav__link:hover,
 .md-nav__link:focus {
-  color: var(--newell-text);
-  background: var(--newell-surface);
+  color: var(--tractum-text);
+  background: var(--tractum-surface);
 }
 .md-nav__link.md-nav__link--active,
 .md-nav__link--passed {
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
 }
 .md-nav__link.md-nav__link--active {
-  background: var(--newell-surface);
-  border-left: 2px solid var(--newell-primary);
+  background: var(--tractum-surface);
+  border-left: 2px solid var(--tractum-primary);
   padding-left: calc(0.75rem - 2px);
 }
 
 /* ---- Tables ----------------------------------------------------------- */
 .md-typeset table:not([class]) {
-  border: 1px solid var(--newell-border);
+  border: 1px solid var(--tractum-border);
   border-radius: 8px;
   overflow: hidden;
   box-shadow: none;
@@ -309,43 +311,43 @@ body,
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.10em;
-  color: var(--newell-muted);
-  background: var(--newell-surface);
-  border-bottom: 1px solid var(--newell-border);
+  color: var(--tractum-muted);
+  background: var(--tractum-surface);
+  border-bottom: 1px solid var(--tractum-border);
   padding: 0.65rem 1rem;
 }
 .md-typeset table:not([class]) td {
-  border-bottom: 1px solid var(--newell-border);
+  border-bottom: 1px solid var(--tractum-border);
   padding: 0.65rem 1rem;
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 .md-typeset table:not([class]) tbody tr:last-child td {
   border-bottom: 0;
 }
 .md-typeset table:not([class]) td strong {
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
   font-weight: 600;
 }
 
 /* ---- Blockquotes ------------------------------------------------------ */
 .md-typeset blockquote {
-  border-left: 3px solid var(--newell-primary);
-  background: var(--newell-surface);
-  color: var(--newell-muted);
+  border-left: 3px solid var(--tractum-primary);
+  background: var(--tractum-surface);
+  color: var(--tractum-muted);
   padding: 0.65rem 1rem;
   border-radius: 0 4px 4px 0;
   margin: 1.25rem 0;
 }
 .md-typeset blockquote strong {
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 
 /* ---- Admonitions ------------------------------------------------------ */
 .md-typeset .admonition,
 .md-typeset details {
-  background: var(--newell-surface);
-  border: 1px solid var(--newell-border);
-  border-left: 3px solid var(--newell-primary);
+  background: var(--tractum-surface);
+  border: 1px solid var(--tractum-border);
+  border-left: 3px solid var(--tractum-primary);
   border-radius: 0 8px 8px 0;
   box-shadow: none;
   padding: 0.65rem 1rem;
@@ -357,17 +359,17 @@ body,
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
   background: transparent;
   font-weight: 500;
 }
 .md-typeset .admonition-tip,
 .md-typeset .admonition-note {
-  border-left-color: var(--newell-accent);
+  border-left-color: var(--tractum-accent);
 }
 .md-typeset .admonition-tip .admonition-title,
 .md-typeset .admonition-note .admonition-title {
-  color: var(--newell-accent);
+  color: var(--tractum-accent);
 }
 .md-typeset .admonition-warning {
   border-left-color: #FFB74D;
@@ -388,45 +390,45 @@ body,
   backdrop-filter: none;
 }
 .md-search__inner {
-  background: var(--newell-surface);
-  border-bottom: 1px solid var(--newell-border);
+  background: var(--tractum-surface);
+  border-bottom: 1px solid var(--tractum-border);
   box-shadow: none;
 }
 .md-search__input {
-  background: var(--newell-bg);
-  border: 1px solid var(--newell-border);
+  background: var(--tractum-bg);
+  border: 1px solid var(--tractum-border);
   border-radius: 8px;
   font-family: 'Space Grotesk', sans-serif;
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 .md-search__input::placeholder {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
 }
 
 /* ---- Footer ----------------------------------------------------------- */
 .md-footer {
-  background: var(--newell-surface);
-  border-top: 1px solid var(--newell-border);
-  color: var(--newell-muted);
+  background: var(--tractum-surface);
+  border-top: 1px solid var(--tractum-border);
+  color: var(--tractum-muted);
 }
 .md-footer-meta {
-  background: var(--newell-surface);
+  background: var(--tractum-surface);
 }
 .md-footer__link {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
   transition: color 100ms ease;
 }
 .md-footer__link:hover .md-footer__title,
 .md-footer__link:focus .md-footer__title {
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
 }
 .md-copyright {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
 }
 
 /* ---- Edit-this-page / last-updated links ------------------------------ */
 .md-content__button {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.72rem;
   text-transform: uppercase;
@@ -434,12 +436,12 @@ body,
 }
 .md-content__button:hover,
 .md-content__button:focus {
-  color: var(--newell-primary);
+  color: var(--tractum-primary);
 }
 
 /* ---- Tabs (pymdownx.tabbed) ------------------------------------------- */
 .md-typeset .tabbed-set {
-  border-bottom: 1px solid var(--newell-border);
+  border-bottom: 1px solid var(--tractum-border);
 }
 .md-typeset .tabbed-labels {
   box-shadow: none;
@@ -449,48 +451,48 @@ body,
   font-size: 0.72rem;
   text-transform: uppercase;
   letter-spacing: 0.10em;
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
   border-bottom: 2px solid transparent;
 }
 .md-typeset .tabbed-labels > label:hover {
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 .md-typeset .tabbed-labels > label:checked {
-  color: var(--newell-primary);
-  border-bottom-color: var(--newell-primary);
+  color: var(--tractum-primary);
+  border-bottom-color: var(--tractum-primary);
 }
 
 /* ---- Top-of-page "back to top" button --------------------------------- */
 .md-top {
-  background: var(--newell-surface);
-  border: 1px solid var(--newell-border);
-  color: var(--newell-text);
+  background: var(--tractum-surface);
+  border: 1px solid var(--tractum-border);
+  color: var(--tractum-text);
   box-shadow: none;
 }
 .md-top:hover,
 .md-top:focus {
-  background: var(--newell-bg);
-  border-color: var(--newell-primary);
-  color: var(--newell-primary);
+  background: var(--tractum-bg);
+  border-color: var(--tractum-primary);
+  color: var(--tractum-primary);
 }
 
 /* ---- Pagination footer (prev/next at page bottom) --------------------- */
 .md-footer__inner {
-  border-top: 1px solid var(--newell-border);
+  border-top: 1px solid var(--tractum-border);
 }
 
 /* ---- Tag/list pills --------------------------------------------------- */
 .md-typeset .twemoji {
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
 }
 
 /* ---- Misc: kill remaining shadows ------------------------------------- */
 .md-typeset .md-tooltip,
 .md-typeset .md-tooltip--header {
-  background: var(--newell-surface);
-  border: 1px solid var(--newell-border);
+  background: var(--tractum-surface);
+  border: 1px solid var(--tractum-border);
   box-shadow: none;
-  color: var(--newell-text);
+  color: var(--tractum-text);
 }
 
 /* ---- Custom utility classes (used in markdown via {: .class }) -------- */
@@ -498,15 +500,15 @@ body,
   display: inline-block;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.7rem;
-  border: 1px solid var(--newell-border);
+  border: 1px solid var(--tractum-border);
   border-radius: 9999px;
   padding: 3px 10px;
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
   margin-right: 0.5rem;
 }
-.md-typeset .pill.green {
-  color: var(--newell-primary);
-  border-color: rgba(0, 255, 65, 0.30);
+.md-typeset .pill.amber {
+  color: var(--tractum-primary);
+  border-color: rgba(255, 176, 0, 0.30);
 }
 
 /* Receipt chip — live consensus chip used on the home page */
@@ -514,23 +516,23 @@ body,
   display: flex;
   gap: 0.75rem;
   align-items: center;
-  border: 1px solid var(--newell-border);
-  background: var(--newell-surface);
+  border: 1px solid var(--tractum-border);
+  background: var(--tractum-surface);
   border-radius: 8px;
   padding: 0.75rem 1rem;
   margin: 1rem 0;
   font-family: 'JetBrains Mono', monospace;
   font-size: 0.78rem;
-  color: var(--newell-muted);
+  color: var(--tractum-muted);
 }
 .md-typeset .receipt-chip .pulse {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--newell-primary);
-  box-shadow: 0 0 0 4px rgba(0, 255, 65, 0.12);
+  background: var(--tractum-primary);
+  box-shadow: 0 0 0 4px rgba(255, 176, 0, 0.12);
   flex-shrink: 0;
 }
 .md-typeset .receipt-chip .hash {
-  color: var(--newell-accent);
+  color: var(--tractum-accent);
 }

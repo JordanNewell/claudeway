@@ -1,9 +1,9 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 990 755" role="img" aria-label="NEWELL N mark">
-  <!-- NEWELL N — favicon variant, identical geometry to logo.svg -->
-  <rect width="100%" height="100%" fill="#0A0A0A"/>
-  <g>
-    <path d="M 90.0 55.0 L 89.0 55.0 L 90.0 56.0 L 90.0 755.0 L 200.0 755.0 L 200.0 166.0 L 90.0 56.0 Z" fill="#FFFFFF"/>
-    <path d="M 789.0 755.0 L 790.0 755.0 L 790.0 644.0 L 201.0 55.0 L 200.0 55.0 L 200.0 166.0 Z" fill="#FFFFFF"/>
-    <path d="M 900.0 55.0 L 790.0 55.0 L 790.0 644.0 L 900.0 754.0 L 900.0 755.0 L 901.0 755.0 L 900.0 754.0 Z" fill="#FFFFFF"/>
-  </g>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 264 240" role="img" aria-label="Tractum quorum mark">
+  <rect width="264" height="240" fill="#0A0A0A"/>
+  <rect x="24" y="84" width="24" height="108" rx="12" fill="#3D3D3D"/>
+  <rect x="72" y="24" width="24" height="168" rx="12" fill="#FFB000"/>
+  <rect x="120" y="24" width="24" height="168" rx="12" fill="#FFB000"/>
+  <rect x="168" y="24" width="24" height="168" rx="12" fill="#FFB000"/>
+  <rect x="216" y="84" width="24" height="108" rx="12" fill="#3D3D3D"/>
+  <rect x="24" y="192" width="216" height="24" rx="12" fill="#FFFFFF"/>
 </svg>
