@@ -71,9 +71,10 @@ claudeway → tractum rename.**
     `CLAUDEWAY_TEST_LANGGRAPH` → `TRACTUM_TEST_LANGGRAPH`,
     `CLAUDEWAY_RUN_LIVE` → `TRACTUM_RUN_LIVE`, and
     `CLAUDEWAY_DEMO_RELAY` → `TRACTUM_DEMO_RELAY`.
-  - PyPI: the package publishes as **`tractum`**; the `claudeway` name
-    0.3.0–0.4.0 shipped to PyPI as frozen tombstones and remain
-    installable under the old name.
+  - PyPI: the package publishes as **`tractum`**, a fresh slot starting
+    at 0.5.0 — the version number never went backwards even though the
+    name did. The `claudeway` name's 0.3.0–0.4.0 releases shipped to
+    PyPI as frozen tombstones and remain installable under the old name.
   - **Wire-format type tags are UNCHANGED for backward compatibility:**
     receipts still carry `claudeway.consensus.v1` /
     `claudeway.consensus.v2` / `claudeway.agent-statement.v1` payload
