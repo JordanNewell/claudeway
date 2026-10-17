@@ -96,7 +96,7 @@ claudeway → tractum rename.**
 
 ```bash
 pip uninstall claudeway   # if installed from the repo under the old name
-pip install tractum       # PyPI at launch; until then install from the repo
+pip install tractum       # on PyPI as of 0.5.0
 ```
 
 ```python
